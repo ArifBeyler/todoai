@@ -1,0 +1,1 @@
+export const VISUAL_STYLES = [{ value: "illustration", label: "Illustration" },{ value: "watercolor", label: "Watercolor" },{ value: "anime", label: "Anime" },{ value: "minimal", label: "Minimal" },{ value: "comic", label: "Comic" },{ value: "pixel", label: "Pixel Art" }] as const;

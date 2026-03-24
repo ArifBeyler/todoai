@@ -1,0 +1,2 @@
+import { Text, TouchableOpacity } from "react-native";
+export const FrequencySelector = ({ label, selected, description, onPress }: { label: string; value: string; selected: boolean; description: string; onPress: () => void }) => <TouchableOpacity className={`rounded-2xl border p-4 ${selected ? "border-indigo-600 bg-indigo-50" : "border-zinc-200 bg-white"}`} onPress={onPress}><Text className="text-base font-semibold text-zinc-900">{label}</Text><Text className="mt-1 text-zinc-500">{description}</Text></TouchableOpacity>;
