@@ -1,0 +1,123 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e10] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - link "Home" [ref=e13] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e14]
+      - button "DayFrame" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: D
+          - generic [ref=e21]: DayFrame
+        - img [ref=e23]
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - combobox "Search…" [ref=e30]
+        - generic [ref=e32]: ⌘K
+        - group
+      - link "Help" [ref=e33] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e34]
+        - generic: Help
+      - link "Account" [ref=e36] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e37]
+        - generic: Account
+    - generic [ref=e39]:
+      - navigation [ref=e40]:
+        - link "Overview" [ref=e41] [cursor=pointer]:
+          - /url: /projects/1cd787ed/overview
+          - img [ref=e42]
+          - generic: Overview
+        - link "Charts" [ref=e44] [cursor=pointer]:
+          - /url: /projects/1cd787ed/charts
+          - img [ref=e45]
+          - generic: Charts
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-lists
+          - img [ref=e48]
+          - generic: Customers
+        - link "Product catalog" [ref=e50] [cursor=pointer]:
+          - /url: /projects/1cd787ed/product-catalog
+          - img [ref=e51]
+        - link "Paywalls" [ref=e53] [cursor=pointer]:
+          - /url: /projects/1cd787ed/paywalls
+          - img [ref=e54]
+          - generic: Paywalls
+        - link "Ads" [ref=e56] [cursor=pointer]:
+          - /url: /projects/1cd787ed/ads
+          - img [ref=e57]
+          - generic: Ads
+        - link "Targeting" [ref=e59] [cursor=pointer]:
+          - /url: /projects/1cd787ed/targeting
+          - img [ref=e60]
+          - generic: Targeting
+        - link "Experiments" [ref=e62] [cursor=pointer]:
+          - /url: /projects/1cd787ed/experiments
+          - img [ref=e63]
+          - generic: Experiments
+        - link "Web" [ref=e65] [cursor=pointer]:
+          - /url: /projects/1cd787ed/web-home
+          - img [ref=e66]
+          - generic: Web
+        - link "Customer Center" [ref=e68] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-center
+          - img [ref=e69]
+          - generic: Customer Center
+        - link "Apps & providers" [ref=e72] [cursor=pointer]:
+          - /url: /projects/1cd787ed/apps
+          - img [ref=e73]
+        - link "Integrations" [ref=e75] [cursor=pointer]:
+          - /url: /projects/1cd787ed/integrations
+          - img [ref=e76]
+          - generic: Integrations
+        - link "Project settings" [ref=e78] [cursor=pointer]:
+          - /url: /projects/1cd787ed/settings
+          - img [ref=e79]
+      - main [ref=e81]:
+        - generic [ref=e150]:
+          - navigation [ref=e153]:
+            - list [ref=e154]:
+              - listitem [ref=e155]:
+                - button [ref=e156] [cursor=pointer]:
+                  - img [ref=e157]
+              - listitem [ref=e159]: /
+              - listitem [ref=e160]:
+                - link "Apps & providers" [ref=e161] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/apps
+              - listitem [ref=e162]: /
+              - listitem [ref=e163]:
+                - link "New" [ref=e164] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/new-app
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - heading "App" [level=3] [ref=e169]:
+                - generic [ref=e170]: App
+              - paragraph [ref=e171]: Integrate with app stores to make in-app purchases inside your app.
+            - generic [ref=e172]:
+              - link "App Store iOS, macOS, tvOS" [ref=e174] [cursor=pointer]:
+                - /url: /projects/1cd787ed/new-app/app_store
+                - img [ref=e178]
+                - generic [ref=e181]:
+                  - generic [ref=e182]: App Store
+                  - paragraph [ref=e183]: iOS, macOS, tvOS
+              - link "Google Play Store Android" [ref=e185] [cursor=pointer]:
+                - /url: /projects/1cd787ed/new-app/play_store
+                - img [ref=e189]
+                - generic [ref=e192]:
+                  - generic [ref=e193]: Google Play Store
+                  - paragraph [ref=e194]: Android
+              - link "Amazon Store Android" [ref=e196] [cursor=pointer]:
+                - /url: /projects/1cd787ed/new-app/amazon
+                - img [ref=e200]
+                - generic [ref=e206]:
+                  - generic [ref=e207]: Amazon Store
+                  - paragraph [ref=e208]: Android
+              - link "Roku Channel Store Roku" [ref=e210] [cursor=pointer]:
+                - /url: /projects/1cd787ed/new-app/roku
+                - img [ref=e214]
+                - generic [ref=e219]:
+                  - generic [ref=e220]: Roku Channel Store
+                  - paragraph [ref=e221]: Roku

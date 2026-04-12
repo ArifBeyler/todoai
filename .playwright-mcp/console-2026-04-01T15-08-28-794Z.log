@@ -1,0 +1,6 @@
+[     445ms] [WARNING] document.domain mutation is ignored because the surrounding agent cluster is origin-keyed. @ https://appstoreconnect.apple.com/access/static/js/container.df1c768561c7caac.js:1
+[     447ms] [WARNING] [maison] No route found https://appstoreconnect.apple.com/access/integrations @ https://appstoreconnect.apple.com/access/static/js/container.df1c768561c7caac.js:1
+[     470ms] [WARNING] Metrics config: No config provided via delegate or fetched via init(), using default/cached config values. @ https://appstoreconnect.apple.com/access/static/js/694.81535de161180022.js:0
+[    1911ms] [WARNING] An array is needed to render meta tags @ https://appstoreconnect.apple.com/access/static/js/container.df1c768561c7caac.js:1
+[    1963ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://appstoreconnect.apple.com/access/integrations/api:0
+[    2266ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://appstoreconnect.apple.com/partials/app-store/js/date-fns-locale-de-index-js.a3d02887.js:0

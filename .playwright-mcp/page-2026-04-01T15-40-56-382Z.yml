@@ -1,0 +1,120 @@
+- generic [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - main [ref=e39]:
+    - generic [ref=e41]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - heading "Apps" [level=2] [ref=e46]
+            - generic [ref=e47]:
+              - button "New App" [active] [ref=e49] [cursor=pointer]:
+                - img [ref=e50]
+              - button "more" [ref=e53] [cursor=pointer]:
+                - img "Icons/Ellipsis" [ref=e55]
+          - generic [ref=e60]:
+            - button "Search" [ref=e63] [cursor=pointer]:
+              - img [ref=e64]
+            - button "All Statuses" [ref=e68] [cursor=pointer]:
+              - text: All Statuses
+              - img [ref=e69]
+        - separator [ref=e71]
+      - grid "grid" [ref=e74]:
+        - rowgroup [ref=e75]:
+          - row "Velora - AI Music Generator Velora - AI Music Generator Velora - AI Music Generator iOS 1.2 Waiting for Review Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e76]:
+            - generic [ref=e77]:
+              - gridcell "Velora - AI Music Generator Velora - AI Music Generator Velora - AI Music Generator iOS 1.2 Waiting for Review" [ref=e78]:
+                - generic [ref=e466] [cursor=pointer]:
+                  - link "Velora - AI Music Generator" [ref=e468]:
+                    - /url: /apps/6761191629/distribution
+                    - generic "Velora - AI Music Generator" [ref=e469]:
+                      - img "Velora - AI Music Generator" [ref=e470]
+                  - generic [ref=e471]:
+                    - paragraph [ref=e472]:
+                      - link "Velora - AI Music Generator" [ref=e473]:
+                        - /url: /apps/6761191629/distribution
+                    - list:
+                      - listitem:
+                        - paragraph:
+                          - link "Velora - AI Music Generator iOS 1.2 Waiting for Review" [ref=e474]:
+                            - /url: /apps/6761191629/distribution/ios/version/inflight
+                            - img [ref=e475]
+                            - text: iOS 1.2 Waiting for Review
+              - gridcell "Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e91]:
+                - generic [ref=e478] [cursor=pointer]:
+                  - link "Veyra - AI Kombin Planlayıcı" [ref=e480]:
+                    - /url: /apps/6757570850/distribution
+                    - generic "Veyra - AI Kombin Planlayıcı" [ref=e481]:
+                      - img "Veyra - AI Kombin Planlayıcı" [ref=e482]
+                  - generic [ref=e483]:
+                    - paragraph [ref=e484]:
+                      - link "Veyra - AI Kombin Planlayıcı" [ref=e485]:
+                        - /url: /apps/6757570850/distribution
+                    - list:
+                      - listitem:
+                        - paragraph:
+                          - link "Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e486]:
+                            - /url: /apps/6757570850/distribution/ios/version/deliverable
+                            - img [ref=e487]
+                            - text: iOS 1.5 Ready for Distribution
+            - separator [ref=e104]
+          - row "MooDeco – AI Home Redesign MooDeco – AI Home Redesign MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e105]:
+            - gridcell "MooDeco – AI Home Redesign MooDeco – AI Home Redesign MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e107]:
+              - generic [ref=e490] [cursor=pointer]:
+                - link "MooDeco – AI Home Redesign" [ref=e492]:
+                  - /url: /apps/6747512036/distribution
+                  - generic "MooDeco – AI Home Redesign" [ref=e493]:
+                    - img "MooDeco – AI Home Redesign" [ref=e494]
+                - generic [ref=e496]:
+                  - paragraph [ref=e497]:
+                    - link "MooDeco – AI Home Redesign" [ref=e498]:
+                      - /url: /apps/6747512036/distribution
+                  - list:
+                    - listitem:
+                      - paragraph:
+                        - link "MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e499]:
+                          - /url: /apps/6747512036/distribution/ios/version/inflight
+                          - img [ref=e500]
+                          - text: iOS 1.0 Prepare for Submission
+            - separator [ref=e121]
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - list [ref=e26]:
+        - listitem [ref=e27]: App Store Connect
+      - list [ref=e28]:
+        - listitem [ref=e29]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e30]:
+          - link "Terms of Service" [ref=e31] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e32]:
+          - link "Privacy Policy" [ref=e33] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e34]:
+          - link "Contact Us" [ref=e35] [cursor=pointer]:
+            - /url: /contact-us

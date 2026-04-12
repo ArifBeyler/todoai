@@ -1,0 +1,60 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e735] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - link "Home" [ref=e736] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e737]
+      - button "DayFrame" [ref=e738] [cursor=pointer]:
+        - generic [ref=e11]:
+          - generic [ref=e513]: D
+          - generic [ref=e514]: DayFrame
+        - img [ref=e18]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - combobox "Search…" [ref=e739]
+        - generic [ref=e27]: ⌘K
+        - group
+      - link "Help" [ref=e740] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e29]
+        - generic: Help
+      - link "Account" [ref=e741] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e33]
+        - generic: Account
+    - main [ref=e515]:
+      - generic [ref=e516]:
+        - generic [ref=e518]:
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - heading "Let's get DayFrame ready!" [level=2] [ref=e742]
+              - paragraph [ref=e523]: Set up your products to start selling. We’ve suggested a few based on our data, but you can change them as needed.
+            - generic [ref=e524]:
+              - generic [ref=e525]:
+                - heading "Entitlement name" [level=4] [ref=e743]
+                - button "Edit" [ref=e744] [cursor=pointer]
+              - heading "pro" [level=3] [ref=e745]
+            - generic [ref=e529]:
+              - generic [ref=e530]:
+                - heading "Default offering" [level=4] [ref=e746]
+                - button "Edit" [active] [ref=e747] [cursor=pointer]
+              - generic [ref=e533]:
+                - generic [ref=e534]:
+                  - paragraph [ref=e535]: Monthly
+                  - paragraph [ref=e536]: Subscription
+                - generic [ref=e537]:
+                  - paragraph [ref=e538]: Yearly
+                  - paragraph [ref=e539]: Subscription
+                - generic [ref=e748]:
+                  - paragraph [ref=e749]: Weekly
+                  - paragraph [ref=e750]: Subscription
+          - generic [ref=e543]:
+            - button "View suggestions" [ref=e751] [cursor=pointer]
+            - generic [ref=e546]:
+              - link "Go to dashboard" [ref=e752] [cursor=pointer]:
+                - /url: /projects/1cd787ed/overview
+              - button "Continue" [ref=e753] [cursor=pointer]
+        - img "Setting up your offering" [ref=e754]

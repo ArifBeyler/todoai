@@ -1,0 +1,962 @@
+- generic [active] [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e24]:
+    - button "Apps menu, Doara, selected" [ref=e50] [cursor=pointer]:
+      - generic [ref=e51]:
+        - generic "Doara" [ref=e52]:
+          - img "Doara" [ref=e53]
+        - generic [ref=e55]: Doara
+      - img [ref=e57]
+    - navigation "Apps" [ref=e26]:
+      - generic [ref=e27] [cursor=pointer]:
+        - generic [ref=e28]: Distribution
+        - img [ref=e30]
+      - list:
+        - listitem:
+          - link "Distribution":
+            - /url: /apps/6761487007/distribution
+        - listitem:
+          - link "Analytics":
+            - /url: /apps/6761487007/analytics
+        - listitem:
+          - link "TestFlight":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/testflight
+        - listitem:
+          - link "Xcode Cloud":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/ci
+  - generic [ref=e61]:
+    - main [ref=e62]:
+      - generic [ref=e235]:
+        - generic [ref=e239]:
+          - link "Subscriptions" [ref=e243] [cursor=pointer]:
+            - /url: /apps/6761487007/distribution/subscription-groups/22008600
+            - generic [ref=e244]:
+              - img [ref=e245]
+              - text: Subscriptions
+          - generic [ref=e247]:
+            - heading "Doara Pro Weekly" [level=2] [ref=e248]
+            - button "Save" [ref=e250] [cursor=pointer]
+        - generic [ref=e251]:
+          - generic [ref=e252]:
+            - img [ref=e253]
+            - paragraph [ref=e255]:
+              - generic [ref=e256]:
+                - text: Your first subscription must be submitted with a new app version. Create your subscription, then select it from the app’s In-App Purchases and Subscriptions section on the version page before submitting the version to App Review.
+                - text: Once your binary has been uploaded and your first subscription has been submitted for review, additional subscriptions can be submitted from the Subscriptions section.
+                - link "Learn More" [ref=e257] [cursor=pointer]:
+                  - /url: https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-for-review
+          - generic [ref=e258]:
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - text: Reference Name
+                - button "More information" [ref=e262] [cursor=pointer]: "?"
+              - textbox "Reference Name More information" [ref=e264]: Doara Pro Weekly
+              - paragraph [ref=e266]: "48"
+            - generic [ref=e267]:
+              - generic [ref=e268]: Status
+              - paragraph [ref=e269]:
+                - img [ref=e270]
+                - text: Missing Metadata
+            - generic [ref=e272]:
+              - generic [ref=e273]:
+                - text: Apple ID
+                - button "More information" [ref=e275] [cursor=pointer]: "?"
+              - paragraph [ref=e276]: "6761486984"
+            - generic [ref=e277]:
+              - generic [ref=e278]:
+                - text: Product ID
+                - button "More information" [ref=e280] [cursor=pointer]: "?"
+              - paragraph [ref=e281]: doara_pro_weekly
+            - generic [ref=e282]:
+              - generic [ref=e283]:
+                - text: Subscription Duration
+                - button "More information" [ref=e285] [cursor=pointer]: "?"
+              - combobox [ref=e287]:
+                - option "Choose"
+                - option "1 week" [selected]
+                - option "1 month"
+                - option "2 months"
+                - option "3 months"
+                - option "6 months"
+                - option "1 year"
+            - generic [ref=e288]:
+              - generic [ref=e289]: Group Reference Name
+              - paragraph [ref=e290]:
+                - link "Doara Pro" [ref=e291] [cursor=pointer]:
+                  - /url: /apps/6761487007/distribution/subscription-groups/22008600
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - text: Family Sharing
+                - button "More information" [ref=e295] [cursor=pointer]: "?"
+              - paragraph [ref=e296]: Allow family members to share this subscription without having to use each other's accounts.
+              - paragraph [ref=e297]:
+                - button "Turn On" [ref=e298] [cursor=pointer]
+          - separator [ref=e299]
+          - generic [ref=e301]:
+            - heading "Availability" [level=3] [ref=e303]
+            - generic [ref=e305]:
+              - paragraph [ref=e306]: Select which countries or regions you want to make your subscription available in.
+              - button "Set Up Availability" [ref=e307] [cursor=pointer]
+          - separator [ref=e308]
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - heading "Subscription Prices" [level=3] [ref=e311]
+              - link "All Prices and Currencies" [ref=e312] [cursor=pointer]:
+                - /url: /apps/6761487007/distribution/subscriptions/6761486984/pricing-matrix
+                - paragraph [ref=e313]: All Prices and Currencies
+            - generic [ref=e315]:
+              - paragraph [ref=e316]:
+                - generic [ref=e317]:
+                  - text: Set up a starting subscription price. Once your subscription price is created, you can set up an introductory or promotional offer (pay as you go, pay up front, free).
+                  - link "Learn More" [ref=e318] [cursor=pointer]:
+                    - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/manage-pricing-for-auto-renewable-subscriptions
+              - button "Add Subscription Price" [ref=e319] [cursor=pointer]
+          - separator [ref=e320]
+          - generic [ref=e321]:
+            - heading "Localization" [level=3] [ref=e325]
+            - generic [ref=e328]:
+              - paragraph [ref=e329]: Provide a display name and description for your subscription, and we'll show this on the App Store.
+              - button "Add Localization" [ref=e331] [cursor=pointer]
+          - generic [ref=e332]:
+            - heading "Image (Optional)" [level=3] [ref=e334]
+            - paragraph [ref=e335]:
+              - generic [ref=e336]:
+                - text: Add a 1024 x 1024 pixel image that best represents this subscription. It will be used for any win-back offers or offer code redemptions for this subscription. If you enable App Store Promotion for this subscription, this image will also appear on your app's product page.
+                - link "Learn More" [ref=e337] [cursor=pointer]:
+                  - /url: https://developer.apple.com/help/app-store-connect/manage-in-app-purchases/view-and-edit-in-app-purchase-information
+            - generic [ref=e341] [cursor=pointer]:
+              - button "Choose File" [ref=e342]
+              - generic [ref=e344]: Choose File
+          - separator [ref=e345]
+          - generic [ref=e346]:
+            - heading "Tax Category ? Edit" [level=3] [ref=e348]:
+              - text: Tax Category
+              - button "?" [ref=e350] [cursor=pointer]
+              - button "Edit" [ref=e351] [cursor=pointer]
+            - paragraph [ref=e352]:
+              - generic [ref=e353]:
+                - text: You’re responsible for selecting and maintaining accurate tax categories and all applicable attributes. This subscription will use the app’s tax category unless you choose a different one. Changing the tax category for this subscription won’t affect the tax category for your app or any other in-app purchase or subscription. Any changes will only affect future sales.
+                - link "Learn More" [ref=e354] [cursor=pointer]:
+                  - /url: https://help.apple.com/app-store-connect/#/dev2bd41114d
+            - generic [ref=e356]:
+              - generic [ref=e357]: Category
+              - paragraph [ref=e358]: Match to parent app
+          - separator [ref=e359]
+          - generic [ref=e360]:
+            - heading "Review Information" [level=3] [ref=e362]
+            - generic [ref=e363]:
+              - generic [ref=e364]:
+                - generic [ref=e365]:
+                  - text: Screenshot
+                  - button "More information" [ref=e367] [cursor=pointer]: "?"
+                - generic [ref=e369] [cursor=pointer]:
+                  - button "Choose File" [ref=e370]
+                  - generic [ref=e372]: Choose File
+              - generic [ref=e373]:
+                - generic [ref=e374]:
+                  - text: Review Notes (Optional)
+                  - button "More information" [ref=e376] [cursor=pointer]: "?"
+                - textbox "Review Notes (Optional) More information" [ref=e378]
+                - paragraph [ref=e380]: "4000"
+          - separator [ref=e381]
+          - paragraph [ref=e382]:
+            - button "Delete This Subscription" [ref=e383] [cursor=pointer]
+    - dialog "Price by Country or Region" [ref=e517]:
+      - generic [ref=e386]:
+        - generic [ref=e518]:
+          - heading "Price by Country or Region" [level=2] [ref=e519]
+          - generic [ref=e521]:
+            - paragraph [ref=e522]: We automatically calculated prices for all countries or regions based on $7,99 (USD). You can choose a different price for individual countries or regions.
+            - button "Filtered by Countries or Regions, showing All Countries or Regions" [ref=e524] [cursor=pointer]:
+              - text: All Countries or Regions
+              - img [ref=e525]
+            - generic [ref=e527]:
+              - table [ref=e529]:
+                - rowgroup [ref=e530]:
+                  - row "Countries or Regions (175) Price" [ref=e531]:
+                    - columnheader "Countries or Regions (175)" [ref=e532]
+                    - columnheader "Price" [ref=e533]
+              - generic [ref=e534]:
+                - button "The United States and Canada (2)" [expanded] [ref=e535] [cursor=pointer]:
+                  - img [ref=e537]
+                  - text: The United States and Canada (2)
+                - region "The United States and Canada (2)" [ref=e539]:
+                  - table [ref=e540]:
+                    - rowgroup [ref=e541]:
+                      - row "Canada (CAD) Price" [ref=e542]:
+                        - cell "Canada (CAD)" [ref=e543]
+                        - cell "Price" [ref=e544]:
+                          - button "Price" [ref=e545]: $9,99
+                      - row "United States (USD) Price" [ref=e546]:
+                        - cell "United States (USD)" [ref=e547]
+                        - cell "Price" [ref=e548]:
+                          - button "Price" [ref=e549]: $7,99
+              - generic [ref=e550]:
+                - button "Europe (42)" [expanded] [ref=e551] [cursor=pointer]:
+                  - img [ref=e553]
+                  - text: Europe (42)
+                - region "Europe (42)" [ref=e555]:
+                  - table [ref=e556]:
+                    - rowgroup [ref=e557]:
+                      - row "Albania (USD) Price" [ref=e558]:
+                        - cell "Albania (USD)" [ref=e559]
+                        - cell "Price" [ref=e560]:
+                          - button "Price" [ref=e561]: $9,99
+                      - row "Austria (EUR) Price" [ref=e562]:
+                        - cell "Austria (EUR)" [ref=e563]
+                        - cell "Price" [ref=e564]:
+                          - button "Price" [ref=e565]: €8,99
+                      - row "Belarus (USD) Price" [ref=e566]:
+                        - cell "Belarus (USD)" [ref=e567]
+                        - cell "Price" [ref=e568]:
+                          - button "Price" [ref=e569]: $9,99
+                      - row "Belgium (EUR) Price" [ref=e570]:
+                        - cell "Belgium (EUR)" [ref=e571]
+                        - cell "Price" [ref=e572]:
+                          - button "Price" [ref=e573]: €8,99
+                      - row "Bosnia and Herzegovina (EUR) Price" [ref=e574]:
+                        - cell "Bosnia and Herzegovina (EUR)" [ref=e575]
+                        - cell "Price" [ref=e576]:
+                          - button "Price" [ref=e577]: €8,99
+                      - row "Bulgaria (EUR) Price" [ref=e578]:
+                        - cell "Bulgaria (EUR)" [ref=e579]
+                        - cell "Price" [ref=e580]:
+                          - button "Price" [ref=e581]: €8,99
+                      - row "Croatia (EUR) Price" [ref=e582]:
+                        - cell "Croatia (EUR)" [ref=e583]
+                        - cell "Price" [ref=e584]:
+                          - button "Price" [ref=e585]: €8,99
+                      - row "Cyprus (EUR) Price" [ref=e586]:
+                        - cell "Cyprus (EUR)" [ref=e587]
+                        - cell "Price" [ref=e588]:
+                          - button "Price" [ref=e589]: €8,99
+                      - row "Czech Republic (CZK) Price" [ref=e590]:
+                        - cell "Czech Republic (CZK)" [ref=e591]
+                        - cell "Price" [ref=e592]:
+                          - button "Price" [ref=e593]: Kč 199,00
+                      - row "Denmark (DKK) Price" [ref=e594]:
+                        - cell "Denmark (DKK)" [ref=e595]
+                        - cell "Price" [ref=e596]:
+                          - button "Price" [ref=e597]: kr 69,00
+                      - row "Estonia (EUR) Price" [ref=e598]:
+                        - cell "Estonia (EUR)" [ref=e599]
+                        - cell "Price" [ref=e600]:
+                          - button "Price" [ref=e601]: €8,99
+                      - row "Finland (EUR) Price" [ref=e602]:
+                        - cell "Finland (EUR)" [ref=e603]
+                        - cell "Price" [ref=e604]:
+                          - button "Price" [ref=e605]: €8,99
+                      - row "France (EUR) Price" [ref=e606]:
+                        - cell "France (EUR)" [ref=e607]
+                        - cell "Price" [ref=e608]:
+                          - button "Price" [ref=e609]: €8,99
+                      - row "Germany (EUR) Price" [ref=e610]:
+                        - cell "Germany (EUR)" [ref=e611]
+                        - cell "Price" [ref=e612]:
+                          - button "Price" [ref=e613]: €8,99
+                      - row "Greece (EUR) Price" [ref=e614]:
+                        - cell "Greece (EUR)" [ref=e615]
+                        - cell "Price" [ref=e616]:
+                          - button "Price" [ref=e617]: €8,99
+                      - row "Hungary (HUF) Price" [ref=e618]:
+                        - cell "Hungary (HUF)" [ref=e619]
+                        - cell "Price" [ref=e620]:
+                          - button "Price" [ref=e621]: Ft 3.490,00
+                      - row "Iceland (USD) Price" [ref=e622]:
+                        - cell "Iceland (USD)" [ref=e623]
+                        - cell "Price" [ref=e624]:
+                          - button "Price" [ref=e625]: $9,99
+                      - row "Ireland (EUR) Price" [ref=e626]:
+                        - cell "Ireland (EUR)" [ref=e627]
+                        - cell "Price" [ref=e628]:
+                          - button "Price" [ref=e629]: €8,99
+                      - row "Italy (EUR) Price" [ref=e630]:
+                        - cell "Italy (EUR)" [ref=e631]
+                        - cell "Price" [ref=e632]:
+                          - button "Price" [ref=e633]: €8,99
+                      - row "Kosovo (EUR) Price" [ref=e634]:
+                        - cell "Kosovo (EUR)" [ref=e635]
+                        - cell "Price" [ref=e636]:
+                          - button "Price" [ref=e637]: €8,99
+                      - row "Latvia (EUR) Price" [ref=e638]:
+                        - cell "Latvia (EUR)" [ref=e639]
+                        - cell "Price" [ref=e640]:
+                          - button "Price" [ref=e641]: €8,99
+                      - row "Lithuania (EUR) Price" [ref=e642]:
+                        - cell "Lithuania (EUR)" [ref=e643]
+                        - cell "Price" [ref=e644]:
+                          - button "Price" [ref=e645]: €8,99
+                      - row "Luxembourg (EUR) Price" [ref=e646]:
+                        - cell "Luxembourg (EUR)" [ref=e647]
+                        - cell "Price" [ref=e648]:
+                          - button "Price" [ref=e649]: €8,99
+                      - row "Malta (EUR) Price" [ref=e650]:
+                        - cell "Malta (EUR)" [ref=e651]
+                        - cell "Price" [ref=e652]:
+                          - button "Price" [ref=e653]: €8,99
+                      - row "Moldova (USD) Price" [ref=e654]:
+                        - cell "Moldova (USD)" [ref=e655]
+                        - cell "Price" [ref=e656]:
+                          - button "Price" [ref=e657]: $9,99
+                      - row "Montenegro (EUR) Price" [ref=e658]:
+                        - cell "Montenegro (EUR)" [ref=e659]
+                        - cell "Price" [ref=e660]:
+                          - button "Price" [ref=e661]: €6,99
+                      - row "Netherlands (EUR) Price" [ref=e662]:
+                        - cell "Netherlands (EUR)" [ref=e663]
+                        - cell "Price" [ref=e664]:
+                          - button "Price" [ref=e665]: €8,99
+                      - row "North Macedonia (USD) Price" [ref=e666]:
+                        - cell "North Macedonia (USD)" [ref=e667]
+                        - cell "Price" [ref=e668]:
+                          - button "Price" [ref=e669]: $7,99
+                      - row "Norway (NOK) Price" [ref=e670]:
+                        - cell "Norway (NOK)" [ref=e671]
+                        - cell "Price" [ref=e672]:
+                          - button "Price" [ref=e673]: kr 99,00
+                      - row "Poland (PLN) Price" [ref=e674]:
+                        - cell "Poland (PLN)" [ref=e675]
+                        - cell "Price" [ref=e676]:
+                          - button "Price" [ref=e677]: zł 39,99
+                      - row "Portugal (EUR) Price" [ref=e678]:
+                        - cell "Portugal (EUR)" [ref=e679]
+                        - cell "Price" [ref=e680]:
+                          - button "Price" [ref=e681]: €8,99
+                      - row "Romania (RON) Price" [ref=e682]:
+                        - cell "Romania (RON)" [ref=e683]
+                        - cell "Price" [ref=e684]:
+                          - button "Price" [ref=e685]: L 39,99
+                      - row "Russia (RUB) Price" [ref=e686]:
+                        - cell "Russia (RUB)" [ref=e687]
+                        - cell "Price" [ref=e688]:
+                          - button "Price" [ref=e689]: ₽699,00
+                      - row "Serbia (EUR) Price" [ref=e690]:
+                        - cell "Serbia (EUR)" [ref=e691]
+                        - cell "Price" [ref=e692]:
+                          - button "Price" [ref=e693]: €8,99
+                      - row "Slovakia (EUR) Price" [ref=e694]:
+                        - cell "Slovakia (EUR)" [ref=e695]
+                        - cell "Price" [ref=e696]:
+                          - button "Price" [ref=e697]: €8,99
+                      - row "Slovenia (EUR) Price" [ref=e698]:
+                        - cell "Slovenia (EUR)" [ref=e699]
+                        - cell "Price" [ref=e700]:
+                          - button "Price" [ref=e701]: €8,99
+                      - row "Spain (EUR) Price" [ref=e702]:
+                        - cell "Spain (EUR)" [ref=e703]
+                        - cell "Price" [ref=e704]:
+                          - button "Price" [ref=e705]: €8,99
+                      - row "Sweden (SEK) Price" [ref=e706]:
+                        - cell "Sweden (SEK)" [ref=e707]
+                        - cell "Price" [ref=e708]:
+                          - button "Price" [ref=e709]: kr 99,00
+                      - row "Switzerland (CHF) Price" [ref=e710]:
+                        - cell "Switzerland (CHF)" [ref=e711]
+                        - cell "Price" [ref=e712]:
+                          - button "Price" [ref=e713]: CHF 7,00
+                      - row "Türkiye (TRY) Price" [ref=e714]:
+                        - cell "Türkiye (TRY)" [ref=e715]
+                        - cell "Price" [ref=e716]:
+                          - button "Price" [ref=e717]: ₺399,99
+                      - row "Ukraine (USD) Price" [ref=e718]:
+                        - cell "Ukraine (USD)" [ref=e719]
+                        - cell "Price" [ref=e720]:
+                          - button "Price" [ref=e721]: $9,99
+                      - row "United Kingdom (GBP) Price" [ref=e722]:
+                        - cell "United Kingdom (GBP)" [ref=e723]
+                        - cell "Price" [ref=e724]:
+                          - button "Price" [ref=e725]: £7,99
+              - generic [ref=e726]:
+                - button "Africa, Middle East, and India (57)" [expanded] [ref=e727] [cursor=pointer]:
+                  - img [ref=e729]
+                  - text: Africa, Middle East, and India (57)
+                - region "Africa, Middle East, and India (57)" [ref=e731]:
+                  - table [ref=e732]:
+                    - rowgroup [ref=e733]:
+                      - row "Afghanistan (USD) Price" [ref=e734]:
+                        - cell "Afghanistan (USD)" [ref=e735]
+                        - cell "Price" [ref=e736]:
+                          - button "Price" [ref=e737]: $7,99
+                      - row "Algeria (USD) Price" [ref=e738]:
+                        - cell "Algeria (USD)" [ref=e739]
+                        - cell "Price" [ref=e740]:
+                          - button "Price" [ref=e741]: $7,99
+                      - row "Angola (USD) Price" [ref=e742]:
+                        - cell "Angola (USD)" [ref=e743]
+                        - cell "Price" [ref=e744]:
+                          - button "Price" [ref=e745]: $7,99
+                      - row "Armenia (USD) Price" [ref=e746]:
+                        - cell "Armenia (USD)" [ref=e747]
+                        - cell "Price" [ref=e748]:
+                          - button "Price" [ref=e749]: $9,99
+                      - row "Azerbaijan (USD) Price" [ref=e750]:
+                        - cell "Azerbaijan (USD)" [ref=e751]
+                        - cell "Price" [ref=e752]:
+                          - button "Price" [ref=e753]: $9,99
+                      - row "Bahrain (USD) Price" [ref=e754]:
+                        - cell "Bahrain (USD)" [ref=e755]
+                        - cell "Price" [ref=e756]:
+                          - button "Price" [ref=e757]: $8,99
+                      - row "Benin (USD) Price" [ref=e758]:
+                        - cell "Benin (USD)" [ref=e759]
+                        - cell "Price" [ref=e760]:
+                          - button "Price" [ref=e761]: $9,99
+                      - row "Botswana (USD) Price" [ref=e762]:
+                        - cell "Botswana (USD)" [ref=e763]
+                        - cell "Price" [ref=e764]:
+                          - button "Price" [ref=e765]: $7,99
+                      - row "Burkina Faso (USD) Price" [ref=e766]:
+                        - cell "Burkina Faso (USD)" [ref=e767]
+                        - cell "Price" [ref=e768]:
+                          - button "Price" [ref=e769]: $7,99
+                      - row "Cameroon (USD) Price" [ref=e770]:
+                        - cell "Cameroon (USD)" [ref=e771]
+                        - cell "Price" [ref=e772]:
+                          - button "Price" [ref=e773]: $9,99
+                      - row "Cape Verde (USD) Price" [ref=e774]:
+                        - cell "Cape Verde (USD)" [ref=e775]
+                        - cell "Price" [ref=e776]:
+                          - button "Price" [ref=e777]: $7,99
+                      - row "Chad (USD) Price" [ref=e778]:
+                        - cell "Chad (USD)" [ref=e779]
+                        - cell "Price" [ref=e780]:
+                          - button "Price" [ref=e781]: $7,99
+                      - row "Congo, Democratic Republic of the (USD) Price" [ref=e782]:
+                        - cell "Congo, Democratic Republic of the (USD)" [ref=e783]
+                        - cell "Price" [ref=e784]:
+                          - button "Price" [ref=e785]: $7,99
+                      - row "Congo, Republic of the (USD) Price" [ref=e786]:
+                        - cell "Congo, Republic of the (USD)" [ref=e787]
+                        - cell "Price" [ref=e788]:
+                          - button "Price" [ref=e789]: $7,99
+                      - row "Côte d’Ivoire (USD) Price" [ref=e790]:
+                        - cell "Côte d’Ivoire (USD)" [ref=e791]
+                        - cell "Price" [ref=e792]:
+                          - button "Price" [ref=e793]: $9,99
+                      - row "Egypt (EGP) Price" [ref=e794]:
+                        - cell "Egypt (EGP)" [ref=e795]
+                        - cell "Price" [ref=e796]:
+                          - button "Price" [ref=e797]: E£399,99
+                      - row "Eswatini (USD) Price" [ref=e798]:
+                        - cell "Eswatini (USD)" [ref=e799]
+                        - cell "Price" [ref=e800]:
+                          - button "Price" [ref=e801]: $7,99
+                      - row "Gabon (USD) Price" [ref=e802]:
+                        - cell "Gabon (USD)" [ref=e803]
+                        - cell "Price" [ref=e804]:
+                          - button "Price" [ref=e805]: $7,99
+                      - row "Gambia (USD) Price" [ref=e806]:
+                        - cell "Gambia (USD)" [ref=e807]
+                        - cell "Price" [ref=e808]:
+                          - button "Price" [ref=e809]: $7,99
+                      - row "Georgia (USD) Price" [ref=e810]:
+                        - cell "Georgia (USD)" [ref=e811]
+                        - cell "Price" [ref=e812]:
+                          - button "Price" [ref=e813]: $9,99
+                      - row "Ghana (USD) Price" [ref=e814]:
+                        - cell "Ghana (USD)" [ref=e815]
+                        - cell "Price" [ref=e816]:
+                          - button "Price" [ref=e817]: $9,99
+                      - row "Guinea-Bissau (USD) Price" [ref=e818]:
+                        - cell "Guinea-Bissau (USD)" [ref=e819]
+                        - cell "Price" [ref=e820]:
+                          - button "Price" [ref=e821]: $7,99
+                      - row "India (INR) Price" [ref=e822]:
+                        - cell "India (INR)" [ref=e823]
+                        - cell "Price" [ref=e824]:
+                          - button "Price" [ref=e825]: ₹799,00
+                      - row "Iraq (USD) Price" [ref=e826]:
+                        - cell "Iraq (USD)" [ref=e827]
+                        - cell "Price" [ref=e828]:
+                          - button "Price" [ref=e829]: $7,99
+                      - row "Israel (ILS) Price" [ref=e830]:
+                        - cell "Israel (ILS)" [ref=e831]
+                        - cell "Price" [ref=e832]:
+                          - button "Price" [ref=e833]: ₪29,90
+                      - row "Jordan (USD) Price" [ref=e834]:
+                        - cell "Jordan (USD)" [ref=e835]
+                        - cell "Price" [ref=e836]:
+                          - button "Price" [ref=e837]: $7,99
+                      - row "Kenya (USD) Price" [ref=e838]:
+                        - cell "Kenya (USD)" [ref=e839]
+                        - cell "Price" [ref=e840]:
+                          - button "Price" [ref=e841]: $9,99
+                      - row "Kuwait (USD) Price" [ref=e842]:
+                        - cell "Kuwait (USD)" [ref=e843]
+                        - cell "Price" [ref=e844]:
+                          - button "Price" [ref=e845]: $7,99
+                      - row "Lebanon (USD) Price" [ref=e846]:
+                        - cell "Lebanon (USD)" [ref=e847]
+                        - cell "Price" [ref=e848]:
+                          - button "Price" [ref=e849]: $7,99
+                      - row "Liberia (USD) Price" [ref=e850]:
+                        - cell "Liberia (USD)" [ref=e851]
+                        - cell "Price" [ref=e852]:
+                          - button "Price" [ref=e853]: $7,99
+                      - row "Libya (USD) Price" [ref=e854]:
+                        - cell "Libya (USD)" [ref=e855]
+                        - cell "Price" [ref=e856]:
+                          - button "Price" [ref=e857]: $7,99
+                      - row "Madagascar (USD) Price" [ref=e858]:
+                        - cell "Madagascar (USD)" [ref=e859]
+                        - cell "Price" [ref=e860]:
+                          - button "Price" [ref=e861]: $7,99
+                      - row "Malawi (USD) Price" [ref=e862]:
+                        - cell "Malawi (USD)" [ref=e863]
+                        - cell "Price" [ref=e864]:
+                          - button "Price" [ref=e865]: $7,99
+                      - row "Mali (USD) Price" [ref=e866]:
+                        - cell "Mali (USD)" [ref=e867]
+                        - cell "Price" [ref=e868]:
+                          - button "Price" [ref=e869]: $7,99
+                      - row "Mauritania (USD) Price" [ref=e870]:
+                        - cell "Mauritania (USD)" [ref=e871]
+                        - cell "Price" [ref=e872]:
+                          - button "Price" [ref=e873]: $7,99
+                      - row "Mauritius (USD) Price" [ref=e874]:
+                        - cell "Mauritius (USD)" [ref=e875]
+                        - cell "Price" [ref=e876]:
+                          - button "Price" [ref=e877]: $9,99
+                      - row "Morocco (USD) Price" [ref=e878]:
+                        - cell "Morocco (USD)" [ref=e879]
+                        - cell "Price" [ref=e880]:
+                          - button "Price" [ref=e881]: $7,99
+                      - row "Mozambique (USD) Price" [ref=e882]:
+                        - cell "Mozambique (USD)" [ref=e883]
+                        - cell "Price" [ref=e884]:
+                          - button "Price" [ref=e885]: $7,99
+                      - row "Namibia (USD) Price" [ref=e886]:
+                        - cell "Namibia (USD)" [ref=e887]
+                        - cell "Price" [ref=e888]:
+                          - button "Price" [ref=e889]: $7,99
+                      - row "Niger (USD) Price" [ref=e890]:
+                        - cell "Niger (USD)" [ref=e891]
+                        - cell "Price" [ref=e892]:
+                          - button "Price" [ref=e893]: $7,99
+                      - row "Nigeria (NGN) Price" [ref=e894]:
+                        - cell "Nigeria (NGN)" [ref=e895]
+                        - cell "Price" [ref=e896]:
+                          - button "Price" [ref=e897]: ₦12.900,00
+                      - row "Oman (USD) Price" [ref=e898]:
+                        - cell "Oman (USD)" [ref=e899]
+                        - cell "Price" [ref=e900]:
+                          - button "Price" [ref=e901]: $7,99
+                      - row "Qatar (QAR) Price" [ref=e902]:
+                        - cell "Qatar (QAR)" [ref=e903]
+                        - cell "Price" [ref=e904]:
+                          - button "Price" [ref=e905]: QAR 29,99
+                      - row "Rwanda (USD) Price" [ref=e906]:
+                        - cell "Rwanda (USD)" [ref=e907]
+                        - cell "Price" [ref=e908]:
+                          - button "Price" [ref=e909]: $7,99
+                      - row "São Tomé and Príncipe (USD) Price" [ref=e910]:
+                        - cell "São Tomé and Príncipe (USD)" [ref=e911]
+                        - cell "Price" [ref=e912]:
+                          - button "Price" [ref=e913]: $7,99
+                      - row "Saudi Arabia (SAR) Price" [ref=e914]:
+                        - cell "Saudi Arabia (SAR)" [ref=e915]
+                        - cell "Price" [ref=e916]:
+                          - button "Price" [ref=e917]: SAR 34,99
+                      - row "Senegal (USD) Price" [ref=e918]:
+                        - cell "Senegal (USD)" [ref=e919]
+                        - cell "Price" [ref=e920]:
+                          - button "Price" [ref=e921]: $9,99
+                      - row "Seychelles (USD) Price" [ref=e922]:
+                        - cell "Seychelles (USD)" [ref=e923]
+                        - cell "Price" [ref=e924]:
+                          - button "Price" [ref=e925]: $7,99
+                      - row "Sierra Leone (USD) Price" [ref=e926]:
+                        - cell "Sierra Leone (USD)" [ref=e927]
+                        - cell "Price" [ref=e928]:
+                          - button "Price" [ref=e929]: $7,99
+                      - row "South Africa (ZAR) Price" [ref=e930]:
+                        - cell "South Africa (ZAR)" [ref=e931]
+                        - cell "Price" [ref=e932]:
+                          - button "Price" [ref=e933]: R 149,99
+                      - row "Tanzania (TZS) Price" [ref=e934]:
+                        - cell "Tanzania (TZS)" [ref=e935]
+                        - cell "Price" [ref=e936]:
+                          - button "Price" [ref=e937]: TZS 22.900,00
+                      - row "Tunisia (USD) Price" [ref=e938]:
+                        - cell "Tunisia (USD)" [ref=e939]
+                        - cell "Price" [ref=e940]:
+                          - button "Price" [ref=e941]: $7,99
+                      - row "Uganda (USD) Price" [ref=e942]:
+                        - cell "Uganda (USD)" [ref=e943]
+                        - cell "Price" [ref=e944]:
+                          - button "Price" [ref=e945]: $9,99
+                      - row "United Arab Emirates (AED) Price" [ref=e946]:
+                        - cell "United Arab Emirates (AED)" [ref=e947]
+                        - cell "Price" [ref=e948]:
+                          - button "Price" [ref=e949]: AED 29,99
+                      - row "Yemen (USD) Price" [ref=e950]:
+                        - cell "Yemen (USD)" [ref=e951]
+                        - cell "Price" [ref=e952]:
+                          - button "Price" [ref=e953]: $7,99
+                      - row "Zambia (USD) Price" [ref=e954]:
+                        - cell "Zambia (USD)" [ref=e955]
+                        - cell "Price" [ref=e956]:
+                          - button "Price" [ref=e957]: $9,99
+                      - row "Zimbabwe (USD) Price" [ref=e958]:
+                        - cell "Zimbabwe (USD)" [ref=e959]
+                        - cell "Price" [ref=e960]:
+                          - button "Price" [ref=e961]: $9,99
+              - generic [ref=e962]:
+                - button "Latin America and the Caribbean (37)" [expanded] [ref=e963] [cursor=pointer]:
+                  - img [ref=e965]
+                  - text: Latin America and the Caribbean (37)
+                - region "Latin America and the Caribbean (37)" [ref=e967]:
+                  - table [ref=e968]:
+                    - rowgroup [ref=e969]:
+                      - row "Anguilla (USD) Price" [ref=e970]:
+                        - cell "Anguilla (USD)" [ref=e971]
+                        - cell "Price" [ref=e972]:
+                          - button "Price" [ref=e973]: $7,99
+                      - row "Antigua and Barbuda (USD) Price" [ref=e974]:
+                        - cell "Antigua and Barbuda (USD)" [ref=e975]
+                        - cell "Price" [ref=e976]:
+                          - button "Price" [ref=e977]: $7,99
+                      - row "Argentina (USD) Price" [ref=e978]:
+                        - cell "Argentina (USD)" [ref=e979]
+                        - cell "Price" [ref=e980]:
+                          - button "Price" [ref=e981]: $7,99
+                      - row "Bahamas (USD) Price" [ref=e982]:
+                        - cell "Bahamas (USD)" [ref=e983]
+                        - cell "Price" [ref=e984]:
+                          - button "Price" [ref=e985]: $8,99
+                      - row "Barbados (USD) Price" [ref=e986]:
+                        - cell "Barbados (USD)" [ref=e987]
+                        - cell "Price" [ref=e988]:
+                          - button "Price" [ref=e989]: $9,99
+                      - row "Belize (USD) Price" [ref=e990]:
+                        - cell "Belize (USD)" [ref=e991]
+                        - cell "Price" [ref=e992]:
+                          - button "Price" [ref=e993]: $7,99
+                      - row "Bermuda (USD) Price" [ref=e994]:
+                        - cell "Bermuda (USD)" [ref=e995]
+                        - cell "Price" [ref=e996]:
+                          - button "Price" [ref=e997]: $7,99
+                      - row "Bolivia (USD) Price" [ref=e998]:
+                        - cell "Bolivia (USD)" [ref=e999]
+                        - cell "Price" [ref=e1000]:
+                          - button "Price" [ref=e1001]: $7,99
+                      - row "Brazil (BRL) Price" [ref=e1002]:
+                        - cell "Brazil (BRL)" [ref=e1003]
+                        - cell "Price" [ref=e1004]:
+                          - button "Price" [ref=e1005]: R$49,90
+                      - row "British Virgin Islands (USD) Price" [ref=e1006]:
+                        - cell "British Virgin Islands (USD)" [ref=e1007]
+                        - cell "Price" [ref=e1008]:
+                          - button "Price" [ref=e1009]: $7,99
+                      - row "Cayman Islands (USD) Price" [ref=e1010]:
+                        - cell "Cayman Islands (USD)" [ref=e1011]
+                        - cell "Price" [ref=e1012]:
+                          - button "Price" [ref=e1013]: $7,99
+                      - row "Chile (CLP) Price" [ref=e1014]:
+                        - cell "Chile (CLP)" [ref=e1015]
+                        - cell "Price" [ref=e1016]:
+                          - button "Price" [ref=e1017]: $9.990,00
+                      - row "Colombia (COP) Price" [ref=e1018]:
+                        - cell "Colombia (COP)" [ref=e1019]
+                        - cell "Price" [ref=e1020]:
+                          - button "Price" [ref=e1021]: $39.900,00
+                      - row "Costa Rica (USD) Price" [ref=e1022]:
+                        - cell "Costa Rica (USD)" [ref=e1023]
+                        - cell "Price" [ref=e1024]:
+                          - button "Price" [ref=e1025]: $7,99
+                      - row "Dominica (USD) Price" [ref=e1026]:
+                        - cell "Dominica (USD)" [ref=e1027]
+                        - cell "Price" [ref=e1028]:
+                          - button "Price" [ref=e1029]: $7,99
+                      - row "Dominican Republic (USD) Price" [ref=e1030]:
+                        - cell "Dominican Republic (USD)" [ref=e1031]
+                        - cell "Price" [ref=e1032]:
+                          - button "Price" [ref=e1033]: $7,99
+                      - row "Ecuador (USD) Price" [ref=e1034]:
+                        - cell "Ecuador (USD)" [ref=e1035]
+                        - cell "Price" [ref=e1036]:
+                          - button "Price" [ref=e1037]: $7,99
+                      - row "El Salvador (USD) Price" [ref=e1038]:
+                        - cell "El Salvador (USD)" [ref=e1039]
+                        - cell "Price" [ref=e1040]:
+                          - button "Price" [ref=e1041]: $7,99
+                      - row "Grenada (USD) Price" [ref=e1042]:
+                        - cell "Grenada (USD)" [ref=e1043]
+                        - cell "Price" [ref=e1044]:
+                          - button "Price" [ref=e1045]: $7,99
+                      - row "Guatemala (USD) Price" [ref=e1046]:
+                        - cell "Guatemala (USD)" [ref=e1047]
+                        - cell "Price" [ref=e1048]:
+                          - button "Price" [ref=e1049]: $7,99
+                      - row "Guyana (USD) Price" [ref=e1050]:
+                        - cell "Guyana (USD)" [ref=e1051]
+                        - cell "Price" [ref=e1052]:
+                          - button "Price" [ref=e1053]: $7,99
+                      - row "Honduras (USD) Price" [ref=e1054]:
+                        - cell "Honduras (USD)" [ref=e1055]
+                        - cell "Price" [ref=e1056]:
+                          - button "Price" [ref=e1057]: $7,99
+                      - row "Jamaica (USD) Price" [ref=e1058]:
+                        - cell "Jamaica (USD)" [ref=e1059]
+                        - cell "Price" [ref=e1060]:
+                          - button "Price" [ref=e1061]: $7,99
+                      - row "Mexico (MXN) Price" [ref=e1062]:
+                        - cell "Mexico (MXN)" [ref=e1063]
+                        - cell "Price" [ref=e1064]:
+                          - button "Price" [ref=e1065]: $179,00
+                      - row "Montserrat (USD) Price" [ref=e1066]:
+                        - cell "Montserrat (USD)" [ref=e1067]
+                        - cell "Price" [ref=e1068]:
+                          - button "Price" [ref=e1069]: $7,99
+                      - row "Nicaragua (USD) Price" [ref=e1070]:
+                        - cell "Nicaragua (USD)" [ref=e1071]
+                        - cell "Price" [ref=e1072]:
+                          - button "Price" [ref=e1073]: $7,99
+                      - row "Panama (USD) Price" [ref=e1074]:
+                        - cell "Panama (USD)" [ref=e1075]
+                        - cell "Price" [ref=e1076]:
+                          - button "Price" [ref=e1077]: $7,99
+                      - row "Paraguay (USD) Price" [ref=e1078]:
+                        - cell "Paraguay (USD)" [ref=e1079]
+                        - cell "Price" [ref=e1080]:
+                          - button "Price" [ref=e1081]: $7,99
+                      - row "Peru (PEN) Price" [ref=e1082]:
+                        - cell "Peru (PEN)" [ref=e1083]
+                        - cell "Price" [ref=e1084]:
+                          - button "Price" [ref=e1085]: PEN 34,90
+                      - row "St. Kitts and Nevis (USD) Price" [ref=e1086]:
+                        - cell "St. Kitts and Nevis (USD)" [ref=e1087]
+                        - cell "Price" [ref=e1088]:
+                          - button "Price" [ref=e1089]: $7,99
+                      - row "St. Lucia (USD) Price" [ref=e1090]:
+                        - cell "St. Lucia (USD)" [ref=e1091]
+                        - cell "Price" [ref=e1092]:
+                          - button "Price" [ref=e1093]: $7,99
+                      - row "St. Vincent and the Grenadines (USD) Price" [ref=e1094]:
+                        - cell "St. Vincent and the Grenadines (USD)" [ref=e1095]
+                        - cell "Price" [ref=e1096]:
+                          - button "Price" [ref=e1097]: $7,99
+                      - row "Suriname (USD) Price" [ref=e1098]:
+                        - cell "Suriname (USD)" [ref=e1099]
+                        - cell "Price" [ref=e1100]:
+                          - button "Price" [ref=e1101]: $8,99
+                      - row "Trinidad and Tobago (USD) Price" [ref=e1102]:
+                        - cell "Trinidad and Tobago (USD)" [ref=e1103]
+                        - cell "Price" [ref=e1104]:
+                          - button "Price" [ref=e1105]: $7,99
+                      - row "Turks and Caicos Islands (USD) Price" [ref=e1106]:
+                        - cell "Turks and Caicos Islands (USD)" [ref=e1107]
+                        - cell "Price" [ref=e1108]:
+                          - button "Price" [ref=e1109]: $7,99
+                      - row "Uruguay (USD) Price" [ref=e1110]:
+                        - cell "Uruguay (USD)" [ref=e1111]
+                        - cell "Price" [ref=e1112]:
+                          - button "Price" [ref=e1113]: $7,99
+                      - row "Venezuela (USD) Price" [ref=e1114]:
+                        - cell "Venezuela (USD)" [ref=e1115]
+                        - cell "Price" [ref=e1116]:
+                          - button "Price" [ref=e1117]: $7,99
+              - generic [ref=e1118]:
+                - button "Asia Pacific (37)" [expanded] [ref=e1119] [cursor=pointer]:
+                  - img [ref=e1121]
+                  - text: Asia Pacific (37)
+                - region "Asia Pacific (37)" [ref=e1123]:
+                  - table [ref=e1124]:
+                    - rowgroup [ref=e1125]:
+                      - row "Australia (AUD) Price" [ref=e1126]:
+                        - cell "Australia (AUD)" [ref=e1127]
+                        - cell "Price" [ref=e1128]:
+                          - button "Price" [ref=e1129]: $12,99
+                      - row "Bhutan (USD) Price" [ref=e1130]:
+                        - cell "Bhutan (USD)" [ref=e1131]
+                        - cell "Price" [ref=e1132]:
+                          - button "Price" [ref=e1133]: $7,99
+                      - row "Brunei (USD) Price" [ref=e1134]:
+                        - cell "Brunei (USD)" [ref=e1135]
+                        - cell "Price" [ref=e1136]:
+                          - button "Price" [ref=e1137]: $7,99
+                      - row "Cambodia (USD) Price" [ref=e1138]:
+                        - cell "Cambodia (USD)" [ref=e1139]
+                        - cell "Price" [ref=e1140]:
+                          - button "Price" [ref=e1141]: $8,99
+                      - row "China mainland (CNY) Price" [ref=e1142]:
+                        - cell "China mainland (CNY)" [ref=e1143]
+                        - cell "Price" [ref=e1144]:
+                          - button "Price" [ref=e1145]: ¥58,00
+                      - row "Fiji (USD) Price" [ref=e1146]:
+                        - cell "Fiji (USD)" [ref=e1147]
+                        - cell "Price" [ref=e1148]:
+                          - button "Price" [ref=e1149]: $7,99
+                      - row "Hong Kong (HKD) Price" [ref=e1150]:
+                        - cell "Hong Kong (HKD)" [ref=e1151]
+                        - cell "Price" [ref=e1152]:
+                          - button "Price" [ref=e1153]: $58,00
+                      - row "Indonesia (IDR) Price" [ref=e1154]:
+                        - cell "Indonesia (IDR)" [ref=e1155]
+                        - cell "Price" [ref=e1156]:
+                          - button "Price" [ref=e1157]: Rp 129.000,00
+                      - row "Japan (JPY) Price" [ref=e1158]:
+                        - cell "Japan (JPY)" [ref=e1159]
+                        - cell "Price" [ref=e1160]:
+                          - button "Price" [ref=e1161]: ¥1.300,00
+                      - row "Kazakhstan (KZT) Price" [ref=e1162]:
+                        - cell "Kazakhstan (KZT)" [ref=e1163]
+                        - cell "Price" [ref=e1164]:
+                          - button "Price" [ref=e1165]: ₸4.990,00
+                      - row "Korea, Republic of (KRW) Price" [ref=e1166]:
+                        - cell "Korea, Republic of (KRW)" [ref=e1167]
+                        - cell "Price" [ref=e1168]:
+                          - button "Price" [ref=e1169]: ₩11.000,00
+                      - row "Kyrgyzstan (USD) Price" [ref=e1170]:
+                        - cell "Kyrgyzstan (USD)" [ref=e1171]
+                        - cell "Price" [ref=e1172]:
+                          - button "Price" [ref=e1173]: $8,99
+                      - row "Laos (USD) Price" [ref=e1174]:
+                        - cell "Laos (USD)" [ref=e1175]
+                        - cell "Price" [ref=e1176]:
+                          - button "Price" [ref=e1177]: $8,99
+                      - row "Macau (USD) Price" [ref=e1178]:
+                        - cell "Macau (USD)" [ref=e1179]
+                        - cell "Price" [ref=e1180]:
+                          - button "Price" [ref=e1181]: $7,99
+                      - row "Malaysia (MYR) Price" [ref=e1182]:
+                        - cell "Malaysia (MYR)" [ref=e1183]
+                        - cell "Price" [ref=e1184]:
+                          - button "Price" [ref=e1185]: RM 39,90
+                      - row "Maldives (USD) Price" [ref=e1186]:
+                        - cell "Maldives (USD)" [ref=e1187]
+                        - cell "Price" [ref=e1188]:
+                          - button "Price" [ref=e1189]: $7,99
+                      - row "Micronesia (USD) Price" [ref=e1190]:
+                        - cell "Micronesia (USD)" [ref=e1191]
+                        - cell "Price" [ref=e1192]:
+                          - button "Price" [ref=e1193]: $7,99
+                      - row "Mongolia (USD) Price" [ref=e1194]:
+                        - cell "Mongolia (USD)" [ref=e1195]
+                        - cell "Price" [ref=e1196]:
+                          - button "Price" [ref=e1197]: $7,99
+                      - row "Myanmar (USD) Price" [ref=e1198]:
+                        - cell "Myanmar (USD)" [ref=e1199]
+                        - cell "Price" [ref=e1200]:
+                          - button "Price" [ref=e1201]: $7,99
+                      - row "Nauru (USD) Price" [ref=e1202]:
+                        - cell "Nauru (USD)" [ref=e1203]
+                        - cell "Price" [ref=e1204]:
+                          - button "Price" [ref=e1205]: $7,99
+                      - row "Nepal (USD) Price" [ref=e1206]:
+                        - cell "Nepal (USD)" [ref=e1207]
+                        - cell "Price" [ref=e1208]:
+                          - button "Price" [ref=e1209]: $9,99
+                      - row "New Zealand (NZD) Price" [ref=e1210]:
+                        - cell "New Zealand (NZD)" [ref=e1211]
+                        - cell "Price" [ref=e1212]:
+                          - button "Price" [ref=e1213]: $14,99
+                      - row "Pakistan (PKR) Price" [ref=e1214]:
+                        - cell "Pakistan (PKR)" [ref=e1215]
+                        - cell "Price" [ref=e1216]:
+                          - button "Price" [ref=e1217]: Rs 2.200,00
+                      - row "Palau (USD) Price" [ref=e1218]:
+                        - cell "Palau (USD)" [ref=e1219]
+                        - cell "Price" [ref=e1220]:
+                          - button "Price" [ref=e1221]: $7,99
+                      - row "Papua New Guinea (USD) Price" [ref=e1222]:
+                        - cell "Papua New Guinea (USD)" [ref=e1223]
+                        - cell "Price" [ref=e1224]:
+                          - button "Price" [ref=e1225]: $7,99
+                      - row "Philippines (PHP) Price" [ref=e1226]:
+                        - cell "Philippines (PHP)" [ref=e1227]
+                        - cell "Price" [ref=e1228]:
+                          - button "Price" [ref=e1229]: ₱499,00
+                      - row "Singapore (SGD) Price" [ref=e1230]:
+                        - cell "Singapore (SGD)" [ref=e1231]
+                        - cell "Price" [ref=e1232]:
+                          - button "Price" [ref=e1233]: $9,98
+                      - row "Solomon Islands (USD) Price" [ref=e1234]:
+                        - cell "Solomon Islands (USD)" [ref=e1235]
+                        - cell "Price" [ref=e1236]:
+                          - button "Price" [ref=e1237]: $7,99
+                      - row "Sri Lanka (USD) Price" [ref=e1238]:
+                        - cell "Sri Lanka (USD)" [ref=e1239]
+                        - cell "Price" [ref=e1240]:
+                          - button "Price" [ref=e1241]: $7,99
+                      - row "Taiwan (TWD) Price" [ref=e1242]:
+                        - cell "Taiwan (TWD)" [ref=e1243]
+                        - cell "Price" [ref=e1244]:
+                          - button "Price" [ref=e1245]: NT$290,00
+                      - row "Tajikistan (USD) Price" [ref=e1246]:
+                        - cell "Tajikistan (USD)" [ref=e1247]
+                        - cell "Price" [ref=e1248]:
+                          - button "Price" [ref=e1249]: $8,99
+                      - row "Thailand (THB) Price" [ref=e1250]:
+                        - cell "Thailand (THB)" [ref=e1251]
+                        - cell "Price" [ref=e1252]:
+                          - button "Price" [ref=e1253]: ฿299,00
+                      - row "Tonga (USD) Price" [ref=e1254]:
+                        - cell "Tonga (USD)" [ref=e1255]
+                        - cell "Price" [ref=e1256]:
+                          - button "Price" [ref=e1257]: $7,99
+                      - row "Turkmenistan (USD) Price" [ref=e1258]:
+                        - cell "Turkmenistan (USD)" [ref=e1259]
+                        - cell "Price" [ref=e1260]:
+                          - button "Price" [ref=e1261]: $7,99
+                      - row "Uzbekistan (USD) Price" [ref=e1262]:
+                        - cell "Uzbekistan (USD)" [ref=e1263]
+                        - cell "Price" [ref=e1264]:
+                          - button "Price" [ref=e1265]: $8,99
+                      - row "Vanuatu (USD) Price" [ref=e1266]:
+                        - cell "Vanuatu (USD)" [ref=e1267]
+                        - cell "Price" [ref=e1268]:
+                          - button "Price" [ref=e1269]: $7,99
+                      - row "Vietnam (VND) Price" [ref=e1270]:
+                        - cell "Vietnam (VND)" [ref=e1271]
+                        - cell "Price" [ref=e1272]:
+                          - button "Price" [ref=e1273]: ₫249.000,00
+        - generic [ref=e1275]:
+          - button "Back" [ref=e1277] [cursor=pointer]
+          - generic [ref=e1278]:
+            - button "Cancel" [ref=e1279] [cursor=pointer]
+            - button "Next" [ref=e1280] [cursor=pointer]
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - list [ref=e36]:
+        - listitem [ref=e37]:
+          - link "App Store Connect" [ref=e38] [cursor=pointer]:
+            - /url: /apps
+      - list [ref=e39]:
+        - listitem [ref=e40]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e41]:
+          - link "Terms of Service" [ref=e42] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e43]:
+          - link "Privacy Policy" [ref=e44] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e45]:
+          - link "Contact Us" [ref=e46] [cursor=pointer]:
+            - /url: /contact-us

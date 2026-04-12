@@ -1,0 +1,174 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e689]:
+        - button "Close toast" [ref=e690] [cursor=pointer]:
+          - img [ref=e691]
+        - img [ref=e695]
+        - paragraph [ref=e699]: There is another webhook integration with the same name in this project.
+  - link "skip to content" [ref=e10] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - link "Home" [ref=e13] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e14]
+      - button "DayFrame" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: D
+          - generic [ref=e21]: DayFrame
+        - img [ref=e23]
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - combobox "Search…" [ref=e30]
+        - generic [ref=e32]: ⌘K
+        - group
+      - link "Help" [ref=e33] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e34]
+        - generic: Help
+      - link "Account" [ref=e36] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e37]
+        - generic: Account
+    - generic [ref=e39]:
+      - navigation [ref=e40]:
+        - link "Overview" [ref=e41] [cursor=pointer]:
+          - /url: /projects/1cd787ed/overview
+          - img [ref=e42]
+          - generic: Overview
+        - link "Charts" [ref=e44] [cursor=pointer]:
+          - /url: /projects/1cd787ed/charts
+          - img [ref=e45]
+          - generic: Charts
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-lists
+          - img [ref=e48]
+          - generic: Customers
+        - link "Product catalog" [ref=e50] [cursor=pointer]:
+          - /url: /projects/1cd787ed/product-catalog
+          - img [ref=e51]
+        - link "Paywalls" [ref=e53] [cursor=pointer]:
+          - /url: /projects/1cd787ed/paywalls
+          - img [ref=e54]
+          - generic: Paywalls
+        - link "Ads" [ref=e56] [cursor=pointer]:
+          - /url: /projects/1cd787ed/ads
+          - img [ref=e57]
+          - generic: Ads
+        - link "Targeting" [ref=e59] [cursor=pointer]:
+          - /url: /projects/1cd787ed/targeting
+          - img [ref=e60]
+          - generic: Targeting
+        - link "Experiments" [ref=e62] [cursor=pointer]:
+          - /url: /projects/1cd787ed/experiments
+          - img [ref=e63]
+          - generic: Experiments
+        - link "Web" [ref=e65] [cursor=pointer]:
+          - /url: /projects/1cd787ed/web-home
+          - img [ref=e66]
+          - generic: Web
+        - link "Customer Center" [ref=e68] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-center
+          - img [ref=e69]
+          - generic: Customer Center
+        - link "Apps & providers" [ref=e72] [cursor=pointer]:
+          - /url: /projects/1cd787ed/apps
+          - img [ref=e73]
+        - link "Integrations" [ref=e75] [cursor=pointer]:
+          - /url: /projects/1cd787ed/integrations
+          - img [ref=e76]
+          - generic: Integrations
+        - link "Project settings" [ref=e78] [cursor=pointer]:
+          - /url: /projects/1cd787ed/settings
+          - img [ref=e79]
+      - main [ref=e81]:
+        - generic [ref=e567]:
+          - navigation [ref=e570]:
+            - list [ref=e571]:
+              - listitem [ref=e572]:
+                - button [ref=e573] [cursor=pointer]:
+                  - img [ref=e574]
+              - listitem [ref=e576]: /
+              - listitem [ref=e577]:
+                - link "Webhooks Integration" [ref=e578] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/integrations/webhooks
+              - listitem [ref=e579]: /
+              - listitem [ref=e580]:
+                - link "New Webhook" [ref=e581] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/integrations/webhooks/add
+          - generic [ref=e584]:
+            - group [ref=e585]:
+              - generic [ref=e586]:
+                - generic [ref=e587]:
+                  - generic [ref=e589]: Webhook name
+                  - generic [ref=e592]:
+                    - textbox "Webhook name" [ref=e593]:
+                      - /placeholder: Webhook Name
+                      - text: Supabase Backend
+                    - group
+                  - generic [ref=e594]: Name this webhook.
+                - generic [ref=e595]:
+                  - generic [ref=e597]: Webhook URL
+                  - generic [ref=e600]:
+                    - textbox "Webhook URL" [ref=e601]:
+                      - /placeholder: e.g. https://api.yourdomain.com/endpoint
+                      - text: https://giuslvzfzahiadofgymu.supabase.co/functions/v1/revenuecat-webhook
+                    - group
+                  - generic [ref=e603]:
+                    - text: The
+                    - strong [ref=e604]: https
+                    - text: URL of the server endpoint that will receive the webhook POST requests.
+                - generic [ref=e605]:
+                  - generic [ref=e607]: Authorization header value
+                  - generic [ref=e608]:
+                    - generic [ref=e610]:
+                      - textbox "Authorization header value" [ref=e611]:
+                        - /placeholder: e.g. Bearer Xz3aHxYNQFcdgRvb
+                        - text: Bearer 2458c0727d0511f25a5d4ca75d572c5f3bf329cc188d6a9ab3a5a22601e7ef6b
+                      - group
+                    - button "show" [ref=e613] [cursor=pointer]:
+                      - img [ref=e614]
+                  - generic [ref=e617]:
+                    - text: Optional. RevenueCat will send an
+                    - link "HTTP Authorization header" [ref=e618] [cursor=pointer]:
+                      - /url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
+                    - text: with this value in each POST request sent to your webhook server URL.
+                - generic [ref=e619]:
+                  - generic [ref=e621]: Environment to send events for
+                  - generic [ref=e622]:
+                    - combobox "Environment to send events for Both Production and Sandbox" [ref=e623] [cursor=pointer]: Both Production and Sandbox
+                    - textbox
+                    - img
+                    - group
+                  - generic [ref=e624]: Choose whether to send events from Production, Sandbox or both.
+            - separator [ref=e625]
+            - generic [ref=e626]:
+              - generic [ref=e627]:
+                - paragraph [ref=e628]: Events filter
+                - paragraph [ref=e629]:
+                  - text: Choose if you only need to pass events of a specific
+                  - link "event type" [ref=e630] [cursor=pointer]:
+                    - /url: https://www.revenuecat.com/docs/event-types-and-fields
+                  - text: or an app.
+              - generic [ref=e631]:
+                - generic [ref=e634]:
+                  - generic [ref=e635]:
+                    - generic [ref=e636]: App
+                    - generic [ref=e637]: Required
+                  - generic [ref=e642]:
+                    - combobox "App" [ref=e643]: DayFrame (App Store) (App Store)
+                    - button "Open" [ref=e675] [cursor=pointer]:
+                      - img [ref=e646]
+                    - group
+                - generic [ref=e651]:
+                  - generic [ref=e652]:
+                    - generic [ref=e653]: Event type
+                    - generic [ref=e654]: Required
+                  - generic [ref=e659]:
+                    - combobox "Event type" [ref=e660]: All events
+                    - button "Open" [ref=e662] [cursor=pointer]:
+                      - img [ref=e663]
+                    - group
+            - separator [ref=e665]
+          - button "Add webhook" [ref=e700] [cursor=pointer]

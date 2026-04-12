@@ -1,0 +1,117 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e735] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - link "Home" [ref=e736] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e737]
+      - button "DayFrame" [ref=e738] [cursor=pointer]:
+        - generic [ref=e11]:
+          - generic [ref=e513]: D
+          - generic [ref=e514]: DayFrame
+        - img [ref=e18]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - combobox "Search…" [ref=e739]
+        - generic [ref=e27]: ⌘K
+        - group
+      - link "Help" [ref=e740] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e29]
+        - generic: Help
+      - link "Account" [ref=e741] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e33]
+        - generic: Account
+    - main [ref=e515]:
+      - generic [ref=e755]:
+        - generic [ref=e757]:
+          - generic [ref=e758]:
+            - generic [ref=e759]:
+              - generic [ref=e760]:
+                - heading "Install the SDK" [level=2] [ref=e761]
+                - paragraph [ref=e762]: It's time to implement the SDK to get everything running.
+              - generic [ref=e763]:
+                - generic [ref=e764]:
+                  - generic [ref=e765]:
+                    - generic [ref=e767]: Framework
+                    - generic [ref=e768]:
+                      - combobox [ref=e769] [cursor=pointer]:
+                        - generic [ref=e770]:
+                          - img "react-native icon" [ref=e771]
+                          - paragraph [ref=e772]: React Native
+                      - textbox: react-native
+                      - img
+                      - group
+                  - generic [ref=e773]:
+                    - generic [ref=e775]: Install with
+                    - generic [ref=e776]:
+                      - combobox [ref=e777] [cursor=pointer]: npm
+                      - textbox: npm
+                      - img
+                      - group
+                - generic [ref=e778]:
+                  - generic [ref=e779]:
+                    - paragraph [ref=e780]: npm
+                    - link "How to install" [ref=e781] [cursor=pointer]:
+                      - /url: https://www.revenuecat.com/docs/getting-started/installation/reactnative#installation
+                      - paragraph [ref=e782]: How to install
+                  - generic [ref=e784]:
+                    - code [ref=e785]:
+                      - generic [ref=e787]: npm install --save react-native-purchases react-native-purchases-ui
+                    - button "copy text" [ref=e788] [cursor=pointer]:
+                      - img [ref=e789]
+              - generic [ref=e791]:
+                - paragraph [ref=e793]: API key
+                - generic [ref=e795]:
+                  - code [ref=e796]:
+                    - generic [ref=e798]: test_wLVEblpZrHVxAzudHfiLaZchulA
+                  - button "copy text" [ref=e799] [cursor=pointer]:
+                    - img [ref=e800]
+            - generic [ref=e802]:
+              - paragraph [ref=e803]: Using AI to integrate RevenueCat?
+              - button "Copy prompt" [ref=e804] [cursor=pointer]
+          - generic [ref=e806]:
+            - link "Go to dashboard" [ref=e807] [cursor=pointer]:
+              - /url: /projects/1cd787ed/overview
+            - link "I'm ready!" [ref=e808] [cursor=pointer]:
+              - /url: /projects/1cd787ed/overview
+        - generic [ref=e810]:
+          - heading "Add the code below to your application to get started" [level=3] [ref=e811]
+          - tablist [ref=e815]:
+            - tab "Configure" [selected] [ref=e816] [cursor=pointer]
+            - tab "Check Entitlement" [ref=e817] [cursor=pointer]
+            - tab "Paywall" [ref=e818] [cursor=pointer]
+          - generic [ref=e822]:
+            - button "Copy code" [ref=e823] [cursor=pointer]:
+              - img [ref=e824]
+            - code [ref=e829]:
+              - generic [ref=e830]: "import { Platform } from 'react-native';"
+              - generic [ref=e831]: "import { useEffect } from 'react';"
+              - generic [ref=e832]: "import Purchases, { LOG_LEVEL } from 'react-native-purchases';"
+              - generic [ref=e833]: "export default function App() {"
+              - generic [ref=e834]: "useEffect(() => {"
+              - generic [ref=e835]: Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+              - generic [ref=e836]: // Platform-specific API keys
+              - generic [ref=e837]: const iosApiKey = 'test_wLVEblpZrHVxAzudHfiLaZchulA';
+              - generic [ref=e838]: const androidApiKey = 'test_wLVEblpZrHVxAzudHfiLaZchulA';
+              - generic [ref=e839]: "if (Platform.OS === 'ios') {"
+              - generic [ref=e840]: "Purchases.configure({apiKey: iosApiKey});"
+              - generic [ref=e841]: "} else if (Platform.OS === 'android') {"
+              - generic [ref=e842]: "Purchases.configure({apiKey: androidApiKey});"
+              - generic [ref=e843]: "}"
+              - generic [ref=e844]: "}, []);"
+              - generic [ref=e845]: "}"
+          - generic [ref=e846]:
+            - button "Copy code" [ref=e847] [cursor=pointer]:
+              - img [ref=e849]
+              - text: Copy code
+            - link "Open documentation" [ref=e851] [cursor=pointer]:
+              - /url: https://www.revenuecat.com/docs/getting-started/installation/reactnative
+              - img [ref=e853]
+              - text: Open documentation
+            - button "Download sample app" [ref=e855] [cursor=pointer]:
+              - img [ref=e857]
+              - text: Download sample app

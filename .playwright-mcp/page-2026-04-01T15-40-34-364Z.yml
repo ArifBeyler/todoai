@@ -1,0 +1,231 @@
+- generic [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e38]:
+    - main [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - heading "Apps" [level=2] [ref=e46]
+              - generic [ref=e47]:
+                - button "New App" [ref=e49] [cursor=pointer]:
+                  - img [ref=e50]
+                - button "more" [ref=e53] [cursor=pointer]:
+                  - img "Icons/Ellipsis" [ref=e55]
+            - generic [ref=e60]:
+              - button "Search" [ref=e63] [cursor=pointer]:
+                - img [ref=e64]
+              - button "All Statuses" [ref=e68] [cursor=pointer]:
+                - text: All Statuses
+                - img [ref=e69]
+          - separator [ref=e71]
+        - grid "grid" [ref=e74]:
+          - rowgroup [ref=e75]:
+            - row "Velora - AI Music Generator Velora - AI Music Generator Velora - AI Music Generator iOS 1.2 Waiting for Review Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e76]:
+              - generic [ref=e77]:
+                - gridcell "Velora - AI Music Generator Velora - AI Music Generator Velora - AI Music Generator iOS 1.2 Waiting for Review" [ref=e78]:
+                  - generic [ref=e355] [cursor=pointer]:
+                    - link "Velora - AI Music Generator" [ref=e357]:
+                      - /url: /apps/6761191629/distribution
+                      - generic "Velora - AI Music Generator" [ref=e358]:
+                        - img "Velora - AI Music Generator" [ref=e359]
+                    - generic [ref=e360]:
+                      - paragraph [ref=e361]:
+                        - link "Velora - AI Music Generator" [ref=e362]:
+                          - /url: /apps/6761191629/distribution
+                      - list:
+                        - listitem:
+                          - paragraph:
+                            - link "Velora - AI Music Generator iOS 1.2 Waiting for Review" [ref=e363]:
+                              - /url: /apps/6761191629/distribution/ios/version/inflight
+                              - img [ref=e364]
+                              - text: iOS 1.2 Waiting for Review
+                - gridcell "Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e91]:
+                  - generic [ref=e367] [cursor=pointer]:
+                    - link "Veyra - AI Kombin Planlayıcı" [ref=e369]:
+                      - /url: /apps/6757570850/distribution
+                      - generic "Veyra - AI Kombin Planlayıcı" [ref=e370]:
+                        - img "Veyra - AI Kombin Planlayıcı" [ref=e371]
+                    - generic [ref=e372]:
+                      - paragraph [ref=e373]:
+                        - link "Veyra - AI Kombin Planlayıcı" [ref=e374]:
+                          - /url: /apps/6757570850/distribution
+                      - list:
+                        - listitem:
+                          - paragraph:
+                            - link "Veyra - AI Kombin Planlayıcı iOS 1.5 Ready for Distribution" [ref=e375]:
+                              - /url: /apps/6757570850/distribution/ios/version/deliverable
+                              - img [ref=e376]
+                              - text: iOS 1.5 Ready for Distribution
+              - separator [ref=e104]
+            - row "MooDeco – AI Home Redesign MooDeco – AI Home Redesign MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e105]:
+              - gridcell "MooDeco – AI Home Redesign MooDeco – AI Home Redesign MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e107]:
+                - generic [ref=e379] [cursor=pointer]:
+                  - link "MooDeco – AI Home Redesign" [ref=e381]:
+                    - /url: /apps/6747512036/distribution
+                    - generic "MooDeco – AI Home Redesign" [ref=e382]:
+                      - img "MooDeco – AI Home Redesign" [ref=e383]
+                  - generic [ref=e385]:
+                    - paragraph [ref=e386]:
+                      - link "MooDeco – AI Home Redesign" [ref=e387]:
+                        - /url: /apps/6747512036/distribution
+                    - list:
+                      - listitem:
+                        - paragraph:
+                          - link "MooDeco – AI Home Redesign iOS 1.0 Prepare for Submission" [ref=e388]:
+                            - /url: /apps/6747512036/distribution/ios/version/inflight
+                            - img [ref=e389]
+                            - text: iOS 1.0 Prepare for Submission
+              - separator [ref=e121]
+    - dialog "New App" [ref=e168]:
+      - document [ref=e169]:
+        - generic [ref=e170]:
+          - heading "New App" [level=2] [ref=e171]
+          - generic [ref=e172]:
+            - generic [ref=e173]:
+              - generic [ref=e175]:
+                - generic [ref=e176]: Platforms
+                - button "More information" [ref=e178] [cursor=pointer]: "?"
+              - group "Select platforms" [ref=e179]:
+                - generic [ref=e180]:
+                  - checkbox "iOS" [checked] [ref=e181]
+                  - text: iOS
+                - generic [ref=e182]:
+                  - checkbox "macOS" [ref=e183]
+                  - text: macOS
+                - generic [ref=e184]:
+                  - checkbox "tvOS" [ref=e185]
+                  - text: tvOS
+                - generic [ref=e186]:
+                  - checkbox "visionOS" [ref=e187]
+                  - text: visionOS
+            - generic [ref=e188]:
+              - generic [ref=e190]:
+                - generic [ref=e191]: Name
+                - button "More information" [ref=e193] [cursor=pointer]: "?"
+              - textbox "Name" [active] [ref=e195]: Doara
+              - status "Characters remaining" [ref=e197]: "25"
+            - generic [ref=e198]:
+              - generic [ref=e200]:
+                - generic [ref=e201]: Primary Language
+                - button "More information" [ref=e203] [cursor=pointer]: "?"
+              - combobox "Primary Language" [ref=e205]:
+                - option "Choose" [disabled]
+                - option "Arabic"
+                - option "Bangla"
+                - option "Catalan"
+                - option "Chinese (Simplified)"
+                - option "Chinese (Traditional)"
+                - option "Croatian"
+                - option "Czech"
+                - option "Danish"
+                - option "Dutch"
+                - option "English (Australia)"
+                - option "English (Canada)"
+                - option "English (U.K.)"
+                - option "English (U.S.)"
+                - option "Finnish"
+                - option "French"
+                - option "French (Canada)"
+                - option "German"
+                - option "Greek"
+                - option "Gujarati"
+                - option "Hebrew"
+                - option "Hindi"
+                - option "Hungarian"
+                - option "Indonesian"
+                - option "Italian"
+                - option "Japanese"
+                - option "Kannada"
+                - option "Korean"
+                - option "Malay"
+                - option "Malayalam"
+                - option "Marathi"
+                - option "Norwegian"
+                - option "Odia"
+                - option "Polish"
+                - option "Portuguese (Brazil)"
+                - option "Portuguese (Portugal)"
+                - option "Punjabi"
+                - option "Romanian"
+                - option "Russian"
+                - option "Slovak"
+                - option "Slovenian"
+                - option "Spanish (Mexico)"
+                - option "Spanish (Spain)"
+                - option "Swedish"
+                - option "Tamil"
+                - option "Telugu"
+                - option "Thai"
+                - option "Turkish" [selected]
+                - option "Ukrainian"
+                - option "Urdu"
+                - option "Vietnamese"
+            - generic [ref=e206]:
+              - generic [ref=e208]:
+                - generic [ref=e209]: Bundle ID
+                - button "More information" [ref=e211] [cursor=pointer]: "?"
+              - combobox "Bundle ID" [ref=e213]:
+                - option "Choose" [disabled]
+                - option "Doara - com.arifbeyler.doara" [selected]
+            - generic [ref=e217]:
+              - generic [ref=e219]:
+                - generic [ref=e220]: SKU
+                - button "More information" [ref=e222] [cursor=pointer]: "?"
+              - textbox "SKU" [ref=e224]
+            - generic [ref=e225]:
+              - generic [ref=e227]:
+                - generic [ref=e228]: User Access
+                - button "More information" [ref=e230] [cursor=pointer]: "?"
+              - generic [ref=e232]:
+                - generic [ref=e233]:
+                  - radio "Limited Access" [ref=e234]
+                  - text: Limited Access
+                - generic [ref=e235]:
+                  - radio "Full Access" [ref=e236]
+                  - text: Full Access
+        - generic [ref=e238]:
+          - button "Cancel" [ref=e240] [cursor=pointer]
+          - button "Create" [disabled] [ref=e242]
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - list [ref=e26]:
+        - listitem [ref=e27]: App Store Connect
+      - list [ref=e28]:
+        - listitem [ref=e29]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e30]:
+          - link "Terms of Service" [ref=e31] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e32]:
+          - link "Privacy Policy" [ref=e33] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e34]:
+          - link "Contact Us" [ref=e35] [cursor=pointer]:
+            - /url: /contact-us

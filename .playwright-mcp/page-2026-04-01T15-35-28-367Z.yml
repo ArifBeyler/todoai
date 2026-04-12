@@ -1,0 +1,100 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "Apple Developer" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: Apple Developer
+      - generic [ref=e9]:
+        - generic [ref=e10] [cursor=pointer]: Arif Hikmet Demirci 
+        - generic [ref=e11] [cursor=pointer]: ARIF HIKMET DEMIRCI - 73ANVUDATZ
+        - text: 
+    - heading "Certificates, Identifiers & Profiles" [level=1] [ref=e14]
+  - main [ref=e15]:
+    - generic [ref=e75]:
+      - link " All Identifiers" [ref=e77] [cursor=pointer]:
+        - /url: /account/resources/identifiers/list/bundleId
+      - generic [ref=e78]:
+        - generic [ref=e79]:
+          - heading "Register a new identifier" [level=2] [ref=e81]
+          - button "Continue" [ref=e83] [cursor=pointer]
+        - list [ref=e84]:
+          - listitem [ref=e85]:
+            - radio "App IDs Register an App ID to enable your app, app extensions, or App Clip to access available services and identify your app in a provisioning profile. You can enable app services when you create an App ID or modify these settings later." [checked] [ref=e87]
+            - generic [ref=e88]:
+              - heading "App IDs" [level=5] [ref=e90]
+              - paragraph [ref=e91]: Register an App ID to enable your app, app extensions, or App Clip to access available services and identify your app in a provisioning profile. You can enable app services when you create an App ID or modify these settings later.
+              - generic:
+                - emphasis
+          - listitem [ref=e92]:
+            - radio "Services IDs For each website that uses Sign in with Apple, register a services identifier (Services ID), configure your domain and return URL, and create an associated private key." [ref=e94]
+            - generic [ref=e95]:
+              - heading "Services IDs" [level=5] [ref=e97]
+              - paragraph [ref=e98]: For each website that uses Sign in with Apple, register a services identifier (Services ID), configure your domain and return URL, and create an associated private key.
+              - generic:
+                - emphasis
+          - listitem [ref=e99]:
+            - radio "Pass Type IDs Register a pass type identifier (Pass Type ID) for each kind of pass you create (i.e. gift cards). Registering your Pass Type IDs lets you generate Apple-issued certificates which are used to digitally sign and send updates to your passes, and allow your passes to be recognized by Wallet." [ref=e101]
+            - generic [ref=e102]:
+              - heading "Pass Type IDs" [level=5] [ref=e104]
+              - paragraph [ref=e105]: Register a pass type identifier (Pass Type ID) for each kind of pass you create (i.e. gift cards). Registering your Pass Type IDs lets you generate Apple-issued certificates which are used to digitally sign and send updates to your passes, and allow your passes to be recognized by Wallet.
+              - generic:
+                - emphasis
+          - listitem [ref=e106]:
+            - radio "Order Type IDs Register an order type identifier (Order Type ID) to support signing and distributing order bundles with Wallet and Apple Pay. Registering your order type ID lets you generate certificates to digitally sign and send updates to your orders in Wallet." [ref=e108]
+            - generic [ref=e109]:
+              - heading "Order Type IDs" [level=5] [ref=e111]
+              - paragraph [ref=e112]: Register an order type identifier (Order Type ID) to support signing and distributing order bundles with Wallet and Apple Pay. Registering your order type ID lets you generate certificates to digitally sign and send updates to your orders in Wallet.
+              - generic:
+                - emphasis
+          - listitem [ref=e113]:
+            - radio "Website Push IDs Register a Website Push Identifier (Website Push ID). Registering your Website Push IDs lets you generate Apple-issued certificates which are used to digitally sign and send push notifications from your website to macOS." [ref=e115]
+            - generic [ref=e116]:
+              - heading "Website Push IDs" [level=5] [ref=e118]
+              - paragraph [ref=e119]: Register a Website Push Identifier (Website Push ID). Registering your Website Push IDs lets you generate Apple-issued certificates which are used to digitally sign and send push notifications from your website to macOS.
+              - generic:
+                - emphasis
+          - listitem [ref=e120]:
+            - radio "iCloud Containers Registering your iCloud Container lets you use the iCloud Storage APIs to enable your apps to store data and documents in iCloud, keeping your apps up to date automatically." [ref=e122]
+            - generic [ref=e123]:
+              - heading "iCloud Containers" [level=5] [ref=e125]
+              - paragraph [ref=e126]: Registering your iCloud Container lets you use the iCloud Storage APIs to enable your apps to store data and documents in iCloud, keeping your apps up to date automatically.
+              - generic:
+                - emphasis
+          - listitem [ref=e127]:
+            - radio "App Groups Registering your App Group allows access to group containers that are shared among multiple related apps, and allows certain additional interprocess communication between the apps." [ref=e129]
+            - generic [ref=e130]:
+              - heading "App Groups" [level=5] [ref=e132]
+              - paragraph [ref=e133]: Registering your App Group allows access to group containers that are shared among multiple related apps, and allows certain additional interprocess communication between the apps.
+              - generic:
+                - emphasis
+          - listitem [ref=e134]:
+            - radio "Merchant IDs Register your Merchant Identifiers (Merchant IDs) to enable your apps and websites to process transactions for physical goods and services. Generate an Apple Pay Payment Processing certificate for each registered Merchant ID to validate transactions initiated within your app and/or website." [ref=e136]
+            - generic [ref=e137]:
+              - heading "Merchant IDs" [level=5] [ref=e139]
+              - paragraph [ref=e140]: Register your Merchant Identifiers (Merchant IDs) to enable your apps and websites to process transactions for physical goods and services. Generate an Apple Pay Payment Processing certificate for each registered Merchant ID to validate transactions initiated within your app and/or website.
+              - generic:
+                - emphasis
+          - listitem [ref=e141]:
+            - radio "Media IDs Register a media identifier (Media ID) for each app that uses the Apple Music API, ShazamKit or Apple Music Feed. Then create an associated private key." [ref=e143]
+            - generic [ref=e144]:
+              - heading "Media IDs" [level=5] [ref=e146]
+              - paragraph [ref=e147]: Register a media identifier (Media ID) for each app that uses the Apple Music API, ShazamKit or Apple Music Feed. Then create an associated private key.
+              - generic:
+                - emphasis
+          - listitem [ref=e148]:
+            - radio "Maps IDs For each website that uses MapKit JS, register a Maps identifier (Maps ID) then create an associated private key." [ref=e150]
+            - generic [ref=e151]:
+              - heading "Maps IDs" [level=5] [ref=e153]
+              - paragraph [ref=e154]: For each website that uses MapKit JS, register a Maps identifier (Maps ID) then create an associated private key.
+              - generic:
+                - emphasis
+  - contentinfo [ref=e66]:
+    - generic [ref=e68]:
+      - paragraph [ref=e69]: Copyright © 2026 Apple Inc. All rights reserved.
+      - list [ref=e70]:
+        - listitem [ref=e71]:
+          - link "Terms of Use" [ref=e72] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/terms/site.html
+        - listitem [ref=e73]:
+          - link "Privacy Policy" [ref=e74] [cursor=pointer]:
+            - /url: https://www.apple.com/privacy/

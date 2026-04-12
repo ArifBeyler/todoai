@@ -1,0 +1,103 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e10] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - link "Home" [ref=e13] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e14]
+      - button "DayFrame" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: D
+          - generic [ref=e21]: DayFrame
+        - img [ref=e23]
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - combobox "Search…" [ref=e30]
+        - generic [ref=e32]: ⌘K
+        - group
+      - link "Help" [ref=e33] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e34]
+        - generic: Help
+      - link "Account" [ref=e36] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e37]
+        - generic: Account
+    - generic [ref=e39]:
+      - navigation [ref=e40]:
+        - link "Overview" [ref=e41] [cursor=pointer]:
+          - /url: /projects/1cd787ed/overview
+          - img [ref=e42]
+          - generic: Overview
+        - link "Charts" [ref=e44] [cursor=pointer]:
+          - /url: /projects/1cd787ed/charts
+          - img [ref=e45]
+          - generic: Charts
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-lists
+          - img [ref=e48]
+          - generic: Customers
+        - link "Product catalog" [ref=e50] [cursor=pointer]:
+          - /url: /projects/1cd787ed/product-catalog
+          - img [ref=e51]
+        - link "Paywalls" [ref=e53] [cursor=pointer]:
+          - /url: /projects/1cd787ed/paywalls
+          - img [ref=e54]
+          - generic: Paywalls
+        - link "Ads" [ref=e56] [cursor=pointer]:
+          - /url: /projects/1cd787ed/ads
+          - img [ref=e57]
+          - generic: Ads
+        - link "Targeting" [ref=e59] [cursor=pointer]:
+          - /url: /projects/1cd787ed/targeting
+          - img [ref=e60]
+          - generic: Targeting
+        - link "Experiments" [ref=e62] [cursor=pointer]:
+          - /url: /projects/1cd787ed/experiments
+          - img [ref=e63]
+          - generic: Experiments
+        - link "Web" [ref=e65] [cursor=pointer]:
+          - /url: /projects/1cd787ed/web-home
+          - img [ref=e66]
+          - generic: Web
+        - link "Customer Center" [ref=e68] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-center
+          - img [ref=e69]
+          - generic: Customer Center
+        - link "Apps & providers" [ref=e72] [cursor=pointer]:
+          - /url: /projects/1cd787ed/apps
+          - img [ref=e73]
+        - link "Integrations" [ref=e75] [cursor=pointer]:
+          - /url: /projects/1cd787ed/integrations
+          - img [ref=e76]
+          - generic: Integrations
+        - link "Project settings" [ref=e78] [cursor=pointer]:
+          - /url: /projects/1cd787ed/settings
+          - img [ref=e79]
+      - main [ref=e81]:
+        - generic [ref=e531]:
+          - navigation [ref=e534]:
+            - list [ref=e535]:
+              - listitem [ref=e536]:
+                - button [ref=e537] [cursor=pointer]:
+                  - img [ref=e538]
+              - listitem [ref=e540]: /
+              - listitem [ref=e541]:
+                - link "Integrations" [ref=e542] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/integrations
+              - listitem [ref=e543]: /
+              - listitem [ref=e544]:
+                - link "Webhooks Integration" [ref=e545] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/integrations/webhooks
+          - generic [ref=e547]:
+            - heading "Webhooks" [level=2] [ref=e550]
+            - generic [ref=e551]:
+              - paragraph [ref=e552]: RevenueCat can send you notifications any time an event happens in your app. This is useful for subscription and purchase events, which will allow you to monitor state changes for your subscribers and react accordingly.
+              - link "Webhooks Add new configuration" [ref=e556] [cursor=pointer]:
+                - /url: /projects/1cd787ed/integrations/webhooks/add
+                - img [ref=e559]
+                - generic [ref=e561]:
+                  - generic [ref=e563]: Webhooks
+                  - paragraph [ref=e564]: Add new configuration

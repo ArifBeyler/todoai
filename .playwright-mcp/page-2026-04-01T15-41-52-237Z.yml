@@ -1,0 +1,143 @@
+- generic [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e24]:
+    - button "Apps menu, Doara, selected" [ref=e50] [cursor=pointer]:
+      - generic [ref=e51]:
+        - generic "Doara" [ref=e52]:
+          - img "Doara" [ref=e53]
+        - generic [ref=e55]: Doara
+      - img [ref=e57]
+    - navigation "Apps" [ref=e26]:
+      - generic [ref=e27] [cursor=pointer]:
+        - generic [ref=e28]: Distribution
+        - img [ref=e30]
+      - list:
+        - listitem:
+          - link "Distribution":
+            - /url: /apps/6761487007/distribution
+        - listitem:
+          - link "Analytics":
+            - /url: /apps/6761487007/analytics
+        - listitem:
+          - link "TestFlight":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/testflight
+        - listitem:
+          - link "Xcode Cloud":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/ci
+  - generic [ref=e61]:
+    - main [ref=e62]:
+      - generic [ref=e69]:
+        - heading "Subscriptions" [level=2] [ref=e75]:
+          - button "Subscriptions" [ref=e76] [cursor=pointer]:
+            - text: Subscriptions
+            - img [ref=e77]
+        - separator [ref=e80]
+        - generic [ref=e81]:
+          - img [ref=e82]
+          - paragraph [ref=e84]:
+            - generic [ref=e85]:
+              - text: Your first subscription must be submitted with a new app version. Create your subscription, then select it from the app’s In-App Purchases and Subscriptions section on the version page before submitting the version to App Review.
+              - text: Once your binary has been uploaded and your first subscription has been submitted for review, additional subscriptions can be submitted from the Subscriptions section.
+              - link "Learn More" [ref=e86] [cursor=pointer]:
+                - /url: https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-for-review
+        - heading "Auto-Renewable Subscriptions" [level=3] [ref=e87]
+        - paragraph [ref=e88]:
+          - generic [ref=e89]:
+            - text: A subscription is a product that allows users to purchase dynamic content for a set period. This type of subscription renews automatically unless cancelled by the user. Once your binary has been uploaded and your first subscription has been submitted for review, additional subscriptions can be submitted using the table below.
+            - link "Learn More" [ref=e90] [cursor=pointer]:
+              - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/offer-auto-renewable-subscriptions
+        - generic [ref=e91]:
+          - heading "Subscription Groups" [level=3] [ref=e95]
+          - generic [ref=e98]:
+            - paragraph [ref=e99]:
+              - generic [ref=e100]:
+                - text: You can create a subscription after you create a subscription group. All subscriptions must be a part of a group. Users can only subscribe to one subscription in a group at a time, but can change to another subscription in the same group. If they do, you'll still receive 85% of the proceeds in the second year (after tax, if applicable).
+                - link "Learn More" [ref=e101] [cursor=pointer]:
+                  - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/offer-auto-renewable-subscriptions
+            - button "Create" [ref=e103] [cursor=pointer]
+        - generic [ref=e104]:
+          - heading "Billing Grace Period" [level=5] [ref=e106]
+          - paragraph [ref=e107]:
+            - generic [ref=e108]:
+              - text: A billing grace period lets subscribers retain access to your app's paid content even after their subscription expires due to a billing issue. If Apple successfully recovers the subscription during this grace period, you will not experience any interruption in your revenue.
+              - link "Learn more" [ref=e109] [cursor=pointer]:
+                - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/enable-billing-grace-period-for-auto-renewable-subscriptions
+          - paragraph [ref=e112]:
+            - button "Set Up Billing Grace Period" [ref=e113] [cursor=pointer]
+        - generic [ref=e114]:
+          - heading "Streamlined Purchasing" [level=5] [ref=e115]
+          - paragraph [ref=e116]:
+            - generic [ref=e117]:
+              - text: Streamlined purchasing lets customers buy subscriptions from outside your app. You can turn it off for subscriptions with contingent pricing or win-back offers.
+              - link "Learn More" [ref=e118] [cursor=pointer]:
+                - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/manage-streamlined-purchasing
+          - generic [ref=e119]:
+            - paragraph [ref=e120]: Turned On
+            - paragraph [ref=e121]:
+              - button "Edit" [ref=e122] [cursor=pointer]
+        - separator [ref=e123]
+        - heading "Non-Renewing Subscriptions" [level=3] [ref=e124]
+        - paragraph [ref=e125]: Users can purchase access to services or content for a limited duration, such as a season pass to in-game content. This type of subscription doesn't renew automatically, so users need to purchase a new subscription once it concludes if they wish to retain access.
+        - paragraph [ref=e126]:
+          - link "Manage" [ref=e127] [cursor=pointer]:
+            - /url: /apps/6761487007/distribution/non-renewing-subscriptions
+    - dialog "Create Subscription Group" [ref=e128]:
+      - generic [ref=e130]:
+        - generic [ref=e131]:
+          - heading "Create Subscription Group" [level=2] [ref=e132]
+          - generic [ref=e133]:
+            - paragraph [ref=e134]:
+              - generic [ref=e135]:
+                - text: You can create a subscription after you create a subscription group. All subscriptions must be a part of a group. Users can only subscribe to one subscription in a group at a time, but can change to another subscription in the same group. If they do, you'll still receive 85% of the proceeds in the second year (after tax, if applicable).
+                - link "Learn More" [ref=e136] [cursor=pointer]:
+                  - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/offer-auto-renewable-subscriptions
+            - generic [ref=e137]: Reference Name
+            - textbox "Reference Name" [active] [ref=e139]
+            - paragraph [ref=e141]: "64"
+        - generic [ref=e143]:
+          - button "Cancel" [ref=e145] [cursor=pointer]
+          - button "Create" [disabled] [ref=e147]
+  - contentinfo [ref=e34]:
+    - generic [ref=e35]:
+      - list [ref=e36]:
+        - listitem [ref=e37]:
+          - link "App Store Connect" [ref=e38] [cursor=pointer]:
+            - /url: /apps
+      - list [ref=e39]:
+        - listitem [ref=e40]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e41]:
+          - link "Terms of Service" [ref=e42] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e43]:
+          - link "Privacy Policy" [ref=e44] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e45]:
+          - link "Contact Us" [ref=e46] [cursor=pointer]:
+            - /url: /contact-us

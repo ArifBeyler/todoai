@@ -1,0 +1,206 @@
+- generic [active] [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e22]:
+        - link "App Store Connect" [ref=e23] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e24]:
+              - link "Apps" [ref=e25] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e26]:
+              - link "Trends" [ref=e27] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e28]:
+              - link "Reports" [ref=e29] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e30]:
+              - link "Business" [ref=e31] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e32]:
+              - link "Users and Access" [ref=e33] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e34] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e37]:
+    - button "Apps menu, Doara, selected" [ref=e41] [cursor=pointer]:
+      - generic [ref=e42]:
+        - generic "Doara" [ref=e43]:
+          - img "Doara" [ref=e44]
+        - generic [ref=e46]: Doara
+      - img [ref=e48]
+    - navigation "Apps" [ref=e51]:
+      - generic [ref=e52] [cursor=pointer]:
+        - generic [ref=e53]: Distribution
+        - img [ref=e55]
+      - list:
+        - listitem:
+          - link "Distribution":
+            - /url: /apps/6761487007/distribution
+        - listitem:
+          - link "Analytics":
+            - /url: /apps/6761487007/analytics
+        - listitem:
+          - link "TestFlight":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/testflight
+        - listitem:
+          - link "Xcode Cloud":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/ci
+  - main [ref=e60]:
+    - generic [ref=e204]:
+      - generic [ref=e208]:
+        - link "Subscriptions" [ref=e212] [cursor=pointer]:
+          - /url: /apps/6761487007/distribution/subscription-groups/22008600
+          - generic [ref=e213]:
+            - img [ref=e214]
+            - text: Subscriptions
+        - generic [ref=e216]:
+          - heading "Doara Pro Yearly" [level=2] [ref=e217]
+          - button "Save" [disabled] [ref=e219]
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - img [ref=e222]
+          - paragraph [ref=e224]:
+            - generic [ref=e225]:
+              - text: Your first subscription must be submitted with a new app version. Create your subscription, then select it from the app’s In-App Purchases and Subscriptions section on the version page before submitting the version to App Review.
+              - text: Once your binary has been uploaded and your first subscription has been submitted for review, additional subscriptions can be submitted from the Subscriptions section.
+              - link "Learn More" [ref=e226] [cursor=pointer]:
+                - /url: https://developer.apple.com/help/app-store-connect/manage-submissions-to-app-review/submit-for-review
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - text: Reference Name
+              - button "More information" [ref=e231] [cursor=pointer]: "?"
+            - textbox "Reference Name More information" [ref=e233]: Doara Pro Yearly
+            - paragraph [ref=e235]: "48"
+          - generic [ref=e236]:
+            - generic [ref=e237]: Status
+            - paragraph [ref=e238]:
+              - img [ref=e239]
+              - text: Missing Metadata
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - text: Apple ID
+              - button "More information" [ref=e244] [cursor=pointer]: "?"
+            - paragraph [ref=e245]: "6761488062"
+          - generic [ref=e246]:
+            - generic [ref=e247]:
+              - text: Product ID
+              - button "More information" [ref=e249] [cursor=pointer]: "?"
+            - paragraph [ref=e250]: doara_pro_yearly
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - text: Subscription Duration
+              - button "More information" [ref=e254] [cursor=pointer]: "?"
+            - combobox [ref=e256]:
+              - option "Choose" [selected]
+              - option "1 week"
+              - option "1 month"
+              - option "2 months"
+              - option "3 months"
+              - option "6 months"
+              - option "1 year"
+          - generic [ref=e257]:
+            - generic [ref=e258]: Group Reference Name
+            - paragraph [ref=e259]:
+              - link "Doara Pro" [ref=e260] [cursor=pointer]:
+                - /url: /apps/6761487007/distribution/subscription-groups/22008600
+          - generic [ref=e261]:
+            - generic [ref=e262]:
+              - text: Family Sharing
+              - button "More information" [ref=e264] [cursor=pointer]: "?"
+            - paragraph [ref=e265]: Allow family members to share this subscription without having to use each other's accounts.
+            - paragraph [ref=e266]:
+              - button "Turn On" [ref=e267] [cursor=pointer]
+        - separator [ref=e268]
+        - generic [ref=e270]:
+          - heading "Availability" [level=3] [ref=e272]
+          - generic [ref=e350]:
+            - paragraph [ref=e351]: Select which countries or regions you want to make your subscription available in.
+            - button "Set Up Availability" [ref=e352] [cursor=pointer]
+        - separator [ref=e278]
+        - generic [ref=e279]:
+          - generic [ref=e280]:
+            - heading "Subscription Prices" [level=3] [ref=e281]
+            - link "All Prices and Currencies" [ref=e282] [cursor=pointer]:
+              - /url: /apps/6761487007/distribution/subscriptions/6761488062/pricing-matrix
+              - paragraph [ref=e283]: All Prices and Currencies
+          - generic [ref=e354]:
+            - paragraph [ref=e355]:
+              - generic [ref=e356]:
+                - text: Set up a starting subscription price. Once your subscription price is created, you can set up an introductory or promotional offer (pay as you go, pay up front, free).
+                - link "Learn More" [ref=e357] [cursor=pointer]:
+                  - /url: https://developer.apple.com/help/app-store-connect/manage-subscriptions/manage-pricing-for-auto-renewable-subscriptions
+            - button "Add Subscription Price" [ref=e358] [cursor=pointer]
+        - separator [ref=e285]
+        - generic [ref=e286]:
+          - heading "Localization" [level=3] [ref=e290]
+          - generic [ref=e293]:
+            - paragraph [ref=e294]: Provide a display name and description for your subscription, and we'll show this on the App Store.
+            - button "Add Localization" [ref=e296] [cursor=pointer]
+        - generic [ref=e297]:
+          - heading "Image (Optional)" [level=3] [ref=e299]
+          - paragraph [ref=e300]:
+            - generic [ref=e301]:
+              - text: Add a 1024 x 1024 pixel image that best represents this subscription. It will be used for any win-back offers or offer code redemptions for this subscription. If you enable App Store Promotion for this subscription, this image will also appear on your app's product page.
+              - link "Learn More" [ref=e302] [cursor=pointer]:
+                - /url: https://developer.apple.com/help/app-store-connect/manage-in-app-purchases/view-and-edit-in-app-purchase-information
+          - generic [ref=e306] [cursor=pointer]:
+            - button "Choose File" [ref=e307]
+            - generic [ref=e309]: Choose File
+        - separator [ref=e310]
+        - generic [ref=e311]:
+          - heading "Tax Category ? Edit" [level=3] [ref=e313]:
+            - text: Tax Category
+            - button "?" [ref=e315] [cursor=pointer]
+            - button "Edit" [ref=e316] [cursor=pointer]
+          - paragraph [ref=e317]:
+            - generic [ref=e318]:
+              - text: You’re responsible for selecting and maintaining accurate tax categories and all applicable attributes. This subscription will use the app’s tax category unless you choose a different one. Changing the tax category for this subscription won’t affect the tax category for your app or any other in-app purchase or subscription. Any changes will only affect future sales.
+              - link "Learn More" [ref=e319] [cursor=pointer]:
+                - /url: https://help.apple.com/app-store-connect/#/dev2bd41114d
+          - generic [ref=e321]:
+            - generic [ref=e322]: Category
+            - paragraph [ref=e323]: Match to parent app
+        - separator [ref=e324]
+        - generic [ref=e325]:
+          - heading "Review Information" [level=3] [ref=e327]
+          - generic [ref=e328]:
+            - generic [ref=e329]:
+              - generic [ref=e330]:
+                - text: Screenshot
+                - button "More information" [ref=e332] [cursor=pointer]: "?"
+              - generic [ref=e334] [cursor=pointer]:
+                - button "Choose File" [ref=e335]
+                - generic [ref=e337]: Choose File
+            - generic [ref=e338]:
+              - generic [ref=e339]:
+                - text: Review Notes (Optional)
+                - button "More information" [ref=e341] [cursor=pointer]: "?"
+              - textbox "Review Notes (Optional) More information" [ref=e343]
+              - paragraph [ref=e345]: "4000"
+        - separator [ref=e346]
+        - paragraph [ref=e347]:
+          - button "Delete This Subscription" [ref=e348] [cursor=pointer]
+  - contentinfo [ref=e9]:
+    - generic [ref=e10]:
+      - list [ref=e173]:
+        - listitem [ref=e174]:
+          - link "App Store Connect" [ref=e175] [cursor=pointer]:
+            - /url: /apps
+      - list [ref=e11]:
+        - listitem [ref=e12]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e13]:
+          - link "Terms of Service" [ref=e14] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e15]:
+          - link "Privacy Policy" [ref=e16] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e17]:
+          - link "Contact Us" [ref=e18] [cursor=pointer]:
+            - /url: /contact-us

@@ -1,24 +1,24 @@
 {
   "expo": {
-    "name": "DayFrame",
-    "slug": "dayframe",
+    "name": "Doara",
+    "slug": "doara",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "dayframe",
+    "scheme": "doara",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FCFCF7"
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.arifbeyler.dayframe"
+      "bundleIdentifier": "com.arifbeyler.doara"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FCFCF7",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

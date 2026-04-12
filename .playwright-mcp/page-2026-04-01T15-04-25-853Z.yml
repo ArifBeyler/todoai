@@ -1,0 +1,159 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e10] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - link "Home" [ref=e13] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e14]
+      - button "DayFrame" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: D
+          - generic [ref=e21]: DayFrame
+        - img [ref=e23]
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - combobox "Search…" [ref=e30]
+        - generic [ref=e32]: ⌘K
+        - group
+      - link "Help" [ref=e33] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e34]
+        - generic: Help
+      - link "Account" [ref=e36] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e37]
+        - generic: Account
+    - generic [ref=e39]:
+      - navigation [ref=e40]:
+        - link "Overview" [ref=e41] [cursor=pointer]:
+          - /url: /projects/1cd787ed/overview
+          - img [ref=e42]
+          - generic: Overview
+        - link "Charts" [ref=e44] [cursor=pointer]:
+          - /url: /projects/1cd787ed/charts
+          - img [ref=e45]
+          - generic: Charts
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-lists
+          - img [ref=e48]
+          - generic: Customers
+        - link "Product catalog" [ref=e50] [cursor=pointer]:
+          - /url: /projects/1cd787ed/product-catalog
+          - img [ref=e51]
+        - link "Paywalls" [ref=e53] [cursor=pointer]:
+          - /url: /projects/1cd787ed/paywalls
+          - img [ref=e54]
+          - generic: Paywalls
+        - link "Ads" [ref=e56] [cursor=pointer]:
+          - /url: /projects/1cd787ed/ads
+          - img [ref=e57]
+          - generic: Ads
+        - link "Targeting" [ref=e59] [cursor=pointer]:
+          - /url: /projects/1cd787ed/targeting
+          - img [ref=e60]
+          - generic: Targeting
+        - link "Experiments" [ref=e62] [cursor=pointer]:
+          - /url: /projects/1cd787ed/experiments
+          - img [ref=e63]
+          - generic: Experiments
+        - link "Web" [ref=e65] [cursor=pointer]:
+          - /url: /projects/1cd787ed/web-home
+          - img [ref=e66]
+          - generic: Web
+        - link "Customer Center" [ref=e68] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-center
+          - img [ref=e69]
+          - generic: Customer Center
+        - link "Apps & providers" [ref=e72] [cursor=pointer]:
+          - /url: /projects/1cd787ed/apps
+          - img [ref=e73]
+        - link "Integrations" [ref=e75] [cursor=pointer]:
+          - /url: /projects/1cd787ed/integrations
+          - img [ref=e76]
+          - generic: Integrations
+        - link "Project settings" [ref=e78] [cursor=pointer]:
+          - /url: /projects/1cd787ed/settings
+          - img [ref=e79]
+      - main [ref=e81]:
+        - generic [ref=e224]:
+          - navigation [ref=e227]:
+            - list [ref=e228]:
+              - listitem [ref=e229]:
+                - button [ref=e230] [cursor=pointer]:
+                  - img [ref=e231]
+              - listitem [ref=e233]: /
+              - listitem [ref=e234]:
+                - link "Apps & providers" [ref=e235] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/apps
+              - listitem [ref=e236]: /
+              - listitem [ref=e237]:
+                - link "New App Store app" [ref=e238] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/new-app/app_store
+          - generic [ref=e240]:
+            - heading "New App Store app" [level=2] [ref=e243]
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - generic [ref=e248]:
+                  - generic [ref=e249]:
+                    - generic [ref=e250]: App name
+                    - generic [ref=e251]: Required
+                  - generic [ref=e254]:
+                    - textbox "App name" [ref=e255]:
+                      - /placeholder: app name
+                      - text: DayFrame (App Store)
+                    - group
+                - generic [ref=e257]:
+                  - generic [ref=e258]:
+                    - generic [ref=e259]: App Bundle ID
+                    - generic [ref=e260]: Required
+                  - generic [ref=e263]:
+                    - textbox "App Bundle ID" [ref=e264]:
+                      - /placeholder: com.myapp.bundleid
+                    - group
+                  - generic [ref=e265]: This is specified in your Xcode project
+              - separator [ref=e266]
+              - generic [ref=e267]:
+                - generic [ref=e268]:
+                  - heading "In-app purchase key configuration" [level=3] [ref=e270]
+                  - paragraph [ref=e271]: Required
+                - paragraph [ref=e272]:
+                  - text: Required for the most accurate pricing and country-specific data for your App Store transactions. After uploading this key, you may see updates to your historical data. When using Purchases v5.x+ (i.e., StoreKit 2), transactions will fail to be recorded without this key being set. This can result in users not accessing the purchases they are entitled to.
+                  - link "Learn more." [ref=e273] [cursor=pointer]:
+                    - /url: https://www.revenuecat.com/docs/service-credentials/itunesconnect-app-specific-shared-secret/in-app-purchase-key-configuration
+                - generic [ref=e274]:
+                  - button "Select existing key" [ref=e275] [cursor=pointer]
+                  - generic:
+                    - combobox [ref=e276] [cursor=pointer]
+                    - textbox
+                    - img
+                    - group
+                  - button "Add new key" [ref=e277] [cursor=pointer]
+              - separator [ref=e278]
+              - generic [ref=e279]:
+                - heading "App Store Connect API" [level=3] [ref=e281]
+                - paragraph [ref=e282]:
+                  - text: An App Store Connect API key is required if you want to import products into RevenueCat, have product price changes automatically applied, and more.
+                  - link "Learn more" [ref=e283] [cursor=pointer]:
+                    - /url: https://www.revenuecat.com/docs/app-store-connect-api-key-configuration
+                  - text: .
+                - generic [ref=e284]:
+                  - button "Select existing key" [ref=e285] [cursor=pointer]
+                  - generic:
+                    - combobox [ref=e286] [cursor=pointer]
+                    - textbox
+                    - img
+                    - group
+                  - button "Add new key" [ref=e287] [cursor=pointer]
+              - separator [ref=e288]
+            - heading "Apple Small Business Program" [level=3] [ref=e290]:
+              - button "Apple Small Business Program" [ref=e291] [cursor=pointer]:
+                - img [ref=e292]
+                - paragraph [ref=e296]: Apple Small Business Program
+            - heading "App-specific shared secret (Legacy)" [level=3] [ref=e298]:
+              - button "App-specific shared secret (Legacy)" [ref=e299] [cursor=pointer]:
+                - img [ref=e300]
+                - paragraph [ref=e304]: App-specific shared secret (Legacy)
+          - generic [ref=e306]:
+            - button "Save changes" [disabled]

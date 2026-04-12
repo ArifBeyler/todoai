@@ -1,0 +1,52 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e412] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - link "Home" [ref=e413] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e414]
+      - button "All projects" [ref=e415] [cursor=pointer]:
+        - generic [ref=e11]: All projects
+        - img [ref=e18]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - combobox "Search…" [ref=e416]
+        - generic [ref=e27]: ⌘K
+        - group
+      - link "Help" [ref=e417] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e29]
+        - generic: Help
+      - link "Account" [ref=e418] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e33]
+        - generic: Account
+    - main [ref=e419]:
+      - generic [ref=e424]:
+        - heading "Create a project" [level=2] [ref=e425]
+        - generic [ref=e427]:
+          - generic [ref=e428]:
+            - generic [ref=e430]: Project name
+            - generic [ref=e433]:
+              - textbox "Project name" [ref=e434]:
+                - /placeholder: e.g. NowPurring
+                - text: DayFrame
+              - group
+            - generic [ref=e435]: You can add multiple app configurations and collaborators to the project. You can rename your project later.
+          - generic [ref=e437]:
+            - generic [ref=e439]: Category
+            - generic [ref=e444]:
+              - combobox "Category" [active] [ref=e445]: Productivity
+              - button "Open" [ref=e494] [cursor=pointer]:
+                - img [ref=e448]
+              - group
+          - generic [ref=e451]:
+            - generic [ref=e453]: Platform(s)
+            - generic [ref=e458]:
+              - combobox "Platform(s)" [ref=e459]
+              - button "Open" [ref=e461] [cursor=pointer]:
+                - img [ref=e462]
+              - group
+        - button "Create project" [ref=e465] [cursor=pointer]

@@ -1,0 +1,263 @@
+- generic [active] [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e504]:
+    - button "Apps menu, Doara, selected" [ref=e508] [cursor=pointer]:
+      - generic [ref=e509]:
+        - generic "Doara" [ref=e510]:
+          - img "Doara" [ref=e511]
+        - generic [ref=e513]: Doara
+      - img [ref=e515]
+    - navigation "Apps" [ref=e518]:
+      - generic [ref=e519] [cursor=pointer]:
+        - generic [ref=e520]: Distribution
+        - img [ref=e522]
+      - list:
+        - listitem:
+          - link "Distribution":
+            - /url: /apps/6761487007/distribution
+        - listitem:
+          - link "Analytics":
+            - /url: /apps/6761487007/analytics
+        - listitem:
+          - link "TestFlight":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/testflight
+        - listitem:
+          - link "Xcode Cloud":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/apps/6761487007/ci
+  - main [ref=e525]:
+    - generic [ref=e533]:
+      - generic [ref=e534]:
+        - generic [ref=e535]:
+          - generic [ref=e536]:
+            - heading "iOS App Version 1.0" [level=2] [ref=e539]:
+              - button "iOS App Version 1.0" [ref=e540] [cursor=pointer]:
+                - text: iOS App Version 1.0
+                - img [ref=e541]
+            - paragraph [ref=e543]:
+              - img [ref=e544]
+              - text: Prepare for Submission
+          - generic [ref=e546]:
+            - button "Save" [disabled] [ref=e547]
+            - button "Add for Review" [ref=e548] [cursor=pointer]
+        - separator [ref=e549]
+      - generic [ref=e550]:
+        - generic [ref=e553]:
+          - paragraph [ref=e555]: The assets and metadata below appear on your app’s product page, when users install your app, and will be used for web engine search results once you release your app.
+          - generic [ref=e558]:
+            - button "Turkish" [ref=e559] [cursor=pointer]:
+              - text: Turkish
+              - img [ref=e560]
+            - button "?" [ref=e564] [cursor=pointer]
+        - separator [ref=e565]
+        - generic [ref=e566]:
+          - heading "Previews and Screenshots" [level=3] [ref=e567]
+          - button "More information" [ref=e569] [cursor=pointer]: "?"
+        - paragraph [ref=e570]: Adding accurate screenshots of your app on the newest devices can help you represent the app's user experience. Keep in mind that we'll use these screenshots for all display sizes and localizations. Screenshots are only required for iOS apps, and only the first 3 will be used on the app installation sheets.
+        - generic [ref=e571]:
+          - tablist [ref=e572]:
+            - tab "iPhone" [selected] [ref=e573] [cursor=pointer]:
+              - generic [ref=e574]: iPhone
+            - tab "iPad" [ref=e575] [cursor=pointer]:
+              - generic [ref=e576]: iPad
+            - tab "Apple Watch" [ref=e577] [cursor=pointer]:
+              - generic [ref=e578]: Apple Watch
+          - paragraph [ref=e579]:
+            - link "View All Sizes in Media Manager" [ref=e580] [cursor=pointer]:
+              - /url: /apps/6761487007/distribution/ios/version/inflight/media-manager/iphone
+        - generic [ref=e582]:
+          - generic:
+            - alert
+          - tabpanel "iPhone" [ref=e583]:
+            - generic [ref=e584]:
+              - generic [ref=e585]:
+                - img [ref=e588]
+                - generic [ref=e593]:
+                  - generic [ref=e594]: iPhone
+                  - generic [ref=e595]: 6.5" Display
+              - region [ref=e596]:
+                - tabpanel [ref=e597]:
+                  - generic [ref=e600]:
+                    - paragraph [ref=e601]: Drag up to 3 app previews and 10 screenshots here.
+                    - paragraph [ref=e602]: (1242 × 2688px, 2688 × 1242px, 1284 × 2778px or 2778 × 1284px)
+                  - generic [ref=e603]:
+                    - paragraph [ref=e605]: 0 of 3 App Previews
+                    - paragraph [ref=e607]: 0 of 10 Screenshots
+                    - paragraph [ref=e610]:
+                      - button "Choose File" [ref=e611] [cursor=pointer]
+                    - paragraph [ref=e613]:
+                      - button "Delete All" [disabled] [ref=e614]
+        - generic [ref=e615]:
+          - generic [ref=e616]:
+            - generic [ref=e618]:
+              - generic [ref=e619]: Promotional Text
+              - button "More information" [ref=e621] [cursor=pointer]: "?"
+            - textbox "Promotional Text" [ref=e623]
+            - status "Characters remaining" [ref=e625]: "170"
+          - separator [ref=e627]
+          - generic [ref=e628]:
+            - generic [ref=e630]:
+              - generic [ref=e631]: Description
+              - button "More information" [ref=e633] [cursor=pointer]: "?"
+            - textbox "Description" [ref=e635]
+            - status "Characters remaining" [ref=e637]: "4.000"
+          - generic [ref=e638]:
+            - generic [ref=e640]:
+              - generic [ref=e641]: Keywords
+              - button "More information" [ref=e643] [cursor=pointer]: "?"
+            - textbox "Keywords" [ref=e645]
+            - status "Characters remaining" [ref=e647]: "100"
+          - generic [ref=e648]:
+            - generic [ref=e650]:
+              - generic [ref=e651]: Support URL
+              - button "More information" [ref=e653] [cursor=pointer]: "?"
+            - textbox "Support URL" [ref=e655]
+          - generic [ref=e656]:
+            - generic [ref=e658]:
+              - generic [ref=e659]: Marketing URL
+              - button "More information" [ref=e661] [cursor=pointer]: "?"
+            - textbox "Marketing URL" [ref=e663]
+          - generic [ref=e664]:
+            - generic [ref=e666]:
+              - generic [ref=e667]: Version
+              - button "More information" [ref=e669] [cursor=pointer]: "?"
+            - textbox "Version" [ref=e671]: "1.0"
+          - generic [ref=e672]:
+            - generic [ref=e674]:
+              - generic [ref=e675]: Copyright
+              - button "More information" [ref=e677] [cursor=pointer]: "?"
+            - textbox "Copyright" [ref=e679]
+            - status "Characters remaining" [ref=e681]: "200"
+          - generic [ref=e682]:
+            - generic [ref=e684]:
+              - generic [ref=e685]: Routing App Coverage File
+              - button "More information" [ref=e687] [cursor=pointer]: "?"
+            - generic [ref=e689] [cursor=pointer]:
+              - button "Choose File" [ref=e690]
+              - generic [ref=e692]: Choose File
+        - separator [ref=e693]
+        - button "App Clip" [ref=e695] [cursor=pointer]:
+          - img [ref=e697]
+          - text: App Clip
+        - generic [ref=e700]:
+          - heading "iMessage App" [level=3] [ref=e701]:
+            - button "iMessage App" [ref=e702] [cursor=pointer]:
+              - img [ref=e704]
+              - text: iMessage App
+          - button "More information" [ref=e707] [cursor=pointer]: "?"
+      - generic [ref=e708]:
+        - heading "Build" [level=3] [ref=e710]
+        - generic [ref=e711]:
+          - img [ref=e712]
+          - paragraph [ref=e714]:
+            - generic [ref=e715]:
+              - text: If your app uses encryption, you're required to upload export compliance documentation. You can submit this documentation before you submit your app for review in the
+              - link "App Encryption Documentation section" [ref=e716] [cursor=pointer]:
+                - /url: /apps/6761487007/distribution/info
+              - text: ", or by uploading your app below."
+        - paragraph [ref=e719]:
+          - generic [ref=e720]:
+            - text: Upload your builds using one of several tools.
+            - link "See Upload Tools" [ref=e721] [cursor=pointer]:
+              - /url: https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds
+      - generic [ref=e727] [cursor=pointer]:
+        - checkbox "Game Center" [ref=e729]
+        - text: Game Center
+      - separator [ref=e731]
+      - generic [ref=e732]:
+        - heading "App Review Information" [level=3] [ref=e733]
+        - generic [ref=e734]:
+          - generic [ref=e735]:
+            - generic [ref=e736]:
+              - generic [ref=e738]:
+                - generic [ref=e739]: Sign-In Information
+                - button "More information" [ref=e741] [cursor=pointer]: "?"
+              - paragraph [ref=e742]: Provide a user name and password so we can sign in to your app. We’ll need this to complete your app review.
+              - generic [ref=e744]:
+                - checkbox "Sign-in required" [checked] [ref=e745]
+                - generic [ref=e747]: Sign-in required
+            - textbox "User name" [ref=e750]
+            - textbox "Password" [ref=e753]
+          - generic [ref=e754]:
+            - generic [ref=e756]:
+              - generic [ref=e757]: Contact Information
+              - button "More information" [ref=e759] [cursor=pointer]: "?"
+            - textbox "First name" [ref=e762]
+            - textbox "Last name" [ref=e765]
+            - textbox "Phone number" [ref=e768]
+            - textbox "Email" [ref=e771]
+          - generic [ref=e772]:
+            - generic [ref=e774]:
+              - generic [ref=e775]: Notes
+              - button "More information" [ref=e777] [cursor=pointer]: "?"
+            - textbox "Notes" [ref=e779]
+            - status "Characters remaining" [ref=e781]: "4.000"
+          - generic [ref=e782]:
+            - generic [ref=e784]:
+              - generic [ref=e785]: Attachment
+              - button "More information" [ref=e787] [cursor=pointer]: "?"
+            - generic [ref=e789] [cursor=pointer]:
+              - button "Choose File (Optional)" [ref=e790]
+              - generic [ref=e792]: Choose File (Optional)
+      - separator [ref=e793]
+      - generic [ref=e794]:
+        - heading "App Store Version Release" [level=3] [ref=e795]
+        - paragraph [ref=e796]: To make your app available on the App Store, you can automatically release it after it’s been approved by App Review. You can also manually release it on the App Store at a later date.
+        - generic [ref=e797]:
+          - generic [ref=e799]:
+            - generic [ref=e800]:
+              - radio "Manually release this version" [ref=e801]
+              - generic [ref=e803]: Manually release this version
+            - generic [ref=e804]:
+              - radio "Automatically release this version" [checked] [ref=e805]
+              - generic [ref=e807]: Automatically release this version
+            - generic [ref=e808]:
+              - radio "Automatically release this version after App Review, no earlier than" [ref=e809]
+              - generic [ref=e811]: Automatically release this version after App Review, no earlier than
+          - paragraph [ref=e813]: Your local date and time.
+          - generic [ref=e816]:
+            - textbox "Automatically release this version after App Review, no earlier than" [disabled] [ref=e817]: Apr 1, 2026 7:00 PM
+            - text: GMT+3
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - list [ref=e26]:
+        - listitem [ref=e818]:
+          - link "App Store Connect" [ref=e819] [cursor=pointer]:
+            - /url: /apps
+      - list [ref=e28]:
+        - listitem [ref=e29]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e30]:
+          - link "Terms of Service" [ref=e31] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e32]:
+          - link "Privacy Policy" [ref=e33] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e34]:
+          - link "Contact Us" [ref=e35] [cursor=pointer]:
+            - /url: /contact-us

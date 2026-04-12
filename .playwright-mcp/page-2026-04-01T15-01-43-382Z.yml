@@ -1,0 +1,85 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link [ref=e552] [cursor=pointer]:
+      - /url: "#main-content"
+      - text: skip to content
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - link [ref=e553] [cursor=pointer]:
+          - /url: /overview
+          - img [ref=e554]
+        - button [ref=e555] [cursor=pointer]:
+          - generic [ref=e11]:
+            - generic [ref=e513]: D
+            - generic [ref=e514]: DayFrame
+          - img [ref=e18]
+        - generic [ref=e21]:
+          - img [ref=e23]
+          - combobox [ref=e556]
+          - generic [ref=e27]: ⌘K
+          - group
+        - link [ref=e557] [cursor=pointer]:
+          - /url: /settings/support
+          - img [ref=e29]
+        - link [ref=e558] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e33]
+      - main [ref=e515]:
+        - generic [ref=e516]:
+          - generic [ref=e518]:
+            - generic [ref=e520]:
+              - generic [ref=e521]:
+                - heading [level=2] [ref=e559]: Let's get DayFrame ready!
+                - paragraph [ref=e523]: Set up your products to start selling. We’ve suggested a few based on our data, but you can change them as needed.
+              - generic [ref=e524]:
+                - generic [ref=e525]:
+                  - heading [level=4] [ref=e560]: Entitlement name
+                  - button [ref=e561] [cursor=pointer]: Edit
+                - heading [level=3] [ref=e562]: DayFrame Pro
+              - generic [ref=e529]:
+                - generic [ref=e530]:
+                  - heading [level=4] [ref=e563]: Default offering
+                  - button [ref=e564] [cursor=pointer]: Edit
+                - generic [ref=e533]:
+                  - generic [ref=e534]:
+                    - paragraph [ref=e535]: Monthly
+                    - paragraph [ref=e536]: Subscription
+                  - generic [ref=e537]:
+                    - paragraph [ref=e538]: Yearly
+                    - paragraph [ref=e539]: Subscription
+                  - generic [ref=e540]:
+                    - paragraph [ref=e541]: Lifetime
+                    - paragraph [ref=e542]: In-App Purchase
+            - generic [ref=e543]:
+              - button [ref=e565] [cursor=pointer]: View suggestions
+              - generic [ref=e546]:
+                - link [ref=e566] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/overview
+                  - text: Go to dashboard
+                - button [ref=e567] [cursor=pointer]: Continue
+          - img [ref=e568]
+  - dialog "Entitlement" [ref=e571]:
+    - generic [ref=e572]:
+      - heading "Entitlement" [level=2] [ref=e573]:
+        - text: Entitlement
+        - button [ref=e574] [cursor=pointer]:
+          - img [ref=e575]
+      - generic [ref=e577]:
+        - generic [ref=e579]:
+          - paragraph [ref=e580]: Entitlements are the levels of access you offer. Select the name of your main entitlement to continue.
+          - generic [ref=e581]:
+            - option "DayFrame Pro" [ref=e582] [cursor=pointer]:
+              - paragraph [ref=e586]: DayFrame Pro
+            - option "DayFrame Premium" [ref=e589] [cursor=pointer]:
+              - paragraph [ref=e593]: DayFrame Premium
+            - option "DayFrame Unlimited" [ref=e594] [cursor=pointer]:
+              - paragraph [ref=e598]: DayFrame Unlimited
+            - option "Other" [active] [selected] [ref=e599] [cursor=pointer]:
+              - generic [ref=e600]:
+                - paragraph [ref=e603]: Other
+                - img [ref=e606]
+              - generic [ref=e609]:
+                - textbox "DayFrame Gold" [ref=e610]
+                - group
+        - generic [ref=e604]:
+          - button "Save changes" [disabled]

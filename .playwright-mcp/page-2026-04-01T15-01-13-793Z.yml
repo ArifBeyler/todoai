@@ -1,0 +1,60 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e412] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - link "Home" [ref=e413] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e414]
+      - button "DayFrame" [ref=e511] [cursor=pointer]:
+        - generic [ref=e11]:
+          - generic [ref=e513]: D
+          - generic [ref=e514]: DayFrame
+        - img [ref=e18]
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - combobox "Search…" [ref=e416]
+        - generic [ref=e27]: ⌘K
+        - group
+      - link "Help" [ref=e417] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e29]
+        - generic: Help
+      - link "Account" [ref=e418] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e33]
+        - generic: Account
+    - main [ref=e515]:
+      - generic [ref=e516]:
+        - generic [ref=e518]:
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - heading "Let's get DayFrame ready!" [level=2] [ref=e522]
+              - paragraph [ref=e523]: Set up your products to start selling. We’ve suggested a few based on our data, but you can change them as needed.
+            - generic [ref=e524]:
+              - generic [ref=e525]:
+                - heading "Entitlement name" [level=4] [ref=e526]
+                - button "Edit" [ref=e527] [cursor=pointer]
+              - heading "DayFrame Pro" [level=3] [ref=e528]
+            - generic [ref=e529]:
+              - generic [ref=e530]:
+                - heading "Default offering" [level=4] [ref=e531]
+                - button "Edit" [ref=e532] [cursor=pointer]
+              - generic [ref=e533]:
+                - generic [ref=e534]:
+                  - paragraph [ref=e535]: Monthly
+                  - paragraph [ref=e536]: Subscription
+                - generic [ref=e537]:
+                  - paragraph [ref=e538]: Yearly
+                  - paragraph [ref=e539]: Subscription
+                - generic [ref=e540]:
+                  - paragraph [ref=e541]: Lifetime
+                  - paragraph [ref=e542]: In-App Purchase
+          - generic [ref=e543]:
+            - button "View suggestions" [ref=e545] [cursor=pointer]
+            - generic [ref=e546]:
+              - link "Go to dashboard" [ref=e547] [cursor=pointer]:
+                - /url: /projects/1cd787ed/overview
+              - button "Continue" [ref=e548] [cursor=pointer]
+        - img "Setting up your offering" [ref=e551]

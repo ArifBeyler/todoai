@@ -1,0 +1,67 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "Apple Developer" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: Apple Developer
+      - generic [ref=e9]:
+        - generic [ref=e10] [cursor=pointer]: Arif Hikmet Demirci 
+        - generic [ref=e11] [cursor=pointer]: ARIF HIKMET DEMIRCI - 73ANVUDATZ
+        - text: 
+    - heading "Certificates, Identifiers & Profiles" [level=1] [ref=e14]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - navigation [ref=e17]:
+        - list [ref=e18]:
+          - listitem [ref=e19] [cursor=pointer]:
+            - generic [ref=e20]: Certificates
+          - listitem [ref=e21]:
+            - generic [ref=e22]: Identifiers
+          - listitem [ref=e23] [cursor=pointer]:
+            - generic [ref=e24]: Devices
+          - listitem [ref=e25] [cursor=pointer]:
+            - generic [ref=e26]: Profiles
+          - listitem [ref=e27] [cursor=pointer]:
+            - generic [ref=e28]: Keys
+          - listitem [ref=e29] [cursor=pointer]:
+            - generic [ref=e30]: Services
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - heading "Identifiers" [level=2] [ref=e34]
+            - link "Add new identifier" [ref=e36] [cursor=pointer]:
+              - /url: /account/resources/identifiers/add/bundleId
+              - img [ref=e37]
+          - generic [ref=e39]:
+            - img [ref=e40] [cursor=pointer]
+            - generic [ref=e43] [cursor=pointer]: App IDs 
+        - table [ref=e45]:
+          - generic [ref=e47]:
+            - row "Name  Identifier" [ref=e48]:
+              - columnheader "Name " [ref=e49] [cursor=pointer]
+              - columnheader "Identifier" [ref=e50] [cursor=pointer]
+            - row "arifbeyleraiinteriorapp 6035383bb1b3e6819c1ce03507ae1e95 com.anonymous.aiinteriorapp" [ref=e51]:
+              - cell "arifbeyleraiinteriorapp 6035383bb1b3e6819c1ce03507ae1e95" [ref=e52]:
+                - generic [ref=e53]: arifbeyleraiinteriorapp 6035383bb1b3e6819c1ce03507ae1e95
+              - cell "com.anonymous.aiinteriorapp" [ref=e54]:
+                - generic [ref=e55]: com.anonymous.aiinteriorapp
+            - row "Wearify com.wearify.app" [ref=e56]:
+              - cell "Wearify" [ref=e57]:
+                - generic [ref=e58]: Wearify
+              - cell "com.wearify.app" [ref=e59]:
+                - generic [ref=e60]: com.wearify.app
+            - row "XC com velora music com.velora.music" [ref=e61]:
+              - cell "XC com velora music" [ref=e62]:
+                - generic [ref=e63]: XC com velora music
+              - cell "com.velora.music" [ref=e64]:
+                - generic [ref=e65]: com.velora.music
+  - contentinfo [ref=e66]:
+    - generic [ref=e68]:
+      - paragraph [ref=e69]: Copyright © 2026 Apple Inc. All rights reserved.
+      - list [ref=e70]:
+        - listitem [ref=e71]:
+          - link "Terms of Use" [ref=e72] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/terms/site.html
+        - listitem [ref=e73]:
+          - link "Privacy Policy" [ref=e74] [cursor=pointer]:
+            - /url: https://www.apple.com/privacy/

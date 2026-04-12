@@ -1,0 +1,222 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link [ref=e308] [cursor=pointer]:
+      - /url: "#main-content"
+      - text: skip to content
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - link [ref=e309] [cursor=pointer]:
+          - /url: /overview
+          - img [ref=e310]
+        - button [expanded] [ref=e311] [cursor=pointer]:
+          - generic [ref=e11]: All projects
+          - img [ref=e18]
+        - generic [ref=e21]:
+          - img [ref=e23]
+          - combobox [ref=e312]
+          - generic [ref=e27]: ⌘K
+          - group
+        - link [ref=e313] [cursor=pointer]:
+          - /url: /settings/support
+          - img [ref=e29]
+          - generic [ref=e31]: Help
+        - link [ref=e314] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e33]
+          - generic [ref=e35]: Account
+      - main [ref=e49]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - heading [level=2] [ref=e315]: Overview
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - switch [ref=e316] [cursor=pointer]
+                - text: Sandbox data
+              - link [ref=e317] [cursor=pointer]:
+                - /url: /charts
+                - text: Explore all charts
+          - generic [ref=e64]:
+            - link [ref=e318] [cursor=pointer]:
+              - /url: /overview
+              - text: All projects
+            - generic [ref=e67]:
+              - link [ref=e319] [cursor=pointer]:
+                - /url: /projects/23d46128/overview
+                - generic [ref=e71]: "5"
+                - generic [ref=e73]: 55DAY
+              - link [ref=e320] [cursor=pointer]:
+                - /url: /projects/87fb89e8/overview
+                - generic [ref=e77]: F
+                - generic [ref=e79]: Frinciepe
+              - link [ref=e321] [cursor=pointer]:
+                - /url: /projects/0c144fe2/overview
+                - img [ref=e322]
+                - generic [ref=e85]: Wearify
+            - button [ref=e323] [cursor=pointer]:
+              - img [ref=e324]
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - link [ref=e325] [cursor=pointer]:
+                - /url: /charts/trials?range=Last%2028%20days%3A2026-03-05%3A2026-04-01
+                - generic [ref=e92]:
+                  - generic [ref=e94]:
+                    - heading [level=2] [ref=e326]: Active Trials
+                    - img [ref=e96]
+                  - generic [ref=e99]:
+                    - heading [level=3] [ref=e327]: "0"
+                    - generic [ref=e101]:
+                      - paragraph [ref=e102]: In total
+                      - img [ref=e104]
+                  - img [ref=e110]
+              - link [ref=e328] [cursor=pointer]:
+                - /url: /charts/actives?range=Last%2028%20days%3A2026-03-05%3A2026-04-01
+                - generic [ref=e112]:
+                  - generic [ref=e114]:
+                    - heading [level=2] [ref=e329]: Active Subscriptions
+                    - img [ref=e116]
+                  - generic [ref=e119]:
+                    - heading [level=3] [ref=e330]: "0"
+                    - generic [ref=e121]:
+                      - paragraph [ref=e122]: In total
+                      - img [ref=e124]
+                  - img [ref=e130]
+              - link [ref=e331] [cursor=pointer]:
+                - /url: /charts/mrr?range=Last%2028%20days%3A2026-03-05%3A2026-04-01
+                - generic [ref=e135]:
+                  - generic [ref=e137]:
+                    - heading [level=2] [ref=e332]: MRR
+                    - img [ref=e139]
+                  - generic [ref=e142]:
+                    - heading [level=3] [ref=e333]: $0
+                    - generic [ref=e144]:
+                      - paragraph [ref=e145]: Monthly Recurring Revenue
+                      - img [ref=e147]
+                  - img [ref=e153]
+              - link [ref=e334] [cursor=pointer]:
+                - /url: /charts/revenue?range=Last%2028%20days%3A2026-03-05%3A2026-04-01
+                - generic [ref=e158]:
+                  - generic [ref=e160]:
+                    - heading [level=2] [ref=e335]: Revenue
+                    - img [ref=e162]
+                  - generic [ref=e165]:
+                    - heading [level=3] [ref=e336]: $7
+                    - generic [ref=e167]:
+                      - paragraph [ref=e168]: Last 28 days
+                      - img [ref=e170]
+                  - img [ref=e176]
+              - link [ref=e337] [cursor=pointer]:
+                - /url: /charts/customers_new?range=Last%2028%20days%3A2026-03-05%3A2026-04-01
+                - generic [ref=e181]:
+                  - generic [ref=e183]:
+                    - heading [level=2] [ref=e338]: New Customers
+                    - img [ref=e185]
+                  - generic [ref=e188]:
+                    - heading [level=3] [ref=e339]: "106"
+                    - generic [ref=e190]:
+                      - paragraph [ref=e191]: Last 28 days
+                      - img [ref=e193]
+                  - img [ref=e199]
+              - generic [ref=e204]:
+                - generic [ref=e206]:
+                  - heading [level=2] [ref=e340]: Active Customers
+                  - img [ref=e208]
+                - generic [ref=e211]:
+                  - heading [level=3] [ref=e341]: "108"
+                  - generic [ref=e213]:
+                    - paragraph [ref=e214]: Last 28 days
+                    - img [ref=e216]
+            - generic [ref=e221]:
+              - generic [ref=e224]: Warning
+              - generic [ref=e225]:
+                - paragraph [ref=e227]:
+                  - strong [ref=e228]: Add your credit card to avoid losing access to features when you hit $2,500 in MTR.
+                - paragraph [ref=e230]: Add your card now to ensure a smooth transition.
+              - generic [ref=e342] [cursor=pointer]:
+                - paragraph [ref=e233]: $7 / $2.500 MTR
+                - progressbar [ref=e234]
+            - generic [ref=e236]:
+              - heading [level=3] [ref=e343]:
+                - generic [ref=e238]: Recent transactions
+              - table [ref=e245]:
+                - row [ref=e344]:
+                  - columnheader [ref=e345]: Customer ID
+                  - columnheader [ref=e346]:
+                    - generic [ref=e249]: Project
+                  - columnheader [ref=e347]: Store
+                  - columnheader [ref=e348]: Product
+                  - columnheader [ref=e349]: Purchased
+                  - columnheader [ref=e350]: Expires
+                  - columnheader [ref=e351]:
+                    - generic [ref=e255]: Revenue
+                  - columnheader [ref=e352]: Type
+                - row [ref=e353]:
+                  - cell [ref=e354]:
+                    - img [ref=e355]
+                    - link [ref=e356] [cursor=pointer]:
+                      - /url: /projects/0c144fe2/customers/%24RCAnonymousID%3A292176cf52ab4e20865959de105356c3
+                      - generic [ref=e263]:
+                        - generic [ref=e264]:
+                          - paragraph: Anonymous
+                        - text: 292176cf...105356c3
+                    - button [ref=e357] [cursor=pointer]:
+                      - img [ref=e266]
+                  - cell [ref=e358]:
+                    - link [ref=e359] [cursor=pointer]:
+                      - /url: /projects/0c144fe2/overview
+                      - img [ref=e361]
+                  - cell [ref=e362]: App Store
+                  - cell [ref=e363]:
+                    - generic [ref=e275]: 10Token
+                  - cell [ref=e364]:
+                    - generic [ref=e365]: 16 days ago
+                  - cell [ref=e366]: No expiration
+                  - cell [ref=e367]: $1,13
+                  - cell [ref=e368]:
+                    - generic [ref=e281]:
+                      - paragraph: One Time
+                - row [ref=e369]:
+                  - cell [ref=e370]:
+                    - img [ref=e371]
+                    - link [ref=e372] [cursor=pointer]:
+                      - /url: /projects/0c144fe2/customers/%24RCAnonymousID%3A7d554e766f3b4c5b8fc3d8f81f702568
+                      - generic [ref=e288]:
+                        - generic [ref=e289]:
+                          - paragraph: Anonymous
+                        - text: 7d554e76...1f702568
+                    - button [ref=e373] [cursor=pointer]:
+                      - img [ref=e291]
+                  - cell [ref=e374]:
+                    - link [ref=e375] [cursor=pointer]:
+                      - /url: /projects/0c144fe2/overview
+                      - img [ref=e377]
+                  - cell [ref=e378]: App Store
+                  - cell [ref=e379]:
+                    - generic [ref=e300]: Weekly
+                  - cell [ref=e380]:
+                    - generic [ref=e381]: 1 month ago
+                  - cell [ref=e382]:
+                    - generic [ref=e383]: 19 days ago
+                  - cell [ref=e384]: $5,68
+                  - cell [ref=e385]:
+                    - generic [ref=e307]:
+                      - paragraph: New Sub
+  - generic [active] [ref=e388]:
+    - generic [ref=e389]:
+      - link "All projects" [ref=e390] [cursor=pointer]:
+        - /url: /overview
+      - link "5 55DAY" [ref=e391] [cursor=pointer]:
+        - /url: /projects/23d46128/overview
+        - generic [ref=e393]: "5"
+        - generic [ref=e395]: 55DAY
+      - link "F Frinciepe" [ref=e396] [cursor=pointer]:
+        - /url: /projects/87fb89e8/overview
+        - generic [ref=e398]: F
+        - generic [ref=e400]: Frinciepe
+      - link "Wearify Wearify" [ref=e401] [cursor=pointer]:
+        - /url: /projects/0c144fe2/overview
+        - img "Wearify" [ref=e403]
+        - generic [ref=e405]: Wearify
+    - link "Create new project" [ref=e408] [cursor=pointer]:
+      - /url: /projects/add
+      - img [ref=e410]
+      - text: Create new project

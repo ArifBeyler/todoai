@@ -1,0 +1,37 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "Apple Developer" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: Apple Developer
+      - generic [ref=e9]:
+        - generic [ref=e10] [cursor=pointer]: Arif Hikmet Demirci 
+        - generic [ref=e11] [cursor=pointer]: ARIF HIKMET DEMIRCI - 73ANVUDATZ
+        - text: 
+    - heading "Certificates, Identifiers & Profiles" [level=1] [ref=e14]
+  - main [ref=e15]:
+    - generic [ref=e155]:
+      - link " All Identifiers" [ref=e157] [cursor=pointer]:
+        - /url: /account/resources/identifiers/list/bundleId
+      - generic [ref=e158]:
+        - generic [ref=e159]:
+          - heading "Register a new identifier" [level=2] [ref=e161]
+          - generic [ref=e162]:
+            - button "Back" [ref=e163] [cursor=pointer]
+            - button "Continue" [ref=e164] [cursor=pointer]
+        - heading "Select a type" [level=3] [ref=e165]
+        - list [ref=e166]:
+          - listitem [ref=e167]:
+            - heading "App" [level=6] [ref=e170] [cursor=pointer]
+          - listitem [ref=e171]:
+            - heading "App Clip" [level=6] [ref=e174] [cursor=pointer]
+  - contentinfo [ref=e66]:
+    - generic [ref=e68]:
+      - paragraph [ref=e69]: Copyright © 2026 Apple Inc. All rights reserved.
+      - list [ref=e70]:
+        - listitem [ref=e71]:
+          - link "Terms of Use" [ref=e72] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/terms/site.html
+        - listitem [ref=e73]:
+          - link "Privacy Policy" [ref=e74] [cursor=pointer]:
+            - /url: https://www.apple.com/privacy/

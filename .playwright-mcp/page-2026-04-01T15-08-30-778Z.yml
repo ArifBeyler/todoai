@@ -1,0 +1,71 @@
+- generic [active] [ref=e1]:
+  - banner "App Store Connect" [ref=e3]:
+    - generic [ref=e4]:
+      - heading "App Store Connect" [level=1] [ref=e9]:
+        - link "App Store Connect" [ref=e10] [cursor=pointer]:
+          - /url: /
+      - navigation "Global":
+        - generic:
+          - list:
+            - listitem [ref=e11]:
+              - link "Apps" [ref=e12] [cursor=pointer]:
+                - /url: /apps
+            - listitem [ref=e13]:
+              - link "Trends" [ref=e14] [cursor=pointer]:
+                - /url: /trends
+            - listitem [ref=e15]:
+              - link "Reports" [ref=e16] [cursor=pointer]:
+                - /url: /itc/payments_and_financial_reports
+            - listitem [ref=e17]:
+              - link "Business" [ref=e18] [cursor=pointer]:
+                - /url: /business
+            - listitem [ref=e19]:
+              - link "Users and Access" [ref=e20] [cursor=pointer]:
+                - /url: /access/users
+      - button "Arif Hikmet Demirci ARIF HIKMET DEMIRCI Account name menu" [ref=e21] [cursor=pointer]:
+        - generic:
+          - img
+  - generic [ref=e24]:
+    - generic [ref=e29] [cursor=pointer]: Users and Access
+    - navigation "Users and Access" [ref=e31]:
+      - generic [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: Integrations
+        - img [ref=e35]
+      - list:
+        - listitem:
+          - link "People":
+            - /url: /access/users
+        - listitem:
+          - link "Sandbox":
+            - /url: /access/users/sandbox
+        - listitem:
+          - link "Integrations":
+            - /url: /access/integrations
+        - listitem:
+          - link "Xcode Cloud":
+            - /url: /teams/7c467676-75d4-408f-9bd5-2f915baba914/access/ci
+  - main [ref=e41]:
+    - generic [ref=e46]:
+      - heading [level=2] [ref=e50]:
+        - button [ref=e51] [cursor=pointer]:
+          - img [ref=e52]
+      - progressbar [ref=e58]
+  - contentinfo [ref=e60]:
+    - generic [ref=e61]:
+      - list [ref=e62]:
+        - listitem [ref=e63]:
+          - link "App Store Connect" [ref=e64] [cursor=pointer]:
+            - /url: /apps
+      - list [ref=e65]:
+        - listitem [ref=e66]: Copyright © 2026 Apple Inc. All rights reserved. |
+        - listitem [ref=e67]:
+          - link "Terms of Service" [ref=e68] [cursor=pointer]:
+            - /url: /WebObjects/iTunesConnect.woa/wa/termsOfService
+          - text: "|"
+        - listitem [ref=e69]:
+          - link "Privacy Policy" [ref=e70] [cursor=pointer]:
+            - /url: https://www.apple.com/legal/privacy
+          - text: "|"
+        - listitem [ref=e71]:
+          - link "Contact Us" [ref=e72] [cursor=pointer]:
+            - /url: /contact-us

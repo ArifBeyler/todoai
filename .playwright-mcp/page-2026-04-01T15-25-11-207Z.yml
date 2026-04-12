@@ -1,0 +1,270 @@
+- generic [ref=e2]:
+  - region "Notifications alt+T"
+  - link "skip to content" [ref=e10] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e11]:
+    - banner [ref=e12]:
+      - link "Home" [ref=e13] [cursor=pointer]:
+        - /url: /overview
+        - img "Home" [ref=e14]
+      - button "Doara" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]:
+          - generic [ref=e20]: D
+          - generic [ref=e21]: Doara
+        - img [ref=e23]
+      - generic [ref=e26]:
+        - img [ref=e28]
+        - combobox "Search…" [ref=e30]
+        - generic [ref=e32]: ⌘K
+        - group
+      - link "Help" [ref=e33] [cursor=pointer]:
+        - /url: /settings/support
+        - img [ref=e34]
+        - generic: Help
+      - link "Account" [ref=e36] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e37]
+        - generic: Account
+    - generic [ref=e39]:
+      - navigation [ref=e40]:
+        - link "Overview" [ref=e41] [cursor=pointer]:
+          - /url: /projects/1cd787ed/overview
+          - img [ref=e42]
+          - generic: Overview
+        - link "Charts" [ref=e44] [cursor=pointer]:
+          - /url: /projects/1cd787ed/charts
+          - img [ref=e45]
+          - generic: Charts
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-lists
+          - img [ref=e48]
+          - generic: Customers
+        - link "Product catalog" [ref=e50] [cursor=pointer]:
+          - /url: /projects/1cd787ed/product-catalog
+          - img [ref=e51]
+        - link "Paywalls" [ref=e53] [cursor=pointer]:
+          - /url: /projects/1cd787ed/paywalls
+          - img [ref=e54]
+          - generic: Paywalls
+        - link "Ads" [ref=e56] [cursor=pointer]:
+          - /url: /projects/1cd787ed/ads
+          - img [ref=e57]
+          - generic: Ads
+        - link "Targeting" [ref=e59] [cursor=pointer]:
+          - /url: /projects/1cd787ed/targeting
+          - img [ref=e60]
+          - generic: Targeting
+        - link "Experiments" [ref=e62] [cursor=pointer]:
+          - /url: /projects/1cd787ed/experiments
+          - img [ref=e63]
+          - generic: Experiments
+        - link "Web" [ref=e65] [cursor=pointer]:
+          - /url: /projects/1cd787ed/web-home
+          - img [ref=e66]
+          - generic: Web
+        - link "Customer Center" [ref=e68] [cursor=pointer]:
+          - /url: /projects/1cd787ed/customer-center
+          - img [ref=e69]
+          - generic: Customer Center
+        - link "Apps & providers" [ref=e72] [cursor=pointer]:
+          - /url: /projects/1cd787ed/apps
+          - img [ref=e73]
+        - link "Integrations" [ref=e75] [cursor=pointer]:
+          - /url: /projects/1cd787ed/integrations
+          - img [ref=e76]
+          - generic: Integrations
+        - link "Project settings" [ref=e78] [cursor=pointer]:
+          - /url: /projects/1cd787ed/settings
+          - img [ref=e79]
+      - main [ref=e81]:
+        - generic [ref=e169]:
+          - navigation [ref=e172]:
+            - list [ref=e173]:
+              - listitem [ref=e174]:
+                - button [ref=e175] [cursor=pointer]:
+                  - img [ref=e176]
+              - listitem [ref=e178]: /
+              - listitem [ref=e179]:
+                - link "Apps & providers" [ref=e180] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/apps
+              - listitem [ref=e181]: /
+              - listitem [ref=e182]:
+                - link "Doara (App Store)" [ref=e424] [cursor=pointer]:
+                  - /url: /projects/1cd787ed/apps/app2fe0f8a4e2
+          - generic [ref=e185]:
+            - heading "Doara (App Store)" [level=2] [ref=e425]
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - generic [ref=e193]:
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: App name
+                    - generic [ref=e196]: Required
+                  - generic [ref=e199]:
+                    - textbox "App name" [ref=e200]:
+                      - /placeholder: app name
+                      - text: Doara (App Store)
+                    - group
+                - generic [ref=e202]:
+                  - generic [ref=e203]:
+                    - generic [ref=e204]: App Bundle ID
+                    - generic [ref=e205]: Required
+                  - generic [ref=e208]:
+                    - textbox "App Bundle ID" [active] [ref=e209]:
+                      - /placeholder: com.myapp.bundleid
+                      - text: com.arifbeyler.doara
+                    - group
+                  - generic [ref=e210]: This is specified in your Xcode project
+              - separator [ref=e211]
+              - generic [ref=e212]:
+                - generic [ref=e213]:
+                  - heading "In-app purchase key configuration" [level=3] [ref=e215]
+                  - paragraph [ref=e216]: Required
+                - paragraph [ref=e217]:
+                  - text: Required for the most accurate pricing and country-specific data for your App Store transactions. After uploading this key, you may see updates to your historical data. When using Purchases v5.x+ (i.e., StoreKit 2), transactions will fail to be recorded without this key being set. This can result in users not accessing the purchases they are entitled to.
+                  - link "Learn more." [ref=e218] [cursor=pointer]:
+                    - /url: https://www.revenuecat.com/docs/service-credentials/itunesconnect-app-specific-shared-secret/in-app-purchase-key-configuration
+                - generic [ref=e219]:
+                  - button "Select existing key" [ref=e220] [cursor=pointer]
+                  - generic:
+                    - combobox [ref=e221] [cursor=pointer]
+                    - textbox
+                    - img
+                    - group
+                  - button "Add new key" [ref=e222] [cursor=pointer]
+                - generic [ref=e224]:
+                  - generic [ref=e226]: P8 key file from App Store Connect
+                  - generic [ref=e231]:
+                    - img [ref=e233]
+                    - generic [ref=e235]: 3XRLRX9A28.p8
+                  - generic [ref=e238]:
+                    - generic [ref=e239]:
+                      - generic [ref=e240]:
+                        - img [ref=e241]
+                        - paragraph [ref=e243]: Credentials need attention
+                      - button "validate-credentials" [ref=e244] [cursor=pointer]:
+                        - img [ref=e245]
+                    - paragraph [ref=e247]:
+                      - strong [ref=e248]: "Tip:"
+                      - text: Ensure you've uploaded the correct key, and ensure the Bundle ID exists within the App Store Connect account associated with this key.
+                - generic [ref=e249]:
+                  - generic [ref=e251]:
+                    - generic [ref=e252]:
+                      - generic [ref=e253]: Key ID
+                      - generic [ref=e254]: Required
+                    - generic [ref=e257]:
+                      - textbox "Key ID" [ref=e258]:
+                        - /placeholder: ABC123DEFG
+                        - text: 3XRLRX9A28
+                      - group
+                  - generic [ref=e260]:
+                    - generic [ref=e261]:
+                      - generic [ref=e262]: Issuer ID
+                      - generic [ref=e263]: Required
+                    - generic [ref=e266]:
+                      - textbox "Issuer ID" [ref=e267]:
+                        - /placeholder: 57246542-96fe-1a63-e053-0824d0110
+                        - text: 7c467676-75d4-408f-9bd5-2f915baba914
+                      - group
+              - separator [ref=e268]
+              - generic [ref=e269]:
+                - heading "App Store Connect API" [level=3] [ref=e271]
+                - paragraph [ref=e272]:
+                  - text: An App Store Connect API key is required if you want to import products into RevenueCat, have product price changes automatically applied, and more.
+                  - link "Learn more" [ref=e273] [cursor=pointer]:
+                    - /url: https://www.revenuecat.com/docs/app-store-connect-api-key-configuration
+                  - text: .
+                - generic [ref=e274]:
+                  - button "Select existing key" [ref=e275] [cursor=pointer]
+                  - generic:
+                    - combobox [ref=e276] [cursor=pointer]
+                    - textbox
+                    - img
+                    - group
+                  - button "Add new key" [ref=e277] [cursor=pointer]
+              - separator [ref=e278]
+              - generic [ref=e279]:
+                - heading "Apple Server to Server notification settings" [level=3] [ref=e282]
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - generic [ref=e285]: Apple Server Notification URL
+                    - generic [ref=e286]: No notifications received
+                  - generic [ref=e287]:
+                    - generic [ref=e289]:
+                      - textbox "Apple Server Notification URL" [disabled] [ref=e290]: https://api.revenuecat.com/v1/incoming-webhooks/apple-server-to-server-notification/yldRmQQWwMVOaSARQnMKhrrcLFeDVyrT
+                      - group
+                    - button "copy text" [ref=e292] [cursor=pointer]:
+                      - img [ref=e293]
+                  - paragraph [ref=e298]:
+                    - text: Optionally send Apple server notifications directly to RevenueCat.
+                    - link "More information" [ref=e299] [cursor=pointer]:
+                      - /url: https://www.revenuecat.com/docs/apple-server-notifications
+                - generic [ref=e300]:
+                  - generic [ref=e302]: Apple Server Notification Forwarding URL
+                  - generic [ref=e305]:
+                    - textbox "Apple Server Notification Forwarding URL" [ref=e306]:
+                      - /placeholder: https://yourserver.com/revenuecat/apple-server-notifications
+                    - group
+                  - generic [ref=e308]:
+                    - text: Optionally forward Apple server notifications to your server.
+                    - link "More information" [ref=e309] [cursor=pointer]:
+                      - /url: https://www.revenuecat.com/docs/apple-server-notifications
+                - generic [ref=e310]:
+                  - separator [ref=e311]
+                  - generic [ref=e312]:
+                    - generic [ref=e314] [cursor=pointer]:
+                      - generic [ref=e315]:
+                        - checkbox "Track new purchases from server-to-server notifications" [ref=e316]
+                        - img [ref=e317]
+                      - generic [ref=e320]: Track new purchases from server-to-server notifications
+                    - paragraph [ref=e321]:
+                      - text: Allow RevenueCat to process new purchases from server-to-server notifications that are not yet in our system. This ensures all purchases are tracked, even in the case of network issues between your app and RevenueCat’s backend or if your customer was using a version of the app without the RevenueCat SDK.
+                      - link "Learn more" [ref=e322] [cursor=pointer]:
+                        - /url: https://www.revenuecat.com/docs/platform-resources/server-notifications/apple-server-notifications#tracking-new-purchases-using-apple-app-store-server-notifications
+                      - text: .
+            - heading "Refund request handling" [level=3] [ref=e324]:
+              - button "Refund request handling" [ref=e325] [cursor=pointer]:
+                - img [ref=e326]
+                - paragraph [ref=e330]: Refund request handling
+            - heading "Apple Retention Messaging API settings (Preview)" [level=3] [ref=e332]:
+              - button "Apple Retention Messaging API settings (Preview)" [ref=e333] [cursor=pointer]:
+                - img [ref=e334]
+                - paragraph [ref=e338]: Apple Retention Messaging API settings (Preview)
+            - heading "StoreKit Subscription Offer key" [level=3] [ref=e340]:
+              - button "StoreKit Subscription Offer key" [ref=e341] [cursor=pointer]:
+                - img [ref=e342]
+                - paragraph [ref=e346]: StoreKit Subscription Offer key
+            - heading "StoreKit testing framework" [level=3] [ref=e348]:
+              - button "StoreKit testing framework" [ref=e349] [cursor=pointer]:
+                - img [ref=e350]
+                - paragraph [ref=e354]: StoreKit testing framework
+            - heading "Apple Small Business Program" [level=3] [ref=e356]:
+              - button "Apple Small Business Program" [ref=e357] [cursor=pointer]:
+                - img [ref=e358]
+                - paragraph [ref=e362]: Apple Small Business Program
+            - heading "App-specific shared secret (Legacy)" [level=3] [ref=e364]:
+              - button "App-specific shared secret (Legacy)" [ref=e365] [cursor=pointer]:
+                - img [ref=e366]
+                - paragraph [ref=e370]: App-specific shared secret (Legacy)
+            - generic [ref=e371]:
+              - heading "Public API Key" [level=3] [ref=e373]:
+                - button "Public API Key" [ref=e374] [cursor=pointer]:
+                  - img [ref=e375]
+                  - paragraph [ref=e379]: Public API Key
+              - separator [ref=e380]
+              - generic [ref=e386]:
+                - generic [ref=e387]:
+                  - paragraph [ref=e388]: REST API Identifier
+                  - button "info" [ref=e389] [cursor=pointer]:
+                    - img "info" [ref=e390]
+                - generic [ref=e392]:
+                  - paragraph [ref=e394]: app2fe0f8a4e2
+                  - button "copy text" [ref=e395] [cursor=pointer]:
+                    - img [ref=e396]
+              - generic [ref=e399]:
+                - generic [ref=e400]:
+                  - paragraph [ref=e401]: Delete app
+                  - paragraph [ref=e402]: Deleting this app will remove its data and access for all collaborators. This action can’t be undone.
+                - button "Delete app" [ref=e405] [cursor=pointer]:
+                  - img [ref=e407]
+                  - text: Delete app
+          - button "Save changes" [ref=e411] [cursor=pointer]

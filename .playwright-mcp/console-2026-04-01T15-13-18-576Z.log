@@ -1,0 +1,519 @@
+[     315ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[     473ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://app.revenuecat.com/internal/v1/rc_capital/onboarding/status:0
+[     554ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[     616ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.appatar.io/com.arifbeyler.dayframe/small:0
+[     750ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.appatar.io/com.arifbeyler.dayframe/small:0
+[     881ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.appatar.io/com.arifbeyler.dayframe/small:0
+[   18120ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[   18121ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[   19734ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[   30875ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[   30875ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://o105822.ingest.us.sentry.io/api/1317425/envelope/?sentry_version=7&sentry_key=3a63564adecb4b27b1eeccd8f113ea10&sentry_client=sentry.javascript.react%2F10.45.0:0
+[  135029ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135029ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135030ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135031ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135032ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135032ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135032ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  135032ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241907ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241907ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241907ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  241908ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  242166ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://app.revenuecat.com/internal/v1/developers/me/projects/1cd787ed/integrations/webhooks:0
+[  242180ms] Object
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293700ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Hit MAX_ITERATIONS in getNameOfClosestParent @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  293701ms] [LOG] %c6sense JS 
+        font-weight: bold;
+        border-radius: 3px;
+        background-color: #dcab8b;
+        color: #192232;
+        padding: 1px 2px;
+         Form Element:  JSHandle@node  cannot have a name determined from parents, skipping @ https://app.revenuecat.com/assets/router-CoUosjCq.js:41
+[  294070ms] [ERROR] Failed to load resource: the server responded with a status of 409 () @ https://app.revenuecat.com/internal/v1/developers/me/projects/1cd787ed/integrations/webhooks:0
+[  294085ms] Object
