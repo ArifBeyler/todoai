@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,15 +11,23 @@ import {
   View,
 } from "react-native";
 import { router } from "expo-router";
-import { ArrowLeft, Microphone, PaperPlaneTilt, PencilSimple, Sparkle, X } from "phosphor-react-native";
+import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
+import {
+  ArrowLeft,
+  Microphone,
+  PaperPlaneTilt,
+  PencilSimple,
+  Sparkle,
+  X,
+} from "phosphor-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { radius, shadow, spacing } from "@/src/ui/tokens";
+import { font, radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 
 type SuggestedTask = {
   title: string;
   category: string;
   dateTime: string;
-  priority: "Dusuk" | "Orta" | "Yuksek";
+  priority: "Düşük" | "Orta" | "Yüksek";
 };
 
 type Message = {
@@ -30,38 +38,38 @@ type Message = {
 };
 
 const QUICK_SUGGESTIONS = [
-  "Bugun icin gorev ekle",
-  "Haftalik plan yap",
-  "Aliskanlik olustur",
-  "Yarin icin hatirlatici ekle",
+  "Bugün için görev ekle",
+  "Haftalık plan yap",
+  "Alışkanlık oluştur",
+  "Yarın için hatırlatıcı",
 ];
 
-const VOICE_SAMPLE = "Yarin sabah spor yapmayi hatirlat";
+const VOICE_SAMPLE = "Yarın sabah spor yapmayı hatırlat";
 
 const randomId = () => `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
 const inferMockTask = (source: string): SuggestedTask => {
   const normalized = source.toLowerCase();
-  const title = source.trim() || "Yeni gorev";
+  const title = source.trim() || "Yeni görev";
 
-  let category = "personal";
-  if (normalized.includes("spor") || normalized.includes("yuruyus")) category = "health";
-  if (normalized.includes("market") || normalized.includes("alisveris")) category = "errands";
-  if (normalized.includes("is") || normalized.includes("toplanti")) category = "work";
-  if (normalized.includes("ders") || normalized.includes("ogren")) category = "learning";
+  let category = "Kişisel";
+  if (normalized.includes("spor") || normalized.includes("yürüyüş")) category = "Sağlık";
+  if (normalized.includes("market") || normalized.includes("alışveriş")) category = "Alışveriş";
+  if (normalized.includes("iş") || normalized.includes("toplantı")) category = "İş";
+  if (normalized.includes("ders") || normalized.includes("öğren")) category = "Eğitim";
 
-  let dateTime = "Bugun, 18:00";
-  if (normalized.includes("yarin")) dateTime = "Yarin, 09:00";
+  let dateTime = "Bugün, 18:00";
+  if (normalized.includes("yarın")) dateTime = "Yarın, 09:00";
   if (normalized.includes("hafta")) dateTime = "Bu hafta, tekrarlayan";
-  if (normalized.includes("sabah")) dateTime = "Yarin, 08:00";
+  if (normalized.includes("sabah")) dateTime = "Yarın, 08:00";
 
   let priority: SuggestedTask["priority"] = "Orta";
-  if (normalized.includes("acil") || normalized.includes("onemli")) priority = "Yuksek";
-  if (normalized.includes("hatirlat")) priority = "Dusuk";
+  if (normalized.includes("acil") || normalized.includes("önemli")) priority = "Yüksek";
+  if (normalized.includes("hatırlat")) priority = "Düşük";
 
   return {
     title: title.charAt(0).toUpperCase() + title.slice(1),
-    category: category.charAt(0).toUpperCase() + category.slice(1),
+    category,
     dateTime,
     priority,
   };
@@ -77,73 +85,59 @@ const TaskSuggestionCard = ({
   onApprove: () => void;
   onEdit: () => void;
   onCancel: () => void;
-}) => {
-  return (
-    <View style={styles.suggestionCard}>
-      <Text style={styles.suggestionTitle}>Onerilen gorev</Text>
-      <View style={styles.suggestionRow}>
-        <Text style={styles.suggestionLabel}>Baslik</Text>
-        <Text style={styles.suggestionValue}>{suggestion.title}</Text>
+}) => (
+  <View style={styles.suggestionCard}>
+    <Text style={styles.suggestionTitle}>Önerilen görev</Text>
+    {[
+      ["Başlık", suggestion.title],
+      ["Kategori", suggestion.category],
+      ["Tarih / Saat", suggestion.dateTime],
+      ["Öncelik", suggestion.priority],
+    ].map(([label, value]) => (
+      <View key={label} style={styles.suggestionRow}>
+        <Text style={styles.suggestionLabel}>{label}</Text>
+        <Text style={styles.suggestionValue}>{value}</Text>
       </View>
-      <View style={styles.suggestionRow}>
-        <Text style={styles.suggestionLabel}>Kategori</Text>
-        <Text style={styles.suggestionValue}>{suggestion.category}</Text>
-      </View>
-      <View style={styles.suggestionRow}>
-        <Text style={styles.suggestionLabel}>Tarih/Saat</Text>
-        <Text style={styles.suggestionValue}>{suggestion.dateTime}</Text>
-      </View>
-      <View style={styles.suggestionRow}>
-        <Text style={styles.suggestionLabel}>Oncelik</Text>
-        <Text style={styles.suggestionValue}>{suggestion.priority}</Text>
-      </View>
-
-      <View style={styles.suggestionActions}>
-        <TouchableOpacity style={styles.secondaryAction} onPress={onEdit}>
-          <PencilSimple size={14} color="#5C4F47" weight="bold" />
-          <Text style={styles.secondaryActionText}>Duzenle</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.ghostAction} onPress={onCancel}>
-          <X size={14} color="#8A7569" weight="bold" />
-          <Text style={styles.ghostActionText}>Iptal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.primaryAction} onPress={onApprove}>
-          <Text style={styles.primaryActionText}>Onayla</Text>
-        </TouchableOpacity>
-      </View>
+    ))}
+    <View style={styles.suggestionActions}>
+      <TouchableOpacity style={styles.secondaryAction} onPress={onEdit}>
+        <PencilSimple size={13} color={semantic.textPrimary} weight="bold" />
+        <Text style={styles.secondaryActionText}>Düzenle</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.ghostAction} onPress={onCancel}>
+        <X size={13} color={semantic.textSecondary} weight="bold" />
+        <Text style={styles.ghostActionText}>İptal</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.primaryAction} onPress={onApprove}>
+        <Text style={styles.primaryActionText}>Onayla</Text>
+      </TouchableOpacity>
     </View>
-  );
-};
+  </View>
+);
 
 export default function AiAssistantScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const handleSend = (value?: string) => {
     const text = (value ?? inputValue).trim();
     if (!text) return;
 
-    const userMessage: Message = {
-      id: randomId(),
-      role: "user",
-      text,
-    };
-
     const suggestedTask = inferMockTask(text);
-    const assistantMessage: Message = {
-      id: randomId(),
-      role: "assistant",
-      text: "Anladim. Bunu gorev olarak su sekilde hazirladim:",
-      taskSuggestion: suggestedTask,
-    };
-
-    setMessages((prev) => [...prev, userMessage, assistantMessage]);
+    setMessages((prev) => [
+      ...prev,
+      { id: randomId(), role: "user", text },
+      {
+        id: randomId(),
+        role: "assistant",
+        text: "Anladım. Bunu görev olarak şu şekilde hazırladım:",
+        taskSuggestion: suggestedTask,
+      },
+    ]);
     setInputValue("");
-  };
-
-  const handleSuggestionPress = (suggestion: string) => {
-    handleSend(suggestion);
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
   };
 
   const handleVoice = () => {
@@ -151,7 +145,6 @@ export default function AiAssistantScreen() {
       setIsRecording(false);
       return;
     }
-
     setIsRecording(true);
     setTimeout(() => {
       setIsRecording(false);
@@ -159,11 +152,9 @@ export default function AiAssistantScreen() {
     }, 1100);
   };
 
-  const lastAssistantSuggestion = useMemo(() => {
-    for (let i = messages.length - 1; i >= 0; i -= 1) {
-      if (messages[i].role === "assistant" && messages[i].taskSuggestion) {
-        return messages[i].taskSuggestion;
-      }
+  const lastSuggestionTitle = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].taskSuggestion) return messages[i].taskSuggestion?.title;
     }
     return null;
   }, [messages]);
@@ -171,112 +162,166 @@ export default function AiAssistantScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={8}
       >
+        {/* Top bar */}
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => router.back()}>
-            <ArrowLeft size={20} color="#2E2520" weight="bold" />
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Geri"
+          >
+            <ArrowLeft size={20} color={semantic.textPrimary} weight="bold" />
           </TouchableOpacity>
-          <View style={styles.titleWrap}>
-            <Text style={styles.title}>AI Task Assistant</Text>
-            <Text style={styles.subtitle}>Gorevlerini konusarak veya yazarak yonet</Text>
+
+          <View style={styles.titleBlock}>
+            <Text style={styles.screenTitle}>AI Görev Asistanı</Text>
+            <Text style={styles.screenSub}>Konuşarak veya yazarak görev yönet</Text>
           </View>
+
           <View style={styles.sparkleBadge}>
-            <Sparkle size={15} color="#F7EFE5" weight="fill" />
+            <Sparkle size={15} color={semantic.textOnDark} weight="fill" />
           </View>
         </View>
 
-        <ScrollView style={styles.chatArea} contentContainerStyle={styles.chatContent} showsVerticalScrollIndicator={false}>
+        {/* Chat area */}
+        <ScrollView
+          ref={scrollRef}
+          style={styles.chatArea}
+          contentContainerStyle={styles.chatContent}
+          showsVerticalScrollIndicator={false}
+          keyboardDismissMode="interactive"
+        >
           {messages.length === 0 ? (
-            <View style={styles.emptyState}>
+            <Animated.View entering={FadeIn.delay(100).duration(350)} style={styles.emptyState}>
               <View style={styles.emptyIcon}>
-                <Sparkle size={20} color="#FAF6F0" weight="fill" />
+                <Sparkle size={22} color={semantic.textOnDark} weight="fill" />
               </View>
-              <Text style={styles.emptyTitle}>Akilli asistanin hazir</Text>
+              <Text style={styles.emptyTitle}>Akıllı asistan hazır</Text>
               <Text style={styles.emptyText}>
-                Dogal bir cumle yaz, sesinle konus veya hizli onerilerden birini sec. Gorevi senin icin net bir karta donustureyim.
+                Doğal bir cümle yaz, sesinle konuş ya da hızlı önerilerden birini seç. Görevi senin için net bir karta dönüştüreyim.
               </Text>
-            </View>
+            </Animated.View>
           ) : null}
 
-          {messages.map((message) => (
-            <View
-              key={message.id}
+          {messages.map((msg, idx) => (
+            <Animated.View
+              key={msg.id}
+              entering={FadeInUp.delay(idx === messages.length - 1 || idx === messages.length - 2 ? 0 : 0).duration(220)}
               style={[
                 styles.messageWrap,
-                message.role === "user" ? styles.userMessageWrap : styles.assistantMessageWrap,
+                msg.role === "user" ? styles.userMessageWrap : styles.assistantMessageWrap,
               ]}
             >
-              <View style={[styles.messageBubble, message.role === "user" ? styles.userBubble : styles.assistantBubble]}>
-                <Text style={[styles.messageText, message.role === "user" ? styles.userText : styles.assistantText]}>
-                  {message.text}
+              <View
+                style={[
+                  styles.messageBubble,
+                  msg.role === "user" ? styles.userBubble : styles.assistantBubble,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.messageText,
+                    msg.role === "user" ? styles.userText : styles.assistantText,
+                  ]}
+                >
+                  {msg.text}
                 </Text>
               </View>
 
-              {message.taskSuggestion ? (
+              {msg.taskSuggestion ? (
                 <TaskSuggestionCard
-                  suggestion={message.taskSuggestion}
+                  suggestion={msg.taskSuggestion}
                   onApprove={() =>
                     setMessages((prev) => [
                       ...prev,
-                      { id: randomId(), role: "assistant", text: "Harika, gorevi listene kaydetmeye haziriz (mock)." },
+                      { id: randomId(), role: "assistant", text: "Harika! Görev listene eklendi." },
                     ])
                   }
-                  onEdit={() => setInputValue(message.taskSuggestion?.title ?? "")}
+                  onEdit={() => setInputValue(msg.taskSuggestion?.title ?? "")}
                   onCancel={() =>
                     setMessages((prev) => [
                       ...prev,
-                      { id: randomId(), role: "assistant", text: "Tamam, bu oneriyi iptal ettim. Yeni bir komut verebilirsin." },
+                      { id: randomId(), role: "assistant", text: "Tamam, bu öneriyi iptal ettim. Yeni bir komut verebilirsin." },
                     ])
                   }
                 />
               ) : null}
-            </View>
+            </Animated.View>
           ))}
         </ScrollView>
 
-        <View style={styles.suggestionsWrap}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.suggestionsContent}>
+        {/* Quick suggestions */}
+        <View style={styles.chipsRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsContent}
+          >
             {QUICK_SUGGESTIONS.map((item) => (
-              <Pressable key={item} style={styles.suggestionChip} onPress={() => handleSuggestionPress(item)}>
-                <Text style={styles.suggestionChipText}>{item}</Text>
+              <Pressable
+                key={item}
+                style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}
+                onPress={() => handleSend(item)}
+              >
+                <Text style={styles.chipText}>{item}</Text>
               </Pressable>
             ))}
           </ScrollView>
         </View>
 
+        {/* Input bar */}
         <View style={styles.inputBar}>
           <TouchableOpacity
             style={[styles.voiceButton, isRecording && styles.voiceButtonActive]}
             onPress={handleVoice}
+            activeOpacity={0.85}
             accessibilityRole="button"
-            accessibilityLabel="Sesle gorev ekle"
+            accessibilityLabel="Sesle görev ekle"
           >
-            <Microphone size={18} color={isRecording ? "#2B1D16" : "#FAF5EE"} weight="fill" />
+            <Microphone
+              size={18}
+              color={isRecording ? semantic.accent : semantic.textOnDark}
+              weight="fill"
+            />
           </TouchableOpacity>
+
           <View style={styles.inputWrap}>
             <TextInput
               value={inputValue}
               onChangeText={setInputValue}
-              placeholder="Orn. Yarin sabah spor yapmayi hatirlat"
-              placeholderTextColor="#9B8A7E"
+              placeholder="Ör. Yarın sabah spor yapmayı hatırlat"
+              placeholderTextColor={semantic.textSecondary}
               style={styles.input}
               returnKeyType="send"
               onSubmitEditing={() => handleSend()}
             />
           </View>
-          <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()}>
-            <PaperPlaneTilt size={17} color="#FFF7EE" weight="fill" />
+
+          <TouchableOpacity
+            style={[styles.sendButton, !inputValue.trim() && styles.sendButtonDisabled]}
+            onPress={() => handleSend()}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Gönder"
+          >
+            <PaperPlaneTilt
+              size={17}
+              color={inputValue.trim() ? semantic.textOnDark : semantic.textSecondary}
+              weight="fill"
+            />
           </TouchableOpacity>
         </View>
 
-        {lastAssistantSuggestion ? (
-          <Text style={styles.footerHint}>Son onerilen gorev: {lastAssistantSuggestion.title}</Text>
-        ) : (
-          <Text style={styles.footerHint}>Asistan gorevlerini daha net ve planli hale getirir.</Text>
-        )}
+        <Text style={styles.footerHint}>
+          {lastSuggestionTitle
+            ? `Son öneri: ${lastSuggestionTitle}`
+            : "Asistan görevlerini daha net ve planlı hale getirir."}
+        </Text>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -285,87 +330,105 @@ export default function AiAssistantScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#F8F3EC",
+    backgroundColor: semantic.appBackground,
   },
-  container: {
+  flex: {
     flex: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: spacing.md,
   },
+
+  // Top bar
   topBar: {
-    paddingTop: 8,
-    paddingBottom: 14,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.md,
   },
-  iconButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#EFE7DC",
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: semantic.screenSurface,
+    borderWidth: 1,
+    borderColor: semantic.border,
     alignItems: "center",
     justifyContent: "center",
+    ...shadow.card,
   },
-  titleWrap: {
+  titleBlock: {
     flex: 1,
   },
-  title: {
-    fontSize: 19,
+  screenTitle: {
+    fontSize: 18,
     fontWeight: "700",
-    color: "#2E2520",
+    fontFamily: font.bold,
+    color: semantic.textPrimary,
+    letterSpacing: -0.3,
   },
-  subtitle: {
+  screenSub: {
     marginTop: 2,
     fontSize: 12,
-    color: "#7B6B60",
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
   },
   sparkleBadge: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: semantic.heroStart,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#2C221C",
   },
+
+  // Chat
   chatArea: {
     flex: 1,
   },
   chatContent: {
-    paddingBottom: 14,
-    gap: 10,
+    paddingBottom: spacing.md,
+    gap: spacing.sm,
   },
+
+  // Empty state
   emptyState: {
-    borderRadius: 22,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#E4D9CE",
-    backgroundColor: "#FFFDF9",
-    padding: spacing.lg,
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
+    padding: spacing.xl,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: spacing.xs,
+    ...shadow.card,
   },
   emptyIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#2E2520",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: semantic.heroStart,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   emptyTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: "#342A24",
+    fontFamily: font.bold,
+    color: semantic.textPrimary,
+    letterSpacing: -0.2,
   },
   emptyText: {
     marginTop: 6,
     fontSize: 13,
-    lineHeight: 19,
-    color: "#73645A",
+    lineHeight: 20,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
     textAlign: "center",
   },
+
+  // Messages
   messageWrap: {
-    gap: 8,
+    gap: spacing.xs,
   },
   userMessageWrap: {
     alignItems: "flex-end",
@@ -374,71 +437,85 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   messageBubble: {
-    maxWidth: "88%",
+    maxWidth: "86%",
     borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   userBubble: {
-    borderTopRightRadius: 8,
-    backgroundColor: "#2E2520",
+    borderTopRightRadius: 6,
+    backgroundColor: semantic.heroStart,
   },
   assistantBubble: {
-    borderTopLeftRadius: 8,
-    backgroundColor: "#EEE6DB",
+    borderTopLeftRadius: 6,
+    backgroundColor: semantic.screenSurface,
+    borderWidth: 1,
+    borderColor: semantic.border,
   },
   messageText: {
     fontSize: 14,
     lineHeight: 20,
+    fontFamily: font.regular,
   },
   userText: {
-    color: "#FAF5EE",
+    color: semantic.textOnDark,
   },
   assistantText: {
-    color: "#44372F",
+    color: semantic.textPrimary,
   },
+
+  // Suggestion card
   suggestionCard: {
-    width: "92%",
+    width: "90%",
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#E2D7CC",
-    backgroundColor: "#FFFDF9",
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
     padding: spacing.md,
     ...shadow.card,
   },
   suggestionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#4E4037",
-    marginBottom: 10,
+    fontFamily: font.bold,
+    color: semantic.textSecondary,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+    marginBottom: spacing.sm,
   },
   suggestionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 10,
-    marginBottom: 7,
+    gap: spacing.sm,
+    paddingVertical: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: semantic.border,
   },
   suggestionLabel: {
-    fontSize: 12,
-    color: "#85756A",
+    fontSize: 13,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
   },
   suggestionValue: {
     flex: 1,
     textAlign: "right",
-    fontSize: 12,
-    color: "#3B2E27",
+    fontSize: 13,
+    fontFamily: font.semiBold,
     fontWeight: "600",
+    color: semantic.textPrimary,
   },
   suggestionActions: {
-    marginTop: 8,
+    marginTop: spacing.sm,
     flexDirection: "row",
-    gap: 8,
+    gap: spacing.xs,
     alignItems: "center",
   },
   secondaryAction: {
-    borderRadius: 999,
-    backgroundColor: "#EFE5D8",
-    paddingHorizontal: 10,
+    borderRadius: radius.pill,
+    backgroundColor: semantic.appBackground,
+    borderWidth: 1,
+    borderColor: semantic.border,
+    paddingHorizontal: 12,
     paddingVertical: 7,
     flexDirection: "row",
     alignItems: "center",
@@ -446,13 +523,12 @@ const styles = StyleSheet.create({
   },
   secondaryActionText: {
     fontSize: 12,
-    color: "#5C4F47",
+    fontFamily: font.semiBold,
     fontWeight: "600",
+    color: semantic.textPrimary,
   },
   ghostAction: {
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: "#DFD1C2",
+    borderRadius: radius.pill,
     paddingHorizontal: 10,
     paddingVertical: 7,
     flexDirection: "row",
@@ -461,84 +537,102 @@ const styles = StyleSheet.create({
   },
   ghostActionText: {
     fontSize: 12,
-    color: "#847165",
-    fontWeight: "600",
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
   },
   primaryAction: {
     marginLeft: "auto",
-    borderRadius: 999,
-    backgroundColor: "#2F251F",
-    paddingHorizontal: 14,
+    borderRadius: radius.pill,
+    backgroundColor: semantic.heroStart,
+    paddingHorizontal: 16,
     paddingVertical: 8,
   },
   primaryActionText: {
-    fontSize: 12,
-    color: "#FAF4EC",
+    fontSize: 13,
+    fontFamily: font.bold,
     fontWeight: "700",
+    color: semantic.textOnDark,
   },
-  suggestionsWrap: {
-    marginTop: 6,
-    marginBottom: 8,
+
+  // Chips
+  chipsRow: {
+    marginTop: spacing.xs,
+    marginBottom: spacing.sm,
   },
-  suggestionsContent: {
-    gap: 8,
-    paddingRight: 14,
+  chipsContent: {
+    gap: spacing.xs,
+    paddingRight: spacing.xs,
   },
-  suggestionChip: {
-    borderRadius: 999,
-    backgroundColor: "#EEE5D8",
+  chip: {
+    borderRadius: radius.pill,
+    backgroundColor: semantic.screenSurface,
     borderWidth: 1,
-    borderColor: "#E0D3C5",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderColor: semantic.border,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
-  suggestionChipText: {
-    fontSize: 12,
-    color: "#5A4C43",
+  chipPressed: {
+    backgroundColor: semantic.appBackground,
+  },
+  chipText: {
+    fontSize: 13,
+    fontFamily: font.semiBold,
     fontWeight: "600",
+    color: semantic.textPrimary,
   },
+
+  // Input bar
   inputBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: spacing.xs,
   },
   voiceButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#312722",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: semantic.heroStart,
     alignItems: "center",
     justifyContent: "center",
   },
   voiceButtonActive: {
-    backgroundColor: "#EFD9C2",
+    backgroundColor: semantic.accentSoft,
+    borderWidth: 2,
+    borderColor: semantic.accent,
   },
   inputWrap: {
     flex: 1,
-    borderRadius: 22,
+    borderRadius: 23,
     borderWidth: 1,
-    borderColor: "#DCCFC2",
-    backgroundColor: "#FFFDF9",
-    paddingHorizontal: 14,
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
+    paddingHorizontal: spacing.md,
   },
   input: {
-    height: 44,
+    height: 46,
     fontSize: 14,
-    color: "#392D27",
+    fontFamily: font.regular,
+    color: semantic.textPrimary,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#2D231E",
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: semantic.heroStart,
     alignItems: "center",
     justifyContent: "center",
   },
+  sendButtonDisabled: {
+    backgroundColor: semantic.border,
+  },
+
+  // Footer
   footerHint: {
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: spacing.xs,
+    marginBottom: spacing.xs,
     fontSize: 11,
-    color: "#8C7C70",
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
     textAlign: "center",
   },
 });

@@ -56,12 +56,12 @@ export default function NotificationsScreen() {
       await requestPermissions();
     } finally {
       setIsRequesting(false);
-      triggerExit("forward", () => router.push("/paywall?mode=soft"));
+      triggerExit("forward", () => router.push("/(onboarding)/microphone"));
     }
   };
 
   const handleSkip = () => {
-    triggerExit("forward", () => router.push("/paywall?mode=soft"));
+    triggerExit("forward", () => router.push("/(onboarding)/microphone"));
   };
 
   const handleBack = () => {

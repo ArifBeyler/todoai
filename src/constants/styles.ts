@@ -1,1 +1,6 @@
-export const VISUAL_STYLES = [{ value: "illustration", label: "Illustration" },{ value: "watercolor", label: "Watercolor" },{ value: "anime", label: "Anime" },{ value: "minimal", label: "Minimal" },{ value: "comic", label: "Comic" },{ value: "pixel", label: "Pixel Art" }] as const;
+export const VISUAL_STYLES = [
+  { value: "3d", label: "Claymation", description: "Kil figürün olarak hayat bul" },
+  { value: "lofi", label: "Lofi", description: "Pixel art dünyasında kendini bul" },
+] as const;
+
+export type VisualStyleValue = (typeof VISUAL_STYLES)[number]["value"];

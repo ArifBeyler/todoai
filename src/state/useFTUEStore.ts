@@ -47,6 +47,7 @@ type FTUEState = {
   photoValueSheetShown: boolean;
   firstVisualDelivered: boolean;
   taskCountAtLastCheck: number;
+  hasSeenHomeScreen: boolean;
 
   completeSlidesOnboarding: () => void;
   completeAccountGate: (isGuest: boolean) => void;
@@ -60,7 +61,9 @@ type FTUEState = {
   setGenerationEligibility: (status: GenerationEligibility) => void;
   markFirstVisualDelivered: () => void;
   updateTaskCount: (count: number) => void;
+  markHomeScreenSeen: () => void;
   resetFTUE: () => void;
+  resetOnboardingMidpoint: () => void;
 };
 
 const PAYWALL_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -71,6 +74,9 @@ export const isPaywallOnCooldown = (dismissedAt: number | null): boolean => {
   if (!dismissedAt) return false;
   return Date.now() - dismissedAt < PAYWALL_COOLDOWN_MS;
 };
+
+let ftueHydrated = false;
+export const isFTUEHydrated = () => ftueHydrated;
 
 export const useFTUEStore = create<FTUEState>()(
   persist(
@@ -90,6 +96,7 @@ export const useFTUEStore = create<FTUEState>()(
       photoValueSheetShown: false,
       firstVisualDelivered: false,
       taskCountAtLastCheck: 0,
+      hasSeenHomeScreen: false,
 
       completeSlidesOnboarding: () =>
         set({ onboardingSlidesCompleted: true }),
@@ -136,6 +143,9 @@ export const useFTUEStore = create<FTUEState>()(
       updateTaskCount: (count) =>
         set({ taskCountAtLastCheck: count }),
 
+      markHomeScreenSeen: () =>
+        set({ hasSeenHomeScreen: true }),
+
       resetFTUE: () =>
         set({
           onboardingSlidesCompleted: false,
@@ -151,11 +161,36 @@ export const useFTUEStore = create<FTUEState>()(
           photoValueSheetShown: false,
           firstVisualDelivered: false,
           taskCountAtLastCheck: 0,
+          hasSeenHomeScreen: false,
         }),
+
+      resetOnboardingMidpoint: () =>
+        set({ onboardingSlidesCompleted: false }),
     }),
     {
-      name: "dayframe-ftue",
+      name: "doara-ftue",
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
+      migrate: (persisted: any, version: number) => {
+        if (version < 2) {
+          return {
+            ...persisted,
+            onboardingSlidesCompleted: false,
+            accountGateCompleted: false,
+            isGuestUser: false,
+          };
+        }
+        if (version < 3) {
+          return {
+            ...persisted,
+            hasSeenHomeScreen: false,
+          };
+        }
+        return persisted as FTUEState;
+      },
+      onRehydrateStorage: () => () => {
+        ftueHydrated = true;
+      },
     },
   ),
 );

@@ -1,1 +1,0 @@
-export const buildVisualPrompt = ({ todos, style, userName }: { todos: string[]; style: string; userName: string }) => { const activities = todos.join(", "); return `Create a bright, clean ${style} scene of ${userName || "the user"} completing: ${activities}. White theme, minimalist composition, optimistic mood.`; };

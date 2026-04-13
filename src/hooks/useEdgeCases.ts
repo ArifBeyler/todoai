@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useSessionStore, isTrialActive } from "@state/useSessionStore";
+import { useSessionStore } from "@state/useSessionStore";
 import { useFTUEStore } from "@state/useFTUEStore";
 import { useTodoStore } from "@state/useTodoStore";
 import { TASK_MILESTONE_THRESHOLD } from "@state/useFTUEStore";
@@ -13,18 +13,11 @@ export type EdgeCaseType =
   | "generation_failed"
   | "insufficient_tasks"
   | "tasks_deleted_below_threshold"
-  | "trial_expiring"
-  | "trial_expired"
   | "subscription_expired"
   | "processing_interrupted";
 
 export const useEdgeCases = () => {
-  const {
-    isPremium,
-    trialStartedAt,
-    trialDurationDays,
-    profilePhoto,
-  } = useSessionStore();
+  const { isPremium, profilePhoto } = useSessionStore();
 
   const {
     paywallInteraction,
@@ -37,8 +30,6 @@ export const useEdgeCases = () => {
   const activeTodoCount = useTodoStore(
     (s) => s.todos.filter((t) => !t.isCompleted).length,
   );
-
-  const trialActive = isTrialActive(trialStartedAt, trialDurationDays);
 
   const activeEdgeCases: EdgeCaseType[] = useMemo(() => {
     const cases: EdgeCaseType[] = [];
@@ -74,10 +65,6 @@ export const useEdgeCases = () => {
       cases.push("insufficient_tasks");
     }
 
-    if (trialStartedAt && !trialActive && isPremium) {
-      cases.push("trial_expired");
-    }
-
     if (avatarStatus === "processing") {
       cases.push("processing_interrupted");
     }
@@ -91,8 +78,6 @@ export const useEdgeCases = () => {
     generationEligibility,
     activeTodoCount,
     taskCountAtLastCheck,
-    trialStartedAt,
-    trialActive,
     avatarStatus,
   ]);
 
@@ -115,10 +100,6 @@ export const useEdgeCases = () => {
           return "show_task_progress";
         case "tasks_deleted_below_threshold":
           return "show_task_progress";
-        case "trial_expiring":
-          return "show_trial_warning";
-        case "trial_expired":
-          return "expire_premium";
         case "subscription_expired":
           return "expire_premium";
         case "processing_interrupted":
@@ -167,9 +148,9 @@ export const useEdgeCases = () => {
             title: "Görsel eşiğinin altına düştün",
             subtitle: "Yeni bir görsel için en az 3 aktif görev gerekli.",
           };
-        case "trial_expired":
+        case "subscription_expired":
           return {
-            title: "Deneme süren bitti",
+            title: "Aboneliğin sona erdi",
             subtitle: "Premium'a abone olarak kişisel görsellere devam et.",
           };
         case "processing_interrupted":

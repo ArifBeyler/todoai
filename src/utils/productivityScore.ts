@@ -139,38 +139,33 @@ export const calculateMockProductivityInsights = (todos: TodoItemModel[]): Produ
 
   if (!todos.length) {
     return {
-      score: 58,
+      score: 0,
       trend: "stable",
-      trendLabel: "Dengeli baslangic",
+      trendLabel: "Başlangıç",
       scoreDeltaWeekly: 0,
       completionRate: 0,
-      todayPoints: 8,
-      weeklyCompleted: 2,
-      weeklyTotal: 5,
-      onTimeRate: 72,
-      streakDays: 2,
+      todayPoints: 0,
+      weeklyCompleted: 0,
+      weeklyTotal: 0,
+      onTimeRate: 0,
+      streakDays: 0,
       streakLevel: "Başlangıç",
       completedCount: 0,
       activeCount: 0,
-      topCategories: [
-        { category: "Saglik", points: 10 },
-        { category: "Kisisel", points: 8 },
-      ],
+      topCategories: [],
       completedByCategory: [],
       activeByPriority: { low: 0, medium: 0, high: 0 },
       pointBreakdown: {
-        addedPoints: 8,
+        addedPoints: 0,
         completedPoints: 0,
-        consistencyBonus: 6,
-        total: 14,
+        consistencyBonus: 0,
+        total: 0,
       },
       last7Days,
-      explanation:
-        "Son gunlerde duzenli baslangic yaptin. Gorev ekleme istikrarin iyi, tamamlamayi artirdikca skorun daha hizli yukselecek.",
+      explanation: "Henüz görev yok. İlk görevini ekle ve tamamladıkça puan kazan.",
     };
   }
 
-  let addedPoints = 0;
   let completedPoints = 0;
   const categoryPoints: Record<string, number> = {};
   const completedByCategoryMap: Record<string, number> = {};
@@ -184,12 +179,8 @@ export const calculateMockProductivityInsights = (todos: TodoItemModel[]): Produ
     const createdAt = safeDate(todo.createdAt);
     const dayKey = createdAt ? toDayKey(createdAt) : null;
 
-    const addPoint = Math.round(2 * categoryWeight);
-    addedPoints += addPoint;
-    categoryPoints[categoryKey] = (categoryPoints[categoryKey] ?? 0) + addPoint;
     if (dayKey && dayMap[dayKey]) {
       dayMap[dayKey].total += 1;
-      dayMap[dayKey].points += addPoint;
     }
 
     if (!todo.isCompleted) {
@@ -211,14 +202,14 @@ export const calculateMockProductivityInsights = (todos: TodoItemModel[]): Produ
 
   const completionRateRatio = completedCount / todos.length;
   const completionRate = Math.round(completionRateRatio * 100);
-  const streakDays = clamp(Math.round(2 + completionRateRatio * 5), 1, 7);
-  const onTimeRate = clamp(Math.round(64 + completionRateRatio * 28), 45, 96);
+  const streakDays = clamp(Math.round(completionRateRatio * 7), 0, 7);
+  const onTimeRate = completedCount > 0 ? clamp(Math.round(64 + completionRateRatio * 28), 0, 100) : 0;
   const consistencyBonus = streakDays * 3;
   const weeklyTotal = last7Days.reduce((acc, day) => acc + day.total, 0);
   const weeklyCompleted = last7Days.reduce((acc, day) => acc + day.completed, 0);
-  const todayPoints = clamp(Math.round((addedPoints + completedPoints) * 0.24), 6, 64);
+  const todayPoints = clamp(Math.round(completedPoints * 0.24), 0, 64);
 
-  const totalScoreRaw = 45 + addedPoints + completedPoints + consistencyBonus;
+  const totalScoreRaw = completedPoints + consistencyBonus;
   const score = clamp(totalScoreRaw, 0, 1000);
 
   const firstThree = last7Days.slice(0, 3);
@@ -260,7 +251,7 @@ export const calculateMockProductivityInsights = (todos: TodoItemModel[]): Produ
     completionRate,
     todayPoints,
     weeklyCompleted,
-    weeklyTotal: Math.max(weeklyTotal, 1),
+      weeklyTotal,
     onTimeRate,
     streakDays,
     streakLevel: getStreakLevel(streakDays),
@@ -270,10 +261,10 @@ export const calculateMockProductivityInsights = (todos: TodoItemModel[]): Produ
     completedByCategory,
     activeByPriority,
     pointBreakdown: {
-      addedPoints,
+      addedPoints: 0,
       completedPoints,
       consistencyBonus,
-      total: addedPoints + completedPoints + consistencyBonus,
+      total: completedPoints + consistencyBonus,
     },
     last7Days,
     explanation,

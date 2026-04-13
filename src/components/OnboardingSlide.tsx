@@ -1,3 +1,0 @@
-import { Text, View } from "react-native";
-import { PrimaryButton } from "@ui/PrimaryButton";
-export const OnboardingSlide = ({ title, description, stepLabel, buttonLabel, onPress }: { title: string; description: string; stepLabel: string; buttonLabel: string; onPress: () => void }) => <View className="flex-1 bg-white px-6 pt-24"><Text className="text-sm text-zinc-400">{stepLabel}</Text><Text className="mt-3 text-4xl font-semibold text-zinc-900">{title}</Text><Text className="mt-3 text-lg text-zinc-500">{description}</Text><View className="mt-auto pb-12"><PrimaryButton label={buttonLabel} onPress={onPress} /></View></View>;

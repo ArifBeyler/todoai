@@ -9,6 +9,7 @@ type TaskProgressBannerProps = {
   tasksUntilMilestone: number;
   activeTodoCount: number;
   isSubscribed: boolean;
+  hasGeneratedToday?: boolean;
   onPressGenerate?: () => void;
 };
 
@@ -17,9 +18,11 @@ export const TaskProgressBanner = ({
   tasksUntilMilestone,
   activeTodoCount,
   isSubscribed,
+  hasGeneratedToday = false,
   onPressGenerate,
 }: TaskProgressBannerProps) => {
   if (milestoneStatus === "no_tasks") return null;
+  if (hasGeneratedToday) return null;
 
   const progress = Math.min(activeTodoCount / TASK_MILESTONE_THRESHOLD, 1);
 
@@ -30,15 +33,15 @@ export const TaskProgressBanner = ({
         onPress={onPressGenerate}
         activeOpacity={0.85}
         accessibilityRole="button"
-        accessibilityLabel="AI görselini üret"
+        accessibilityLabel="Günün görselini oluştur"
       >
         <View style={styles.eligibleIconWrap}>
           <Sparkle size={20} color={semantic.textOnDark} weight="fill" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.eligibleTitle}>Görselin hazır!</Text>
+          <Text style={styles.eligibleTitle}>Günün görseli hazır</Text>
           <Text style={styles.eligibleSub}>
-            İlk kişisel AI görselini üretmek için dokun.
+            Görevlerini tamamladıkça görsel açılacak.
           </Text>
         </View>
       </TouchableOpacity>
@@ -52,7 +55,7 @@ export const TaskProgressBanner = ({
           <Target size={18} color={semantic.heroStart} weight="fill" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.milestoneTitle}>3 görev tamamlandı!</Text>
+          <Text style={styles.milestoneTitle}>3 görev eklendi!</Text>
           <Text style={styles.milestoneSub}>
             Kişisel AI görselini açmak için premium'u dene.
           </Text>

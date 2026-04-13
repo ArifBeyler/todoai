@@ -1,31 +1,51 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { CalendarCheck, Trophy } from "phosphor-react-native";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+} from "react-native-reanimated";
+import { CalendarCheck, Sparkle, Trophy } from "phosphor-react-native";
+
+// Stagger timing constants — top-to-bottom cascade
+const DUR = 340;
+const SPR = { damping: 22, stiffness: 210 } as const;
+const D0 = 0;    // hero card
+const D1 = 70;   // white panel
+const D2 = 150;  // "Bugün" row
+const D3 = 210;  // segmented control
+const D4 = 270;  // edge/milestone banners
+const D5 = 300;  // "Görevler" header
+const D6 = 350;  // task list
+const D7 = 400;  // summary cards
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HeroStateRenderer } from "@/src/components/HeroStateRenderer";
 import { TaskProgressBanner } from "@/src/components/TaskProgressBanner";
+import { GenerationProcessingOverlay } from "@/src/components/GenerationProcessingOverlay";
 import { PhotoValueSheet } from "@/src/components/PhotoValueSheet";
 import { NotificationPrompt } from "@/src/components/NotificationPrompt";
 import { ProductivityScoreSheet } from "@/src/components/ProductivityScoreSheet";
 import { TaskCard } from "@/src/components/TaskCard";
-import { SegmentedControl } from "@/src/components/SegmentedControl";
+import { AnimatedSegmentedControl } from "@/src/components/AnimatedSegmentedControl";
 import { useSessionStore } from "@state/useSessionStore";
 import { useTodoStore } from "@state/useTodoStore";
 import { useFTUEStore } from "@state/useFTUEStore";
 import { useFTUE } from "@/src/hooks/useFTUE";
+import { useHeroReveal } from "@/src/hooks/useHeroReveal";
+import { useTodoVisualGeneration } from "@/src/hooks/useTodoVisualGeneration";
 import { usePaywallTrigger } from "@/src/hooks/usePaywallTrigger";
 import { useEdgeCases } from "@/src/hooks/useEdgeCases";
 import { EdgeCaseBanner } from "@/src/components/EdgeCaseBanner";
 import { GenerationErrorSheet } from "@/src/components/GenerationErrorSheet";
 import { calculateMockProductivityInsights } from "@/src/utils/productivityScore";
+import { useUserScore } from "@/src/hooks/useUserScore";
+import { supabase } from "@/src/services/supabase";
+import { AISuggestionCard } from "@/src/components/AISuggestionCard";
 import { radius, spacing } from "@/src/ui/tokens";
 
-const SEGMENTS = [
-  { key: "habits", label: "Günlük alışkanlıklar" },
-  { key: "goals", label: "Hedefler" },
-];
+const SEGMENT_KEYS = { habits: "habits", goals: "goals" } as const;
 
 const HOME_LAYER = {
   bg: "#F2F2F0",
@@ -57,18 +77,26 @@ export default function HomeScreen() {
   const [isPhotoSheetVisible, setIsPhotoSheetVisible] = useState(false);
   const [isNotifPromptVisible, setIsNotifPromptVisible] = useState(false);
   const [isErrorSheetVisible, setIsErrorSheetVisible] = useState(false);
+  const [isGenerationOverlayVisible, setIsGenerationOverlayVisible] = useState(false);
   const [activeSegment, setActiveSegment] = useState("habits");
+  const [homeHeroImageUrl, setHomeHeroImageUrl] = useState<string | null>(null);
+  const [starterHeroImageUrl, setStarterHeroImageUrl] = useState<string | null>(null);
 
   const { profileName } = useSessionStore();
   const {
     todos,
     toggleTodo,
     latestVisual,
-    isGenerating,
     generationError,
     clearGenerationError,
   } = useTodoStore();
-  const { setAvatarStatus, setGenerationEligibility } = useFTUEStore();
+  const avatarStatus = useFTUEStore((s) => s.avatarStatus);
+  const hasSeenHomeScreen = useFTUEStore((s) => s.hasSeenHomeScreen);
+  const { setAvatarStatus, markHomeScreenSeen } = useFTUEStore();
+
+  const { totalPoints } = useUserScore();
+  const [avatarReadyBanner, setAvatarReadyBanner] = useState(false);
+  const avatarPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const {
     heroVariant,
@@ -76,11 +104,89 @@ export default function HomeScreen() {
     shouldShowPhotoValueSheet,
     shouldTriggerPaywall,
     shouldPromptNotification,
-    canTriggerGeneration,
     tasksUntilMilestone,
     isSubscribed,
     activeTodoCount,
+    totalTodoCount,
+    currentHeroTodo,
   } = useFTUE();
+
+  const {
+    dailyHeroStatus,
+    dailyHeroImageUrl: revealHeroImageUrl,
+    blurAmount: revealBlurAmount,
+    progressText: revealProgressText,
+    revealProgress,
+    isFullyRevealed,
+    hasGeneratedToday,
+    canShowGenerationCTA,
+    handleGenerateCTA,
+    handleRetryGeneration,
+    checkDailyReset,
+    stopPolling,
+  } = useHeroReveal();
+
+  const { handleTodoCompleted } = useTodoVisualGeneration();
+
+  useEffect(() => {
+    checkDailyReset();
+  }, [checkDailyReset]);
+
+  // Mark home screen as seen after the first visit
+  useEffect(() => {
+    if (!hasSeenHomeScreen) {
+      const timer = setTimeout(markHomeScreenSeen, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenHomeScreen, markHomeScreenSeen]);
+
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
+
+  useEffect(() => {
+    const checkAvatar = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("get-home-state", { body: {} });
+        if (error || !data) return;
+
+        const resolvedHeroImageUrl =
+          data.avatarSummary?.signedUrl ??
+          data.avatarSummary?.imageUrl ??
+          data.hero?.signedVisualUrl ??
+          data.hero?.activeVisualUrl ??
+          null;
+        setHomeHeroImageUrl(resolvedHeroImageUrl);
+
+        const resolvedStarterHeroUrl =
+          data.starterHeroSummary?.signedUrl ??
+          data.starterHeroSummary?.imageUrl ??
+          null;
+        setStarterHeroImageUrl(resolvedStarterHeroUrl);
+
+        if (data.avatarSummary?.id) {
+          const wasProcessing = avatarStatus === "processing";
+          setAvatarStatus("ready");
+          if (wasProcessing) setAvatarReadyBanner(true);
+          if (avatarPollRef.current) {
+            clearInterval(avatarPollRef.current);
+            avatarPollRef.current = null;
+          }
+        }
+      } catch {
+        // Silent fail
+      }
+    };
+
+    checkAvatar();
+
+    if (avatarStatus === "processing") {
+      avatarPollRef.current = setInterval(checkAvatar, 5_000);
+      return () => {
+        if (avatarPollRef.current) clearInterval(avatarPollRef.current);
+      };
+    }
+  }, [avatarStatus]);
 
   const { triggerPaywallIfEligible, triggerPassivePaywall } =
     usePaywallTrigger();
@@ -112,6 +218,31 @@ export default function HomeScreen() {
     return todos.filter((t) => t.recurrence === "once" && !t.isCompleted);
   }, [todos, activeSegment]);
 
+  const habitsCount = useMemo(
+    () =>
+      todos.filter(
+        (t) =>
+          (t.recurrence === "daily" ||
+            t.recurrence === "weekly" ||
+            t.recurrence === "weekend") &&
+          !t.isCompleted,
+      ).length,
+    [todos],
+  );
+
+  const goalsCount = useMemo(
+    () => todos.filter((t) => t.recurrence === "once" && !t.isCompleted).length,
+    [todos],
+  );
+
+  const segments = useMemo(
+    () => [
+      { key: SEGMENT_KEYS.habits, label: "Alışkanlıklar", badge: habitsCount },
+      { key: SEGMENT_KEYS.goals, label: "Hedefler", badge: goalsCount },
+    ],
+    [habitsCount, goalsCount],
+  );
+
   useEffect(() => {
     if (shouldShowPhotoValueSheet) {
       setIsPhotoSheetVisible(true);
@@ -135,14 +266,58 @@ export default function HomeScreen() {
     setAvatarStatus("processing");
   }, [setAvatarStatus]);
 
-  const handleTriggerGeneration = useCallback(() => {
-    if (!canTriggerGeneration) return;
-    setGenerationEligibility("pending");
-  }, [canTriggerGeneration, setGenerationEligibility]);
+  const handleToggleTodo = useCallback(
+    (id: string) => {
+      const todo = todos.find((t) => t.id === id);
+      const isCompleting = todo && !todo.isCompleted;
+      toggleTodo(id);
+      if (isCompleting) {
+        handleTodoCompleted(id);
+      }
+    },
+    [todos, toggleTodo, handleTodoCompleted],
+  );
 
   const handlePressPremium = useCallback(() => {
     triggerPassivePaywall();
   }, [triggerPassivePaywall]);
+
+  const effectiveHeroVariant = useMemo(() => {
+    // reveal state'leri her zaman önce (useFTUE zaten handle ediyor ama doubly safe)
+    if (
+      heroVariant === "locked_reveal" ||
+      heroVariant === "fully_revealed"
+    ) {
+      return heroVariant;
+    }
+
+    // premium_teaser hiçbir zaman override edilmemeli
+    if (heroVariant === "premium_teaser") return heroVariant;
+
+    // starterHero görseli varsa belirli boş state'leri starter_hero'ya yükselt
+    if (
+      starterHeroImageUrl &&
+      (heroVariant === "empty" ||
+        heroVariant === "need_more_todos" ||
+        heroVariant === "placeholder")
+    ) {
+      return "starter_hero" as const;
+    }
+
+    // homeHeroImageUrl varsa belirli geçici state'leri gerçek görsele yükselt
+    if (homeHeroImageUrl) {
+      if (
+        heroVariant === "processing" ||
+        heroVariant === "placeholder" ||
+        heroVariant === "empty" ||
+        heroVariant === "need_more_todos"
+      ) {
+        return "todo_visual";
+      }
+    }
+
+    return heroVariant;
+  }, [heroVariant, homeHeroImageUrl, starterHeroImageUrl]);
 
   return (
     <View style={styles.container}>
@@ -151,166 +326,237 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <TouchableOpacity
+        <Animated.View
+          entering={FadeIn.delay(D0).duration(DUR)}
           style={[styles.heroTapArea, { marginTop: insets.top + 8 }]}
-          activeOpacity={latestVisual ? 0.88 : 1}
-          onPress={() =>
-            latestVisual && router.push(`/visual/${latestVisual.id}`)
-          }
         >
-          <HeroStateRenderer
-            variant={heroVariant}
-            visual={latestVisual}
-            productivityScore={productivityInsights.score}
-            tasksUntilMilestone={tasksUntilMilestone}
-            onPressAssistant={() => router.push("/ai-assistant")}
-            onPressScore={() => setIsScoreSheetVisible(true)}
-            onPressUploadPhoto={() => setIsPhotoSheetVisible(true)}
-            onPressPremium={handlePressPremium}
-          />
-        </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={currentHeroTodo?.visualUrl ? 0.88 : 1}
+          >
+            <HeroStateRenderer
+              variant={effectiveHeroVariant}
+              visual={latestVisual}
+              heroImageUrl={homeHeroImageUrl}
+              starterHeroImageUrl={starterHeroImageUrl}
+              currentTodoTitle={currentHeroTodo?.title ?? null}
+              currentTodoVisualUrl={currentHeroTodo?.visualUrl ?? null}
+              productivityScore={totalPoints}
+              tasksUntilMilestone={tasksUntilMilestone}
+              totalTodoCount={totalTodoCount}
+              onPressAssistant={() => router.push("/ai-assistant")}
+              onPressScore={() => setIsScoreSheetVisible(true)}
+              onPressUploadPhoto={() => setIsPhotoSheetVisible(true)}
+              onPressPremium={handlePressPremium}
+              revealBlurAmount={revealBlurAmount}
+              revealProgressText={revealProgressText}
+              revealProgress={revealProgress}
+              isFullyRevealed={isFullyRevealed}
+              dailyHeroImageUrl={revealHeroImageUrl}
+            />
+          </TouchableOpacity>
+        </Animated.View>
 
-        <View style={styles.panelWrap}>
+        <Animated.View
+          entering={FadeInUp.delay(D1).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+          style={styles.panelWrap}
+        >
           <View style={styles.taskPanel}>
             <View style={styles.dragHandle} />
 
-            <View style={styles.sectionHeader}>
+            {!hasSeenHomeScreen && (
+              <Animated.View
+                entering={FadeInDown.delay(D2).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+                style={styles.welcomeBanner}
+              >
+                <Text style={styles.welcomeEmoji}>👋</Text>
+                <View style={styles.welcomeTextWrap}>
+                  <Text style={styles.welcomeTitle}>
+                    Hoş geldin{profileName ? `, ${profileName}` : ""}!
+                  </Text>
+                  <Text style={styles.welcomeDesc}>
+                    Görev ekleyip tamamladıkça puan kazan. Her adım seni daha üretken yapıyor.
+                  </Text>
+                </View>
+              </Animated.View>
+            )}
+
+            <Animated.View
+              entering={FadeInDown.delay(D2).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              style={styles.sectionHeader}
+            >
               <Text style={styles.sectionTitle}>Bugün</Text>
               <View style={styles.calendarPill}>
-                <CalendarCheck
-                  size={17}
-                  color="#111111"
-                  weight="regular"
-                />
+                <CalendarCheck size={17} color="#111111" weight="regular" />
               </View>
-            </View>
+            </Animated.View>
 
-            <View style={{ marginBottom: 14 }}>
-              <SegmentedControl
-                segments={SEGMENTS}
-                activeKey={activeSegment}
-                onSelect={setActiveSegment}
+            <Animated.View
+              entering={FadeInDown.delay(D3).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              style={{ marginBottom: 14 }}
+            >
+              <AnimatedSegmentedControl
+                tabs={segments.map((s) => ({ label: s.label, badge: s.badge }))}
+                activeIndex={activeSegment === SEGMENT_KEYS.habits ? 0 : 1}
+                onChange={(i) =>
+                  setActiveSegment(
+                    i === 0 ? SEGMENT_KEYS.habits : SEGMENT_KEYS.goals,
+                  )
+                }
               />
-            </View>
+            </Animated.View>
 
             {edgeCaseMessage && primaryEdgeCase !== "insufficient_tasks" && (
-              <EdgeCaseBanner
-                edgeCase={primaryEdgeCase}
-                title={edgeCaseMessage.title}
-                subtitle={edgeCaseMessage.subtitle}
-                onAction={() => {
-                  if (
-                    primaryEdgeCase === "paywall_dismissed" ||
-                    primaryEdgeCase === "trial_expired"
-                  ) {
-                    handlePressPremium();
-                  } else if (
-                    primaryEdgeCase === "subscribed_no_photo" ||
-                    primaryEdgeCase === "photo_skipped" ||
-                    primaryEdgeCase === "photo_failed"
-                  ) {
-                    setIsPhotoSheetVisible(true);
-                  } else if (primaryEdgeCase === "generation_failed") {
-                    setIsErrorSheetVisible(true);
-                  }
-                }}
-              />
+              <Animated.View
+                entering={FadeInDown.delay(D4).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              >
+                <EdgeCaseBanner
+                  edgeCase={primaryEdgeCase}
+                  title={edgeCaseMessage.title}
+                  subtitle={edgeCaseMessage.subtitle}
+                  onAction={() => {
+                    if (
+                      primaryEdgeCase === "paywall_dismissed" ||
+                      primaryEdgeCase === "subscription_expired"
+                    ) {
+                      handlePressPremium();
+                    } else if (
+                      primaryEdgeCase === "subscribed_no_photo" ||
+                      primaryEdgeCase === "photo_skipped" ||
+                      primaryEdgeCase === "photo_failed"
+                    ) {
+                      setIsPhotoSheetVisible(true);
+                    } else if (primaryEdgeCase === "generation_failed") {
+                      setIsErrorSheetVisible(true);
+                    }
+                  }}
+                />
+              </Animated.View>
             )}
 
             {taskMilestone !== "no_tasks" && (
-              <TaskProgressBanner
-                milestoneStatus={taskMilestone}
-                tasksUntilMilestone={tasksUntilMilestone}
-                activeTodoCount={activeTodoCount}
-                isSubscribed={isSubscribed}
-                onPressGenerate={handleTriggerGeneration}
-              />
+              <Animated.View
+                entering={FadeInDown.delay(D4).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              >
+                <TaskProgressBanner
+                  milestoneStatus={taskMilestone}
+                  tasksUntilMilestone={tasksUntilMilestone}
+                  activeTodoCount={totalTodoCount}
+                  isSubscribed={isSubscribed}
+                  hasGeneratedToday={hasGeneratedToday}
+                  onPressGenerate={handleGenerateCTA}
+                />
+              </Animated.View>
             )}
 
-            <View style={styles.taskHeader}>
+            <Animated.View
+              entering={FadeInDown.delay(D5 - 30).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              style={{ marginBottom: 12 }}
+            >
+              <AISuggestionCard />
+            </Animated.View>
+
+            <Animated.View
+              entering={FadeInDown.delay(D5).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              style={styles.taskHeader}
+            >
               <Text style={styles.taskHeaderText}>Görevler</Text>
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{filteredTodos.length}</Text>
               </View>
-            </View>
+            </Animated.View>
 
-            {generationError ? (
-              <TouchableOpacity
-                onPress={clearGenerationError}
-                style={styles.errorBanner}
-              >
-                <Text style={styles.errorText}>{generationError}</Text>
-              </TouchableOpacity>
-            ) : null}
+            <Animated.View
+              entering={FadeInDown.delay(D6).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+            >
+              {generationError ? (
+                <TouchableOpacity
+                  onPress={clearGenerationError}
+                  style={styles.errorBanner}
+                >
+                  <Text style={styles.errorText}>{generationError}</Text>
+                </TouchableOpacity>
+              ) : null}
 
-            {allDone ? (
-              <View style={styles.completedBanner}>
-                <View style={styles.completedIconWrap}>
-                  <Trophy size={24} color="#111111" weight="fill" />
+              {allDone ? (
+                <View style={styles.completedBanner}>
+                  <View style={styles.completedIconWrap}>
+                    <Trophy size={24} color="#111111" weight="fill" />
+                  </View>
+                  <Text style={styles.completedTitle}>Tebrikler!</Text>
+                  <Text style={styles.completedDesc}>
+                    Bugünkü tüm görevlerini tamamladın.
+                  </Text>
                 </View>
-                <Text style={styles.completedTitle}>Tebrikler!</Text>
-                <Text style={styles.completedDesc}>
-                  Bugünkü tüm görevlerini tamamladın.
-                </Text>
-              </View>
-            ) : filteredTodos.length === 0 ? (
-              <View style={styles.empty}>
-                <Text style={styles.emptyTitle}>
-                  Henüz görev eklenmedi
-                </Text>
-                <Text style={styles.emptyDesc}>
-                  Aşağıdaki + ile ilk görevinizi oluşturun.
-                </Text>
-              </View>
-            ) : (
-              filteredTodos.map((item) => (
-                <TaskCard
-                  key={item.id}
-                  title={item.title}
-                  category={item.category}
-                  priority={item.priority}
-                  isCompleted={item.isCompleted}
-                  recurrence={item.recurrence}
-                  onToggle={() => toggleTodo(item.id)}
-                  onPress={() => router.push(`/todo/${item.id}`)}
-                />
-              ))
-            )}
+              ) : filteredTodos.length === 0 ? (
+                <View style={styles.empty}>
+                  <Text style={styles.emptyTitle}>
+                    Henüz görev eklenmedi
+                  </Text>
+                  <Text style={styles.emptyDesc}>
+                    Aşağıdaki + ile ilk görevinizi oluşturun.
+                  </Text>
+                </View>
+              ) : (
+                filteredTodos.map((item) => (
+                  <TaskCard
+                    key={item.id}
+                    title={item.title}
+                    category={item.category}
+                    priority={item.priority}
+                    isCompleted={item.isCompleted}
+                    recurrence={item.recurrence}
+                    onToggle={() => handleToggleTodo(item.id)}
+                    onPress={() => router.push(`/todo/${item.id}`)}
+                  />
+                ))
+              )}
+            </Animated.View>
 
-            <View style={styles.summaryWrap}>
-              <TouchableOpacity
-                style={styles.summaryCard}
-                onPress={() => router.push("/stats/completed")}
-                activeOpacity={0.9}
-                accessibilityRole="button"
-                accessibilityLabel="Tamamlanan ekranını aç"
-              >
-                <Text style={styles.summaryValue}>{completedCount}</Text>
-                <Text style={styles.summaryLabel}>Tamamlanan</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.summaryCard}
-                onPress={() => router.push("/stats/active")}
-                activeOpacity={0.9}
-                accessibilityRole="button"
-                accessibilityLabel="Aktif ekranını aç"
-              >
-                <Text style={styles.summaryValue}>{activeCount}</Text>
-                <Text style={styles.summaryLabel}>Aktif</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.summaryCard}
-                onPress={() => router.push("/stats/completion")}
-                activeOpacity={0.9}
-                accessibilityRole="button"
-                accessibilityLabel="Tamamlama ekranını aç"
-              >
-                <Text style={styles.summaryValue}>%{completionRate}</Text>
-                <Text style={styles.summaryLabel}>Tamamlama</Text>
-              </TouchableOpacity>
-            </View>
+            <Animated.View
+              entering={FadeInDown.delay(D7).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
+              style={styles.summaryWrap}
+            >
+              <View style={styles.summaryCardWrap}>
+                <TouchableOpacity
+                  style={styles.summaryCard}
+                  onPress={() => router.push("/stats/completed")}
+                  activeOpacity={0.9}
+                  accessibilityRole="button"
+                  accessibilityLabel="Tamamlanan ekranını aç"
+                >
+                  <Text style={styles.summaryValue}>{completedCount}</Text>
+                  <Text style={styles.summaryLabel}>Tamamlanan</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.summaryCardWrap}>
+                <TouchableOpacity
+                  style={styles.summaryCard}
+                  onPress={() => router.push("/stats/active")}
+                  activeOpacity={0.9}
+                  accessibilityRole="button"
+                  accessibilityLabel="Aktif ekranını aç"
+                >
+                  <Text style={styles.summaryValue}>{activeCount}</Text>
+                  <Text style={styles.summaryLabel}>Aktif</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.summaryCardWrap}>
+                <TouchableOpacity
+                  style={styles.summaryCard}
+                  onPress={() => router.push("/stats/completion")}
+                  activeOpacity={0.9}
+                  accessibilityRole="button"
+                  accessibilityLabel="Tamamlama ekranını aç"
+                >
+                  <Text style={styles.summaryValue}>%{completionRate}</Text>
+                  <Text style={styles.summaryLabel}>Tamamlama</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
           </View>
-        </View>
+        </Animated.View>
       </ScrollView>
 
       <ProductivityScoreSheet
@@ -333,9 +579,39 @@ export default function HomeScreen() {
       <GenerationErrorSheet
         visible={isErrorSheetVisible}
         errorType="generation_failed"
-        onRetry={handleTriggerGeneration}
+        onRetry={handleRetryGeneration}
         onClose={() => setIsErrorSheetVisible(false)}
       />
+
+      <GenerationProcessingOverlay
+        visible={isGenerationOverlayVisible}
+        onDismiss={() => setIsGenerationOverlayVisible(false)}
+      />
+
+      {avatarReadyBanner && (
+        <Animated.View
+          entering={FadeInUp.duration(400)}
+          style={styles.avatarReadyBanner}
+        >
+          <View style={styles.avatarReadyIcon}>
+            <Sparkle size={20} color="#3A2E28" weight="fill" />
+          </View>
+          <View style={styles.avatarReadyTextWrap}>
+            <Text style={styles.avatarReadyTitle}>Görselin hazır!</Text>
+            <Text style={styles.avatarReadyDesc}>
+              Yapay zekâ ilk görselini oluşturdu.
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => setAvatarReadyBanner(false)}
+            style={styles.avatarReadyClose}
+            accessibilityRole="button"
+            accessibilityLabel="Kapat"
+          >
+            <Text style={styles.avatarReadyCloseText}>Tamam</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -350,11 +626,17 @@ const styles = StyleSheet.create({
   },
   heroTapArea: {
     marginHorizontal: 14,
+    zIndex: 1,
   },
   panelWrap: {
     marginTop: -52,
-    zIndex: 3,
+    zIndex: 10,
     marginHorizontal: 14,
+    // Fill the rounded-corner gap so hero card content can't bleed through
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    backgroundColor: HOME_LAYER.panel,
+    overflow: "hidden",
   },
   taskPanel: {
     borderTopLeftRadius: 30,
@@ -369,6 +651,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     marginHorizontal: 0,
     ...HOME_CARD_SHADOW,
+    // Must be higher than heroCard's shadow.soft elevation (8) so Android
+    // renders the panel above the hero card in the overlap zone
+    elevation: 12,
   },
   dragHandle: {
     alignSelf: "center",
@@ -377,6 +662,37 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: "#DDDBD7",
     marginBottom: 10,
+  },
+  welcomeBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    backgroundColor: "#FFF8EE",
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: "#F0D9B5",
+    padding: 14,
+    marginBottom: 14,
+  },
+  welcomeEmoji: {
+    fontSize: 24,
+    lineHeight: 28,
+  },
+  welcomeTextWrap: {
+    flex: 1,
+    gap: 3,
+  },
+  welcomeTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#3A2E28",
+    lineHeight: 20,
+  },
+  welcomeDesc: {
+    fontSize: 13,
+    color: "#7C6C62",
+    lineHeight: 18,
+    fontWeight: "500",
   },
   sectionHeader: {
     flexDirection: "row",
@@ -504,8 +820,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  summaryCard: {
+  summaryCardWrap: {
     flex: 1,
+  },
+  summaryCard: {
     borderRadius: 14,
     backgroundColor: HOME_LAYER.panel,
     borderWidth: 1,
@@ -524,5 +842,53 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "rgba(17, 17, 17, 0.55)",
     fontWeight: "500",
+  },
+  avatarReadyBanner: {
+    position: "absolute",
+    bottom: 100,
+    left: 20,
+    right: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FAFAF9",
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.06)",
+    ...HOME_CARD_SHADOW,
+  },
+  avatarReadyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F0E8DD",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarReadyTextWrap: {
+    flex: 1,
+    gap: 2,
+  },
+  avatarReadyTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111111",
+  },
+  avatarReadyDesc: {
+    fontSize: 12,
+    color: "rgba(17, 17, 17, 0.55)",
+  },
+  avatarReadyClose: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: "#3A2E28",
+  },
+  avatarReadyCloseText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#FFFFFF",
   },
 });

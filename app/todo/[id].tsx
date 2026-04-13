@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
+  Alert,
   StyleSheet,
   ScrollView,
   Text,
@@ -13,9 +14,10 @@ import {
   ArrowLeft,
   CalendarBlank,
   CheckCircle,
-  Circle,
+  CircleIcon,
   Clock,
   Fire,
+  Lock,
   NotePencil,
   Repeat,
   Tag,
@@ -23,6 +25,7 @@ import {
   Warning,
 } from "phosphor-react-native";
 import { useTodoStore } from "@state/useTodoStore";
+import { useHeroRevealStore } from "@state/useHeroRevealStore";
 import { resolveTodoIcon } from "@/src/utils/resolveTodoIcon";
 import { radius, spacing } from "@/src/ui/tokens";
 
@@ -77,10 +80,20 @@ const BUTTON_SHADOW = {
 export default function TodoDetailScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ id: string }>();
-  const { todos, removeTodo, updateTodo, toggleTodo, generateVisualForTodo, isGenerating } = useTodoStore();
+  const { todos, removeTodo, updateTodo, toggleTodo } = useTodoStore();
+  const snapshotTodoIds = useHeroRevealStore((s) => s.snapshotTodoIds);
+  const dailyHeroStatus = useHeroRevealStore((s) => s.dailyHeroStatus);
+
   const todo = useMemo(() => todos.find((item) => item.id === params.id), [params.id, todos]);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo?.title ?? "");
+
+  const isSnapshotTodo =
+    params.id != null &&
+    snapshotTodoIds.includes(params.id) &&
+    (dailyHeroStatus === "locked_reveal" ||
+      dailyHeroStatus === "fully_revealed" ||
+      dailyHeroStatus === "generating");
 
   if (!todo) {
     return (
@@ -104,14 +117,45 @@ export default function TodoDetailScreen() {
   const HeroIcon = resolvedIcon.Icon;
 
   const handleSave = () => {
+    if (isSnapshotTodo) return;
     updateTodo(todo.id, { title: editTitle.trim() || todo.title });
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
+  const handleEditPress = useCallback(() => {
+    if (isSnapshotTodo) {
+      Alert.alert(
+        "Bu görev görseline bağlı",
+        "Bu görev bugünün görseline bağlı, yarın düzenleyebilirsin.",
+        [{ text: "Tamam" }],
+      );
+      return;
+    }
+    setIsEditing((prev) => !prev);
+  }, [isSnapshotTodo]);
+
+  const handleDelete = useCallback(() => {
+    if (isSnapshotTodo) {
+      Alert.alert(
+        "Bu görev görünün bir parçası",
+        "Bu görevi silersen, bugünün görselini tamamen açman mümkün olmayacak. Yine de silmek istiyor musun?",
+        [
+          { text: "Vazgeç", style: "cancel" },
+          {
+            text: "Yine de Sil",
+            style: "destructive",
+            onPress: () => {
+              removeTodo(todo.id);
+              router.back();
+            },
+          },
+        ],
+      );
+      return;
+    }
     removeTodo(todo.id);
     router.back();
-  };
+  }, [isSnapshotTodo, todo.id, removeTodo]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -132,13 +176,17 @@ export default function TodoDetailScreen() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Görev Detayı</Text>
           <TouchableOpacity
-            onPress={() => setIsEditing(!isEditing)}
+            onPress={handleEditPress}
             style={styles.editButton}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel="Düzenle"
+            accessibilityLabel={isSnapshotTodo ? "Düzenleme kilitli" : "Düzenle"}
           >
-            <NotePencil size={20} color="#3A2E28" weight="regular" />
+            {isSnapshotTodo ? (
+              <Lock size={20} color="#8A7A70" weight="regular" />
+            ) : (
+              <NotePencil size={20} color="#3A2E28" weight="regular" />
+            )}
           </TouchableOpacity>
         </View>
 
@@ -240,7 +288,7 @@ export default function TodoDetailScreen() {
             {todo.isCompleted ? (
               <CheckCircle size={20} color="#4F8F6B" weight="fill" />
             ) : (
-              <Circle size={20} color="#4F8F6B" weight="regular" />
+              <CircleIcon size={20} color="#4F8F6B" weight="regular" />
             )}
             <Text style={[styles.toggleText, todo.isCompleted && styles.toggleTextDone]}>
               {todo.isCompleted ? "Tamamlandı — Geri Al" : "Tamamlandı Olarak İşaretle"}

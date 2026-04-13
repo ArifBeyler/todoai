@@ -1,251 +1,733 @@
-import { router } from "expo-router";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Check, ShieldCheck, X } from "phosphor-react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  ImageSourcePropType,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+  ZoomIn,
+} from "react-native-reanimated";
+import type { PurchasesPackage } from "react-native-purchases";
+import { Check, Crown, ShieldCheck, Sparkle, Star, X } from "phosphor-react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRevenueCat } from "@/src/hooks/useRevenueCat";
 import { useFTUEStore } from "@state/useFTUEStore";
-import { palette, radius, semantic, shadow, spacing } from "@/src/ui/tokens";
+import { useSessionStore } from "@state/useSessionStore";
+import { trackEvent } from "@/src/services/analytics";
+import { font, radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 
-const TRIAL_FEATURES = [
-  "Kişisel AI görsel üretimi",
-  "Günlük motivasyon kartları",
-  "Tüm pastel stillere erişim",
-  "HD dışa aktarma",
-  "Öncelikli üretim sırası",
-  "Sınırsız geçmiş arşivi",
+const { width: SCREEN_W } = Dimensions.get("window");
+
+const CAROUSEL_IMAGES: ImageSourcePropType[] = [
+  require("../assets/images/onboarding-hero-lofi.png"),
+  require("../assets/images/onboarding-cooking-lofi.png"),
+  require("../assets/images/onboarding-study-3d.png"),
+  require("../assets/images/onboarding-sport-3d.png"),
+  require("../assets/images/onboarding-welcome.png"),
+  require("../assets/images/onboarding-distracted.png"),
+  require("../assets/images/onboarding-solution.png"),
+  require("../assets/images/onboarding-app-reveal.png"),
+  require("../assets/images/onboarding-overwhelmed.png"),
 ];
 
-const plans = [
-  {
-    id: "weekly",
-    title: "Haftalık",
-    price: "149,99 TL",
-    subtitle: "hafta başına",
+const CAROUSEL_INTERVAL = 3500;
+
+const FEATURES = [
+  { label: "Kişisel AI görsel üretimi", icon: "sparkle" },
+  { label: "Günlük motivasyon kartları", icon: "check" },
+  { label: "Tüm pastel stillere erişim", icon: "check" },
+  { label: "HD dışa aktarma", icon: "check" },
+  { label: "Öncelikli üretim sırası", icon: "check" },
+  { label: "Sınırsız geçmiş arşivi", icon: "check" },
+] as const;
+
+const PACKAGE_ORDER: Record<string, number> = {
+  $rc_weekly: 0,
+  $rc_monthly: 1,
+  $rc_annual: 2,
+};
+
+const PACKAGE_LABELS: Record<string, string> = {
+  $rc_weekly: "Haftalık",
+  $rc_monthly: "Aylık",
+  $rc_annual: "Yıllık",
+};
+
+const getPackageSubtitle = (identifier: string): string => {
+  switch (identifier) {
+    case "$rc_weekly":
+      return "hafta başına";
+    case "$rc_monthly":
+      return "ay başına";
+    case "$rc_annual":
+      return "yıl başına";
+    default:
+      return "";
+  }
+};
+
+const isPopular = (identifier: string): boolean =>
+  identifier === "$rc_monthly";
+
+const getYearlySavings = (packages: PurchasesPackage[]): string | null => {
+  const monthly = packages.find((p) => p.identifier === "$rc_monthly");
+  const annual = packages.find((p) => p.identifier === "$rc_annual");
+  if (!monthly || !annual) return null;
+
+  const yearlyFromMonthly = monthly.product.price * 12;
+  const annualPrice = annual.product.price;
+  if (yearlyFromMonthly <= 0) return null;
+
+  const savingsPercent = Math.round(
+    ((yearlyFromMonthly - annualPrice) / yearlyFromMonthly) * 100,
+  );
+  return savingsPercent > 0 ? `%${savingsPercent} tasarruf` : null;
+};
+
+const HERO_SHADOW = Platform.select({
+  ios: {
+    shadowColor: "rgba(0,0,0,0.18)",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 1,
+    shadowRadius: 28,
   },
-  {
-    id: "monthly",
-    title: "Aylık",
-    price: "299,99 TL",
-    subtitle: "ay başına",
-    popular: true,
+  android: { elevation: 16 },
+}) as object;
+
+const CARD_SHADOW = Platform.select({
+  ios: {
+    shadowColor: "rgba(0,0,0,0.08)",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
   },
-  {
-    id: "yearly",
-    title: "Yıllık",
-    price: "1.999,99 TL",
-    subtitle: "yıl başına",
-    save: "%44 tasarruf",
-  },
-];
+  android: { elevation: 6 },
+}) as object;
+
+function CarouselHero({ isSoftMode, isHardMode, hasIntroOffer, onDismiss }: {
+  isSoftMode: boolean;
+  isHardMode: boolean;
+  hasIntroOffer: boolean;
+  onDismiss: () => void;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const fadeAnim = useSharedValue(1);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fadeAnim.value = withSequence(
+        withTiming(0, { duration: 400, easing: Easing.out(Easing.ease) }),
+        withTiming(1, { duration: 400, easing: Easing.in(Easing.ease) }),
+      );
+      setTimeout(() => {
+        setActiveIndex((prev) => (prev + 1) % CAROUSEL_IMAGES.length);
+      }, 400);
+    }, CAROUSEL_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const imageStyle = useAnimatedStyle(() => ({
+    opacity: fadeAnim.value,
+  }));
+
+  const title = isHardMode
+    ? "Avatarın hazır!\nPremium ile devam et"
+    : isSoftMode
+      ? "Premium ile daha\nfazlasını keşfet"
+      : hasIntroOffer
+        ? "7 gün ücretsiz dene"
+        : "Premium özelliklerin\nkilidini aç";
+
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(600).springify().damping(18)}
+      style={styles.heroWrap}
+    >
+      <View style={[styles.heroCard, HERO_SHADOW]}>
+        <Animated.View style={[StyleSheet.absoluteFill, imageStyle]}>
+          <Image
+            source={CAROUSEL_IMAGES[activeIndex]}
+            style={styles.heroImage}
+          />
+        </Animated.View>
+
+        <LinearGradient
+          colors={[
+            "rgba(0,0,0,0)",
+            "rgba(0,0,0,0.02)",
+            "rgba(0,0,0,0.55)",
+          ]}
+          locations={[0, 0.35, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+
+        <View style={styles.heroOverlay}>
+          <View style={styles.heroBadge}>
+            <Sparkle size={13} color="#FFFFFF" weight="fill" />
+            <Text style={styles.heroBadgeText}>Doara Pro</Text>
+          </View>
+          <Text style={styles.heroTitle}>{title}</Text>
+        </View>
+
+        <View style={styles.dotsRow}>
+          {CAROUSEL_IMAGES.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                i === activeIndex && styles.dotActive,
+              ]}
+            />
+          ))}
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={onDismiss}
+        accessibilityRole="button"
+        accessibilityLabel="Kapat"
+        hitSlop={12}
+      >
+        <X size={14} color="#FFF" weight="bold" />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
 
 export default function PaywallScreen() {
-  const { purchaseTrial, restorePurchases } = useRevenueCat();
-  const dismissPaywall = useFTUEStore((s) => s.dismissPaywall);
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const isSoftMode = mode === "soft";
+  const isHardMode = mode === "hard";
 
-  const handleStartTrial = async () => {
-    await purchaseTrial();
-    router.back();
-  };
+  const {
+    packages,
+    isLoading,
+    isPurchasing,
+    isRestoring,
+    purchasePackage,
+    restorePurchases,
+  } = useRevenueCat();
+  const dismissPaywall = useFTUEStore((s) => s.dismissPaywall);
+  const completeAccountGate = useFTUEStore((s) => s.completeAccountGate);
+  const onboardingCompleted = useSessionStore((s) => s.onboardingCompleted);
+  const completeOnboarding = useSessionStore((s) => s.completeOnboarding);
+  const isOnboardingFlow = !onboardingCompleted;
+
+  const sortedPackages = [...packages].sort(
+    (a, b) =>
+      (PACKAGE_ORDER[a.identifier] ?? 99) -
+      (PACKAGE_ORDER[b.identifier] ?? 99),
+  );
+
+  const [selectedPkgId, setSelectedPkgId] = useState<string>("$rc_monthly");
+
+  const selectedPkg =
+    sortedPackages.find((p) => p.identifier === selectedPkgId) ??
+    sortedPackages[0];
+
+  useEffect(() => {
+    trackEvent("paywall_viewed");
+  }, []);
+
+  const yearlySavings = getYearlySavings(sortedPackages);
+
+  const hasIntroOffer = selectedPkg?.product.introPrice != null;
+  const introLabel = hasIntroOffer
+    ? `${selectedPkg.product.introPrice!.periodNumberOfUnits} gün ücretsiz dene`
+    : null;
+
+  const handlePlanSelect = useCallback((pkgId: string) => {
+    setSelectedPkgId(pkgId);
+    trackEvent("paywall_plan_selected", { planId: pkgId });
+  }, []);
+
+  const handlePurchase = useCallback(async () => {
+    if (!selectedPkg || isPurchasing) return;
+
+    trackEvent("paywall_purchase_started", {
+      planId: selectedPkg.identifier,
+      price: selectedPkg.product.priceString,
+    });
+
+    const result = await purchasePackage(selectedPkg);
+
+    if (result.success) {
+      trackEvent("paywall_purchase_completed", {
+        planId: selectedPkg.identifier,
+      });
+      if (isSoftMode) {
+        router.replace("/(onboarding)/subscription-success");
+      } else if (isHardMode) {
+        completeOnboarding();
+        router.replace("/(tabs)/home");
+      } else if (isOnboardingFlow) {
+        router.replace("/(onboarding)/photo");
+      } else {
+        router.back();
+      }
+      return;
+    }
+
+    if (result.cancelled) {
+      trackEvent("paywall_purchase_cancelled", {
+        planId: selectedPkg.identifier,
+      });
+    } else if (result.error) {
+      trackEvent("paywall_purchase_failed", {
+        planId: selectedPkg.identifier,
+        error: result.error,
+      });
+      Alert.alert(
+        "Satın Alma Başarısız",
+        "Bir sorun oluştu, lütfen tekrar deneyin.",
+        [{ text: "Tamam" }],
+      );
+    }
+  }, [selectedPkg, isPurchasing, purchasePackage]);
+
+  const handleRestore = useCallback(async () => {
+    if (isRestoring) return;
+
+    trackEvent("paywall_restore_tapped");
+    const result = await restorePurchases();
+
+    if (result.success) {
+      trackEvent("paywall_restore_success");
+      if (isSoftMode) {
+        Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
+          { text: "Tamam", onPress: () => router.replace("/(onboarding)/subscription-success") },
+        ]);
+      } else if (isHardMode) {
+        Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
+          {
+            text: "Tamam",
+            onPress: () => {
+              completeOnboarding();
+              router.replace("/(tabs)/home");
+            },
+          },
+        ]);
+      } else if (isOnboardingFlow) {
+        Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
+          {
+            text: "Tamam",
+            onPress: () => router.replace("/(onboarding)/photo"),
+          },
+        ]);
+      } else {
+        Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
+          { text: "Tamam", onPress: () => router.back() },
+        ]);
+      }
+      return;
+    }
+
+    trackEvent("paywall_restore_failed");
+    Alert.alert("Geri Yükleme", "Aktif bir abonelik bulunamadı.", [
+      { text: "Tamam" },
+    ]);
+  }, [isRestoring, restorePurchases]);
 
   const handleDismiss = () => {
+    trackEvent("paywall_dismissed");
     dismissPaywall();
-    router.back();
+    if (isSoftMode) {
+      completeAccountGate(true);
+      router.replace("/(onboarding)/photo");
+    } else if (isHardMode) {
+      completeOnboarding();
+      router.replace("/(tabs)/home");
+    } else if (isOnboardingFlow) {
+      completeOnboarding();
+      router.replace("/(tabs)/home");
+    } else {
+      router.back();
+    }
   };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color={semantic.heroStart} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 42 }}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
+      bounces={false}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.close}
-          onPress={handleDismiss}
-          accessibilityRole="button"
-          accessibilityLabel="Kapat"
-          hitSlop={12}
+      <CarouselHero
+        isSoftMode={isSoftMode}
+        isHardMode={isHardMode}
+        hasIntroOffer={hasIntroOffer}
+        onDismiss={handleDismiss}
+      />
+
+      {/* Trial Banner */}
+      {hasIntroOffer && (
+        <Animated.View
+          entering={FadeInUp.delay(200).duration(400)}
+          style={[styles.trialBanner, CARD_SHADOW]}
         >
-          <X size={16} color={semantic.textOnDark} weight="bold" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>DayFrame Pro</Text>
-        <Text style={styles.headerSubtitle}>
-          7 gün ücretsiz dene, farkı hisset.
-        </Text>
-      </View>
-
-      <View style={[styles.trialBanner, shadow.card]}>
-        <ShieldCheck size={24} color={semantic.success} weight="fill" />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.trialBannerTitle}>7 gün tamamen ücretsiz</Text>
-          <Text style={styles.trialBannerSub}>
-            Deneme süresi bitene kadar ücret alınmaz. İstediğin an iptal et.
-          </Text>
-        </View>
-      </View>
-
-      <View style={[styles.sectionCard, shadow.card]}>
-        {TRIAL_FEATURES.map((item) => (
-          <View key={item} style={styles.featureRow}>
-            <View style={styles.featureIcon}>
-              <Check
-                size={13}
-                color={semantic.textOnDark}
-                weight="bold"
-              />
-            </View>
-            <Text style={styles.featureText}>{item}</Text>
+          <View style={styles.trialIconWrap}>
+            <ShieldCheck size={18} color="#FFFFFF" weight="fill" />
           </View>
-        ))}
-      </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.trialTitle}>7 gün tamamen ücretsiz</Text>
+            <Text style={styles.trialSub}>
+              Deneme süresi bitene kadar ücret alınmaz.
+            </Text>
+          </View>
+        </Animated.View>
+      )}
 
-      <View style={styles.planList}>
-        {plans.map((plan) => (
-          <TouchableOpacity
-            key={plan.id}
-            style={[
-              styles.planCard,
-              plan.popular && styles.planCardPopular,
-              shadow.card,
-            ]}
-            onPress={handleStartTrial}
-            activeOpacity={0.86}
-            accessibilityRole="button"
-            accessibilityLabel={`${plan.title} planını seç`}
+      {/* Features */}
+      <Animated.View
+        entering={FadeInUp.delay(300).duration(450)}
+        style={[styles.featuresCard, CARD_SHADOW]}
+      >
+        {FEATURES.map((item, i) => (
+          <Animated.View
+            key={item.label}
+            entering={FadeIn.delay(400 + i * 60).duration(300)}
+            style={styles.featureRow}
           >
-            {plan.popular ? (
-              <View style={styles.popularBadge}>
-                <Text style={styles.popularBadgeText}>En Popüler</Text>
-              </View>
-            ) : null}
-            {plan.save ? (
-              <View style={styles.saveBadge}>
-                <Text style={styles.saveBadgeText}>{plan.save}</Text>
-              </View>
-            ) : null}
-            <Text
-              style={[
-                styles.planTitle,
-                plan.popular && styles.planTitlePopular,
-              ]}
-            >
-              {plan.title}
-            </Text>
-            <Text
-              style={[
-                styles.planPrice,
-                plan.popular && styles.planPricePopular,
-              ]}
-            >
-              {plan.price}
-            </Text>
-            <Text style={styles.planSubtitle}>{plan.subtitle}</Text>
-          </TouchableOpacity>
+            <View style={[
+              styles.featureIcon,
+              item.icon === "sparkle" && styles.featureIconAccent,
+            ]}>
+              {item.icon === "sparkle" ? (
+                <Sparkle size={11} color="#FFF" weight="fill" />
+              ) : (
+                <Check size={11} color="#FFF" weight="bold" />
+              )}
+            </View>
+            <Text style={styles.featureText}>{item.label}</Text>
+          </Animated.View>
         ))}
+      </Animated.View>
+
+      {/* Plans */}
+      <View style={styles.planList}>
+        {sortedPackages.map((pkg, i) => {
+          const selected = pkg.identifier === selectedPkgId;
+          const popular = isPopular(pkg.identifier);
+          const showSave =
+            pkg.identifier === "$rc_annual" && yearlySavings;
+
+          return (
+            <Animated.View
+              key={pkg.identifier}
+              entering={FadeInUp.delay(450 + i * 80).duration(380)}
+            >
+              <TouchableOpacity
+                style={[
+                  styles.planCard,
+                  CARD_SHADOW,
+                  selected && styles.planCardSelected,
+                ]}
+                onPress={() => handlePlanSelect(pkg.identifier)}
+                activeOpacity={0.8}
+                accessibilityRole="radio"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`${PACKAGE_LABELS[pkg.identifier] ?? pkg.identifier} planını seç`}
+              >
+                <View
+                  style={[
+                    styles.radioOuter,
+                    selected && styles.radioOuterSelected,
+                  ]}
+                >
+                  {selected && (
+                    <Animated.View
+                      entering={ZoomIn.duration(200)}
+                      style={styles.radioInner}
+                    />
+                  )}
+                </View>
+
+                <View style={styles.planInfo}>
+                  <Text
+                    style={[
+                      styles.planName,
+                      selected && styles.planNameSelected,
+                    ]}
+                  >
+                    {PACKAGE_LABELS[pkg.identifier] ?? pkg.identifier}
+                  </Text>
+                  {popular && (
+                    <View style={styles.popularBadge}>
+                      <Crown size={9} color="#FFF" weight="fill" />
+                      <Text style={styles.popularText}>En Popüler</Text>
+                    </View>
+                  )}
+                  {showSave && (
+                    <View style={styles.saveBadge}>
+                      <Text style={styles.saveText}>{yearlySavings}</Text>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.planPriceWrap}>
+                  <Text
+                    style={[
+                      styles.planPrice,
+                      selected && styles.planPriceSelected,
+                    ]}
+                  >
+                    {pkg.product.priceString}
+                  </Text>
+                  <Text style={styles.planPeriod}>
+                    {getPackageSubtitle(pkg.identifier)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          );
+        })}
       </View>
 
-      <View style={styles.footer}>
+      {/* CTA */}
+      <Animated.View
+        entering={FadeInUp.delay(700).duration(400)}
+        style={styles.ctaSection}
+      >
         <TouchableOpacity
-          style={[styles.subscribeButton, shadow.soft]}
-          onPress={handleStartTrial}
+          style={[
+            styles.subscribeButton,
+            (isPurchasing || isRestoring) && styles.disabled,
+          ]}
+          onPress={handlePurchase}
+          disabled={isPurchasing || isRestoring}
+          activeOpacity={0.85}
           accessibilityRole="button"
-          accessibilityLabel="7 gün ücretsiz deneyi başlat"
+          accessibilityLabel={introLabel ?? "Abone ol"}
         >
-          <Text style={styles.subscribeButtonText}>
-            7 Gün Ücretsiz Dene
-          </Text>
+          {isPurchasing ? (
+            <ActivityIndicator size="small" color="#FFF" />
+          ) : (
+            <>
+              <Sparkle size={18} color="#FFF" weight="fill" />
+              <Text style={styles.subscribeText}>
+                {introLabel ?? "Abone Ol"}
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.freeButton}
           onPress={handleDismiss}
+          disabled={isPurchasing}
+          activeOpacity={0.7}
           accessibilityRole="button"
           accessibilityLabel="Ücretsiz devam et"
         >
-          <Text style={styles.freeButtonText}>
-            Şimdilik Ücretsiz Devam Et
-          </Text>
+          <Text style={styles.freeText}>Şimdilik Ücretsiz Devam Et</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.restoreButton}
-          onPress={restorePurchases}
-          accessibilityRole="button"
-        >
-          <Text style={styles.restoreButtonText}>
-            Satın Alımları Geri Yükle
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.footerLinks}>
+          <TouchableOpacity
+            style={styles.restoreBtn}
+            onPress={handleRestore}
+            disabled={isPurchasing || isRestoring}
+            accessibilityRole="button"
+          >
+            {isRestoring ? (
+              <ActivityIndicator size="small" color={semantic.textSecondary} />
+            ) : (
+              <Text style={styles.restoreText}>Geri Yükle</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.footerDot} />
+          <TouchableOpacity accessibilityRole="link">
+            <Text style={styles.restoreText}>Gizlilik</Text>
+          </TouchableOpacity>
+          <View style={styles.footerDot} />
+          <TouchableOpacity accessibilityRole="link">
+            <Text style={styles.restoreText}>Kullanım Şartları</Text>
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.legal}>
-          Abonelik otomatik yenilenir. 7 günlük deneme süresi boyunca ücret
-          alınmaz. Dilediğiniz zaman iptal edebilirsiniz.
+          Abonelik otomatik yenilenir.{" "}
+          {hasIntroOffer
+            ? "7 günlük deneme süresi boyunca ücret alınmaz. "
+            : ""}
+          Dilediğiniz zaman iptal edebilirsiniz.
         </Text>
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: semantic.appBackground },
-  header: {
-    backgroundColor: palette.steelTeal,
-    paddingHorizontal: spacing.xl,
-    paddingTop: 66,
-    paddingBottom: 34,
-    borderBottomLeftRadius: radius.xl,
-    borderBottomRightRadius: radius.xl,
+  container: {
+    flex: 1,
+    backgroundColor: semantic.appBackground,
   },
-  close: {
-    position: "absolute",
-    right: spacing.md,
-    top: spacing.md + 40,
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  scrollContent: {
+    paddingBottom: 48,
+  },
+  loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.22)",
   },
-  headerTitle: {
-    fontSize: 34,
-    lineHeight: 36,
-    fontWeight: "700",
-    color: semantic.textOnDark,
+
+  heroWrap: {
+    marginHorizontal: 20,
+    marginTop: 56,
   },
-  headerSubtitle: {
-    marginTop: spacing.xs,
-    fontSize: 15,
-    color: "rgba(255,247,239,0.88)",
+  heroCard: {
+    width: "100%",
+    height: 260,
+    borderRadius: 28,
+    overflow: "hidden",
+    backgroundColor: "#1a1a1a",
   },
-  trialBanner: {
-    marginTop: spacing.md,
-    marginHorizontal: spacing.xl,
-    borderRadius: radius.lg,
-    backgroundColor: "#E8F5EC",
-    padding: spacing.md,
+  heroImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  heroOverlay: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    gap: 10,
+  },
+  heroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    alignSelf: "flex-start",
+    gap: 5,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
   },
-  trialBannerTitle: {
-    fontSize: 15,
+  heroBadgeText: {
+    fontSize: 12,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: "#FFF",
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontFamily: font.extraBold,
+    fontWeight: "800",
+    color: "#FFF",
+    lineHeight: 30,
+    letterSpacing: -0.4,
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 8,
+  },
+  dotsRow: {
+    position: "absolute",
+    bottom: 10,
+    right: 16,
+    flexDirection: "row",
+    gap: 4,
+  },
+  dot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "rgba(255,255,255,0.3)",
+  },
+  dotActive: {
+    width: 16,
+    borderRadius: 3,
+    backgroundColor: "#FFFFFF",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  trialBanner: {
+    marginTop: 16,
+    marginHorizontal: 20,
+    borderRadius: 18,
+    backgroundColor: "#E8F5EC",
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  trialIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: semantic.success,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  trialTitle: {
+    fontSize: 14,
+    fontFamily: font.bold,
     fontWeight: "700",
     color: semantic.textPrimary,
   },
-  trialBannerSub: {
+  trialSub: {
     marginTop: 2,
-    fontSize: 13,
+    fontSize: 12,
+    fontFamily: font.regular,
     color: semantic.textSecondary,
-    lineHeight: 18,
+    lineHeight: 16,
   },
-  sectionCard: {
-    marginTop: spacing.md,
-    marginHorizontal: spacing.xl,
-    borderRadius: radius.lg,
+
+  featuresCard: {
+    marginTop: 16,
+    marginHorizontal: 20,
+    borderRadius: 22,
     backgroundColor: semantic.screenSurface,
-    padding: spacing.md,
-    gap: spacing.sm,
+    padding: 20,
+    gap: 14,
   },
-  featureRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
   featureIcon: {
     width: 24,
     height: 24,
@@ -254,113 +736,191 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  featureIconAccent: {
+    backgroundColor: semantic.accent,
+  },
   featureText: {
     fontSize: 15,
-    color: semantic.textPrimary,
+    fontFamily: font.medium,
     fontWeight: "500",
+    color: semantic.textPrimary,
   },
+
   planList: {
-    marginTop: spacing.lg,
-    marginHorizontal: spacing.xl,
-    gap: spacing.sm,
+    marginTop: 20,
+    marginHorizontal: 20,
+    gap: 10,
   },
   planCard: {
-    borderRadius: radius.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 20,
     backgroundColor: semantic.screenSurface,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: semantic.border,
+    borderWidth: 2,
+    borderColor: "transparent",
   },
-  planCardPopular: {
+  planCardSelected: {
     borderColor: semantic.heroStart,
-    backgroundColor: "#EAEAEA",
+  },
+  radioOuter: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: "rgba(0,0,0,0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioOuterSelected: {
+    borderColor: semantic.heroStart,
+    backgroundColor: semantic.heroStart,
+  },
+  radioInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#FFF",
+  },
+  planInfo: {
+    flex: 1,
+    marginLeft: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  planName: {
+    fontSize: 16,
+    fontFamily: font.semiBold,
+    fontWeight: "600",
+    color: semantic.textSecondary,
+  },
+  planNameSelected: {
+    color: semantic.textPrimary,
   },
   popularBadge: {
-    position: "absolute",
-    right: 0,
-    top: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
     backgroundColor: semantic.heroStart,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderTopRightRadius: radius.lg,
-    borderBottomLeftRadius: radius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
   },
-  popularBadgeText: {
-    color: semantic.textOnDark,
-    fontSize: 11,
+  popularText: {
+    fontSize: 10,
+    fontFamily: font.bold,
     fontWeight: "700",
+    color: "#FFF",
   },
   saveBadge: {
-    position: "absolute",
-    top: 10,
-    right: 12,
-    borderRadius: radius.pill,
     backgroundColor: semantic.success,
     paddingHorizontal: 8,
     paddingVertical: 3,
+    borderRadius: 999,
   },
-  saveBadgeText: {
-    color: semantic.textOnDark,
-    fontSize: 11,
+  saveText: {
+    fontSize: 10,
+    fontFamily: font.bold,
     fontWeight: "700",
+    color: "#FFF",
   },
-  planTitle: {
-    fontSize: 16,
-    color: semantic.textSecondary,
-    fontWeight: "700",
+  planPriceWrap: {
+    alignItems: "flex-end",
   },
-  planTitlePopular: { color: semantic.heroStart },
   planPrice: {
-    marginTop: 4,
-    fontSize: 24,
+    fontSize: 18,
+    fontFamily: font.bold,
     fontWeight: "700",
     color: semantic.textPrimary,
   },
-  planPricePopular: { color: semantic.heroStart },
-  planSubtitle: {
-    marginTop: 2,
-    fontSize: 12,
-    color: semantic.textSecondary,
+  planPriceSelected: {
+    color: semantic.heroStart,
   },
-  footer: {
-    marginTop: spacing.lg,
-    marginHorizontal: spacing.xl,
-    gap: spacing.sm,
+  planPeriod: {
+    fontSize: 11,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+    marginTop: 1,
+  },
+
+  ctaSection: {
+    marginTop: 24,
+    marginHorizontal: 20,
+    gap: 12,
   },
   subscribeButton: {
-    borderRadius: radius.lg,
+    borderRadius: 18,
     backgroundColor: semantic.heroStart,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 17,
+    flexDirection: "row",
+    gap: 8,
+    paddingVertical: 18,
+    minHeight: 56,
+    ...Platform.select({
+      ios: {
+        shadowColor: semantic.heroStart,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.35,
+        shadowRadius: 14,
+      },
+      android: { elevation: 8 },
+    }),
   },
-  subscribeButtonText: {
-    color: semantic.textOnDark,
-    fontSize: 16,
+  subscribeText: {
+    color: "#FFF",
+    fontSize: 17,
+    fontFamily: font.bold,
     fontWeight: "700",
+    letterSpacing: -0.2,
   },
   freeButton: {
     alignItems: "center",
-    paddingVertical: 12,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: semantic.border,
+    paddingVertical: 14,
+    borderRadius: 18,
+    backgroundColor: "rgba(0,0,0,0.03)",
   },
-  freeButtonText: {
+  freeText: {
     color: semantic.textSecondary,
     fontSize: 15,
+    fontFamily: font.semiBold,
     fontWeight: "600",
   },
-  restoreButton: { alignItems: "center", paddingVertical: 6 },
-  restoreButtonText: {
+  footerLinks: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 4,
+  },
+  footerDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: "rgba(0,0,0,0.15)",
+  },
+  restoreBtn: {
+    minHeight: 24,
+    justifyContent: "center",
+  },
+  restoreText: {
     color: semantic.textSecondary,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 12,
+    fontFamily: font.medium,
+    fontWeight: "500",
   },
   legal: {
-    fontSize: 12,
-    color: semantic.textSecondary,
+    fontSize: 11,
+    fontFamily: font.regular,
+    color: "rgba(0,0,0,0.3)",
     textAlign: "center",
-    lineHeight: 18,
+    lineHeight: 16,
+    marginTop: 4,
+  },
+  disabled: {
+    opacity: 0.6,
   },
 });

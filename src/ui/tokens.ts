@@ -1,6 +1,6 @@
 export const palette = {
   white: "#FFFFFF",
-  offWhite: "#F8F7F5",
+  offWhite: "#FCFCF7",
   lightGray: "#F2F1EF",
   midGray: "#E5E3DF",
   inkBlack: "#111111",
@@ -48,6 +48,15 @@ export const spacing = {
   lg: 20,
   xl: 24,
   xxl: 32,
+} as const;
+
+export const font = {
+  regular: "Inter-Regular",
+  medium: "Inter-Medium",
+  semiBold: "Inter-SemiBold",
+  bold: "Inter-Bold",
+  extraBold: "Inter-ExtraBold",
+  black: "Inter-Black",
 } as const;
 
 export const shadow = {

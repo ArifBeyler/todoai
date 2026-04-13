@@ -64,7 +64,6 @@ export default function PhotoScreen() {
     if (result.success) {
       triggerExit("forward", () => router.push("/(onboarding)/processing"));
     } else {
-      console.error("[PhotoScreen] Upload failed:", result.error);
       Alert.alert(
         "Yükleme Başarısız",
         `Fotoğraf yüklenirken bir sorun oluştu.\n\n(${result.error ?? "bilinmeyen hata"})`,

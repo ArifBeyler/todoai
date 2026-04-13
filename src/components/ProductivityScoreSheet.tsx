@@ -1,8 +1,8 @@
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { TrendDown, TrendUp } from "phosphor-react-native";
+import { TrendDown, TrendUp, Trophy, Lightning, CheckCircle, Flame } from "phosphor-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { ProductivityInsights } from "@/src/utils/productivityScore";
-import { radius, shadow, spacing } from "@/src/ui/tokens";
+import { font, radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 
 type ProductivityScoreSheetProps = {
   visible: boolean;
@@ -10,75 +10,151 @@ type ProductivityScoreSheetProps = {
   onClose: () => void;
 };
 
-const TrendIcon = ({ trend }: { trend: ProductivityInsights["trend"] }) => {
-  if (trend === "up") {
-    return <TrendUp size={16} color="#2F8B68" weight="bold" />;
-  }
+const TrendBadge = ({ trend }: { trend: ProductivityInsights["trend"] }) => {
+  const isUp = trend === "up";
+  const isDown = trend === "down";
 
-  if (trend === "down") {
-    return <TrendDown size={16} color="#D65B49" weight="bold" />;
-  }
-
-  return <View style={styles.trendDot} />;
+  return (
+    <View
+      style={[
+        styles.trendBadge,
+        isUp && styles.trendBadgeUp,
+        isDown && styles.trendBadgeDown,
+      ]}
+    >
+      {isUp && <TrendUp size={13} color={semantic.success} weight="bold" />}
+      {isDown && <TrendDown size={13} color={semantic.danger} weight="bold" />}
+      {!isUp && !isDown && <View style={styles.trendDot} />}
+      <Text
+        style={[
+          styles.trendText,
+          isUp && styles.trendTextUp,
+          isDown && styles.trendTextDown,
+        ]}
+      >
+        {/* trendLabel prop exposed by insights */}
+      </Text>
+    </View>
+  );
 };
 
-export const ProductivityScoreSheet = ({ visible, insights, onClose }: ProductivityScoreSheetProps) => {
+export const ProductivityScoreSheet = ({
+  visible,
+  insights,
+  onClose,
+}: ProductivityScoreSheetProps) => {
   const insets = useSafeAreaInsets();
+
+  const isUp = insights.trend === "up";
+  const isDown = insights.trend === "down";
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
-      <View style={[styles.sheet, { paddingBottom: Math.max(insets.bottom + spacing.md, 26) }]}>
+      <View
+        style={[
+          styles.sheet,
+          { paddingBottom: Math.max(insets.bottom + spacing.md, 26) },
+        ]}
+      >
         <View style={styles.handle} />
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-          <Text style={styles.kicker}>Productivity Pulse</Text>
-          <Text style={styles.title}>Skor Detayi</Text>
 
-          <View style={styles.scoreCard}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+        >
+          {/* Header */}
+          <Text style={styles.kicker}>Verimlilik Raporu</Text>
+          <Text style={styles.title}>Skor Detayı</Text>
+
+          {/* Main score card */}
+          <View style={[styles.scoreCard, shadow.card]}>
             <Text style={styles.scoreLabel}>Mevcut skor</Text>
             <Text style={styles.scoreValue}>{insights.score}</Text>
-            <View style={styles.trendRow}>
-              <TrendIcon trend={insights.trend} />
-              <Text style={styles.trendText}>{insights.trendLabel}</Text>
+
+            <View
+              style={[
+                styles.trendBadge,
+                isUp && styles.trendBadgeUp,
+                isDown && styles.trendBadgeDown,
+              ]}
+            >
+              {isUp && <TrendUp size={13} color={semantic.success} weight="bold" />}
+              {isDown && <TrendDown size={13} color={semantic.danger} weight="bold" />}
+              {!isUp && !isDown && <View style={styles.trendDot} />}
+              <Text
+                style={[
+                  styles.trendText,
+                  isUp && styles.trendTextUp,
+                  isDown && styles.trendTextDown,
+                ]}
+              >
+                {insights.trendLabel}
+              </Text>
             </View>
           </View>
 
+          {/* Metric pair */}
           <View style={styles.metricsRow}>
-            <View style={styles.metricCard}>
+            <View style={[styles.metricCard, shadow.card]}>
+              <View style={styles.metricIconWrap}>
+                <Lightning size={14} color={semantic.accent} weight="fill" />
+              </View>
               <Text style={styles.metricValue}>+{insights.todayPoints}</Text>
-              <Text style={styles.metricLabel}>Bugunku puan</Text>
+              <Text style={styles.metricLabel}>Bugünkü puan</Text>
             </View>
-            <View style={styles.metricCard}>
+            <View style={[styles.metricCard, shadow.card]}>
+              <View style={styles.metricIconWrap}>
+                <CheckCircle size={14} color={semantic.success} weight="fill" />
+              </View>
               <Text style={styles.metricValue}>
                 {insights.weeklyCompleted}/{insights.weeklyTotal}
               </Text>
-              <Text style={styles.metricLabel}>Haftalik tamamlama</Text>
+              <Text style={styles.metricLabel}>Haftalık tamamlama</Text>
             </View>
           </View>
 
-          <View style={styles.rowCard}>
-            <Text style={styles.rowLabel}>Zamaninda tamamlama orani</Text>
-            <Text style={styles.rowValue}>%{insights.onTimeRate}</Text>
-          </View>
-
-          <View style={styles.rowCard}>
-            <Text style={styles.rowLabel}>Tutarlilik serisi</Text>
-            <Text style={styles.rowValue}>{insights.streakDays} gun</Text>
-          </View>
-
-          <View style={styles.categoriesCard}>
-            <Text style={styles.categoriesTitle}>En guclu kategoriler</Text>
-            <View style={styles.categoriesWrap}>
-              {insights.topCategories.map((item) => (
-                <View key={item.category} style={styles.categoryChip}>
-                  <Text style={styles.categoryText}>
-                    {item.category} +{item.points}
-                  </Text>
-                </View>
-              ))}
+          {/* Row stats */}
+          <View style={[styles.rowsCard, shadow.card]}>
+            <View style={styles.statRow}>
+              <Text style={styles.statLabel}>Zamanında tamamlama oranı</Text>
+              <Text style={styles.statValue}>%{insights.onTimeRate}</Text>
+            </View>
+            <View style={styles.rowDivider} />
+            <View style={styles.statRow}>
+              <Text style={styles.statLabel}>Tutarlılık serisi</Text>
+              <View style={styles.streakWrap}>
+                <Flame size={13} color={semantic.accent} weight="fill" />
+                <Text style={styles.statValue}>{insights.streakDays} gün</Text>
+              </View>
             </View>
           </View>
 
+          {/* Top categories */}
+          <View style={[styles.categoriesCard, shadow.card]}>
+            <View style={styles.categoriesHeader}>
+              <Trophy size={14} color={semantic.textSecondary} weight="bold" />
+              <Text style={styles.categoriesTitle}>En güçlü kategoriler</Text>
+            </View>
+            {insights.topCategories.length > 0 ? (
+              <View style={styles.chipsWrap}>
+                {insights.topCategories.map((item) => (
+                  <View key={item.category} style={styles.categoryChip}>
+                    <Text style={styles.categoryText}>
+                      {item.category}
+                    </Text>
+                    <Text style={styles.categoryPoints}>+{item.points}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.emptyCategories}>
+                Henüz kategori verisi yok.
+              </Text>
+            )}
+          </View>
+
+          {/* Explanation */}
           <View style={styles.explanationCard}>
             <Text style={styles.explanationTitle}>Skor neden bu seviyede?</Text>
             <Text style={styles.explanationText}>{insights.explanation}</Text>
@@ -92,84 +168,115 @@ export const ProductivityScoreSheet = ({ visible, insights, onClose }: Productiv
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(20,16,12,0.32)",
+    backgroundColor: "rgba(17,17,17,0.28)",
   },
   sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    backgroundColor: "#FCF8F3",
-    maxHeight: "78%",
+    backgroundColor: semantic.appBackground,
+    maxHeight: "80%",
     ...shadow.soft,
   },
   handle: {
     alignSelf: "center",
     marginTop: 10,
-    marginBottom: 6,
+    marginBottom: 8,
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#DDD2C6",
+    backgroundColor: semantic.border,
   },
   content: {
     paddingHorizontal: spacing.xl,
-    paddingTop: spacing.sm,
+    paddingTop: spacing.xs,
     gap: spacing.sm,
+    paddingBottom: spacing.xs,
   },
+
+  // Header
   kicker: {
-    fontSize: 12,
-    color: "#8D7C70",
+    fontSize: 11,
+    fontFamily: font.semiBold,
     fontWeight: "600",
-    letterSpacing: 0.4,
+    color: semantic.textSecondary,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   title: {
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: "700",
-    color: "#2E2520",
-    marginBottom: 4,
+    fontSize: 30,
+    lineHeight: 34,
+    fontWeight: "800",
+    fontFamily: font.extraBold,
+    color: semantic.textPrimary,
+    letterSpacing: -0.6,
+    marginBottom: spacing.xs,
   },
+
+  // Score card
   scoreCard: {
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#E5DBD0",
-    backgroundColor: "#FFFDF9",
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
     padding: spacing.md,
   },
   scoreLabel: {
     fontSize: 13,
-    color: "#7E6F64",
-    marginBottom: 6,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+    marginBottom: spacing.xs,
   },
   scoreValue: {
-    fontSize: 42,
-    lineHeight: 46,
-    fontWeight: "700",
-    color: "#2E2520",
-    letterSpacing: -0.8,
+    fontSize: 52,
+    lineHeight: 56,
+    fontWeight: "800",
+    fontFamily: font.extraBold,
+    color: semantic.textPrimary,
+    letterSpacing: -1.5,
   },
-  trendRow: {
-    marginTop: 8,
+
+  // Trend badge
+  trendBadge: {
+    marginTop: spacing.sm,
     alignSelf: "flex-start",
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#F4EFE8",
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 5,
+    borderRadius: radius.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: semantic.appBackground,
+    borderWidth: 1,
+    borderColor: semantic.border,
+  },
+  trendBadgeUp: {
+    backgroundColor: "#EAF5EE",
+    borderColor: "rgba(63,154,116,0.2)",
+  },
+  trendBadgeDown: {
+    backgroundColor: "#FBF0EE",
+    borderColor: "rgba(226,81,62,0.2)",
+  },
+  trendDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: semantic.textSecondary,
   },
   trendText: {
     fontSize: 12,
-    color: "#5A4E46",
+    fontFamily: font.semiBold,
     fontWeight: "600",
+    color: semantic.textSecondary,
   },
-  trendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#8A7B70",
+  trendTextUp: {
+    color: semantic.success,
   },
+  trendTextDown: {
+    color: semantic.danger,
+  },
+
+  // Metric cards
   metricsRow: {
     flexDirection: "row",
     gap: spacing.sm,
@@ -177,85 +284,141 @@ const styles = StyleSheet.create({
   metricCard: {
     flex: 1,
     borderRadius: radius.md,
-    backgroundColor: "#F5EFE7",
+    borderWidth: 1,
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
     padding: spacing.md,
+    gap: 4,
+  },
+  metricIconWrap: {
+    marginBottom: 4,
   },
   metricValue: {
-    fontSize: 20,
-    lineHeight: 24,
+    fontSize: 22,
+    lineHeight: 26,
     fontWeight: "700",
-    color: "#332923",
+    fontFamily: font.bold,
+    color: semantic.textPrimary,
+    letterSpacing: -0.4,
   },
   metricLabel: {
-    marginTop: 3,
     fontSize: 12,
-    color: "#7E6F64",
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+    lineHeight: 16,
   },
-  rowCard: {
-    borderRadius: radius.md,
+
+  // Row stats
+  rowsCard: {
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#E8DED2",
-    backgroundColor: "#FFFDF9",
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
     paddingHorizontal: spacing.md,
-    paddingVertical: 12,
+  },
+  statRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    minHeight: 54,
   },
-  rowLabel: {
-    fontSize: 14,
-    color: "#61544C",
-    fontWeight: "500",
+  rowDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: semantic.border,
   },
-  rowValue: {
+  statLabel: {
     fontSize: 14,
-    color: "#2E2520",
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+  },
+  statValue: {
+    fontSize: 14,
+    fontFamily: font.bold,
     fontWeight: "700",
+    color: semantic.textPrimary,
   },
+  streakWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  // Categories
   categoriesCard: {
-    borderRadius: radius.md,
-    backgroundColor: "#F5EFE7",
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: semantic.border,
+    backgroundColor: semantic.screenSurface,
     padding: spacing.md,
+  },
+  categoriesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: spacing.sm,
   },
   categoriesTitle: {
     fontSize: 13,
-    color: "#6D5E54",
+    fontFamily: font.semiBold,
     fontWeight: "600",
-    marginBottom: 10,
+    color: semantic.textSecondary,
+    letterSpacing: 0.2,
   },
-  categoriesWrap: {
+  chipsWrap: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: spacing.xs,
   },
   categoryChip: {
-    borderRadius: 999,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: "#DDCFC1",
-    backgroundColor: "#FFFDF9",
+    borderColor: semantic.border,
+    backgroundColor: semantic.appBackground,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   categoryText: {
+    fontSize: 13,
+    fontFamily: font.semiBold,
+    fontWeight: "600",
+    color: semantic.textPrimary,
+  },
+  categoryPoints: {
     fontSize: 12,
-    color: "#4D4039",
+    fontFamily: font.regular,
+    color: semantic.accent,
     fontWeight: "600",
   },
+  emptyCategories: {
+    fontSize: 13,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+    fontStyle: "italic",
+  },
+
+  // Explanation
   explanationCard: {
-    borderRadius: radius.md,
-    backgroundColor: "#F0E8DD",
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: semantic.border,
+    backgroundColor: semantic.appBackground,
     padding: spacing.md,
     marginBottom: spacing.xs,
   },
   explanationTitle: {
     fontSize: 13,
-    color: "#5B4E46",
+    fontFamily: font.bold,
     fontWeight: "700",
+    color: semantic.textPrimary,
     marginBottom: 6,
   },
   explanationText: {
     fontSize: 13,
-    lineHeight: 19,
-    color: "#5F5249",
+    lineHeight: 20,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
   },
 });

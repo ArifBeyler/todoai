@@ -66,7 +66,7 @@ serve(async (request) => {
           image_url: imageUrl,
           thumbnail_url: imageUrl,
           prompt_used: "provider_result",
-          style_used: "nano-banana-premium-v1",
+          style_used: "nano-banana-2-premium-v1",
           status: "success",
           generation_date: new Date().toISOString().slice(0, 10),
         })

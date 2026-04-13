@@ -1,2 +1,0 @@
-import { Text, TouchableOpacity, View } from "react-native";
-export const StylePreview = ({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) => <TouchableOpacity onPress={onPress} className={`h-28 w-[48%] items-center justify-center rounded-2xl border ${selected ? "border-indigo-600 bg-indigo-50" : "border-zinc-200 bg-white"}`}><View className="h-10 w-10 rounded-full bg-zinc-200" /><Text className="mt-2 text-sm text-zinc-700">{label}</Text></TouchableOpacity>;

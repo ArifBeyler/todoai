@@ -1,42 +1,71 @@
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Pause, Play, ArrowCounterClockwise, Lightning, Coffee, Moon } from "phosphor-react-native";
+import Animated, { FadeIn, FadeInUp } from "react-native-reanimated";
+import { router } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { Play, Pause, ArrowCounterClockwise, Trophy, Lightning } from "phosphor-react-native";
+
 import { CircularTimer } from "@/src/components/CircularTimer";
+import { TodoSelector } from "@/src/components/TodoSelector";
+import { DurationPicker } from "@/src/components/DurationPicker";
+import { FaceDownToggle } from "@/src/components/FaceDownToggle";
+import { AnimatedPointsCounter } from "@/src/components/animations/AnimatedPointsCounter";
 import { useFocusStore } from "@/src/state/useFocusStore";
-import type { FocusMode } from "@/src/state/useFocusStore";
+import { useTodoStore } from "@/src/state/useTodoStore";
+import { useFaceDownDetection } from "@/src/hooks/useFaceDownDetection";
+import { supabase } from "@/src/services/supabase";
 import { radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 
-const QUICK_DURATIONS = [15, 25, 45, 60] as const;
-
-const MODE_META: Record<FocusMode, { label: string; icon: typeof Lightning; color: string }> = {
-  focus: { label: "Odak", icon: Lightning, color: "#3A2E28" },
-  shortBreak: { label: "Kısa Mola", icon: Coffee, color: "#76A28A" },
-  longBreak: { label: "Uzun Mola", icon: Moon, color: "#C28B58" },
-};
+type ScreenPhase = "setup" | "active" | "celebration" | "points";
 
 export default function FocusScreen() {
   const {
-    mode,
-    isRunning,
+    sessionStatus,
+    selectedTodoIds,
     selectedDuration,
     remainingSeconds,
-    sessionsCompleted,
-    totalFocusMinutesToday,
-    todaySessions,
-    setMode,
+    faceDownEnabled,
+    pauseCount,
+    interruptionCount,
+    lastCompletedSession,
     setSelectedDuration,
-    start,
-    pause,
-    reset,
+    toggleTodoSelection,
+    setSelectedTodoIds,
+    setFaceDownEnabled,
+    startSession,
+    pauseSession,
+    resumeSession,
     tick,
+    completeSession,
+    abandonSession,
+    resetSession,
   } = useFocusStore();
 
+  const todos = useTodoStore((s) => s.todos);
+  const activeTodos = todos.filter((t) => !t.isCompleted);
+
+  const [phase, setPhase] = useState<ScreenPhase>("setup");
+  const [earnedPoints, setEarnedPoints] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [focusStreak, setFocusStreak] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const faceDown = useFaceDownDetection(
+    faceDownEnabled,
+    sessionStatus === "active" || sessionStatus === "paused",
+  );
+
   useEffect(() => {
-    if (isRunning) {
+    if (sessionStatus === "active") {
       intervalRef.current = setInterval(tick, 1000);
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -45,146 +74,332 @@ export default function FocusScreen() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, tick]);
+  }, [sessionStatus, tick]);
+
+  useEffect(() => {
+    if (remainingSeconds <= 0 && sessionStatus === "active") {
+      handleSessionComplete();
+    }
+  }, [remainingSeconds, sessionStatus]);
+
+  useEffect(() => {
+    if (faceDown.isInterrupted && sessionStatus === "active") {
+      useFocusStore.getState().interruptSession();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      faceDown.resetInterruption();
+    }
+  }, [faceDown.isInterrupted, sessionStatus]);
+
+  const handleStart = useCallback(async () => {
+    if (selectedTodoIds.length === 0 && activeTodos.length > 0) {
+      Alert.alert("Görev Seç", "En az bir görev seçmelisin.");
+      return;
+    }
+
+    const sessionId = `focus_${Date.now()}`;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from("focus_sessions").insert({
+          id: sessionId,
+          user_id: session.user.id,
+          todo_ids: selectedTodoIds,
+          duration_minutes: selectedDuration,
+          face_down_enabled: faceDownEnabled,
+          status: "active",
+        });
+      }
+    } catch {}
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    startSession(sessionId);
+    setPhase("active");
+  }, [selectedTodoIds, selectedDuration, faceDownEnabled, activeTodos.length, startSession]);
+
+  const handleSessionComplete = useCallback(async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    const state = useFocusStore.getState();
+    const actualSeconds = selectedDuration * 60 - remainingSeconds;
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data } = await supabase.functions.invoke("complete-focus-session", {
+          body: {
+            sessionId: state.currentSessionId,
+            status: "completed",
+            actualDurationSeconds: actualSeconds,
+            pauseCount: state.pauseCount,
+            totalPauseSeconds: state.totalPauseDuration,
+            interruptionCount: state.interruptionCount,
+            faceDownEnabled: state.faceDownEnabled,
+            todoIds: state.selectedTodoIds,
+            durationMinutes: state.selectedDuration,
+          },
+        });
+
+        const points = data?.pointsAwarded ?? 0;
+        setEarnedPoints(points);
+        setTotalPoints(data?.totalPoints ?? 0);
+        setFocusStreak(data?.focusStreak ?? 0);
+        completeSession(points);
+      } else {
+        completeSession(0);
+      }
+    } catch {
+      completeSession(0);
+    }
+
+    setPhase("celebration");
+  }, [selectedDuration, remainingSeconds, completeSession]);
+
+  const handleToggle = useCallback(() => {
+    if (sessionStatus === "active") {
+      if (pauseCount >= 2) {
+        Alert.alert("Mola Hakkı Doldu", "En fazla 2 mola verebilirsin.");
+        return;
+      }
+      pauseSession();
+    } else if (sessionStatus === "paused") {
+      resumeSession();
+    }
+  }, [sessionStatus, pauseCount, pauseSession, resumeSession]);
+
+  const handleAbandon = useCallback(() => {
+    Alert.alert(
+      "Oturumu Bitir",
+      "Oturumu erken bitirmek istediğine emin misin?",
+      [
+        { text: "Devam Et", style: "cancel" },
+        {
+          text: "Bitir",
+          style: "destructive",
+          onPress: async () => {
+            abandonSession();
+            setPhase("setup");
+            try {
+              const state = useFocusStore.getState();
+              await supabase.functions.invoke("complete-focus-session", {
+                body: {
+                  sessionId: state.currentSessionId,
+                  status: "abandoned",
+                  actualDurationSeconds: selectedDuration * 60 - remainingSeconds,
+                  pauseCount: state.pauseCount,
+                  totalPauseSeconds: state.totalPauseDuration,
+                  interruptionCount: state.interruptionCount,
+                  faceDownEnabled: state.faceDownEnabled,
+                  todoIds: state.selectedTodoIds,
+                  durationMinutes: state.selectedDuration,
+                },
+              });
+            } catch {}
+            resetSession();
+          },
+        },
+      ],
+    );
+  }, [abandonSession, resetSession, selectedDuration, remainingSeconds]);
+
+  const handleSelectAll = useCallback(() => {
+    setSelectedTodoIds(activeTodos.map((t) => t.id));
+  }, [activeTodos, setSelectedTodoIds]);
+
+  const handleReturnHome = useCallback(() => {
+    resetSession();
+    setPhase("setup");
+    setEarnedPoints(0);
+  }, [resetSession]);
 
   const totalSeconds = selectedDuration * 60;
-  const currentModeMeta = MODE_META[mode];
 
-  const handleToggle = () => {
-    if (isRunning) {
-      pause();
-    } else {
-      start();
-    }
-  };
+  if (phase === "celebration") {
+    return (
+      <SafeAreaView edges={["top"]} style={styles.darkSafeArea}>
+        <StatusBar style="light" />
+        <View style={styles.celebrationContainer}>
+          <Animated.View entering={FadeInUp.delay(200).duration(600).springify()}>
+            <Trophy size={64} color={semantic.accent} weight="fill" />
+          </Animated.View>
+          <Animated.Text
+            entering={FadeInUp.delay(500).duration(500)}
+            style={styles.celebrationTitle}
+          >
+            Tebrikler!
+          </Animated.Text>
+          <Animated.Text
+            entering={FadeInUp.delay(700).duration(500)}
+            style={styles.celebrationSubtitle}
+          >
+            {selectedDuration} dakikalık odak oturumunu tamamladın
+          </Animated.Text>
+          {focusStreak > 1 && (
+            <Animated.View entering={FadeInUp.delay(900).duration(500)} style={styles.streakBadge}>
+              <Lightning size={16} color="#C4962A" weight="fill" />
+              <Text style={styles.streakText}>{focusStreak} günlük seri!</Text>
+            </Animated.View>
+          )}
+          <Animated.View entering={FadeInUp.delay(1100).duration(500)}>
+            <TouchableOpacity
+              style={styles.celebrationCTA}
+              onPress={() => setPhase("points")}
+              activeOpacity={0.88}
+              accessibilityRole="button"
+            >
+              <Text style={styles.celebrationCTAText}>Puanlarını Gör</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (phase === "points") {
+    return (
+      <SafeAreaView edges={["top"]} style={styles.darkSafeArea}>
+        <StatusBar style="light" />
+        <View style={styles.pointsContainer}>
+          <Animated.View entering={FadeIn.delay(200).duration(400)}>
+            <AnimatedPointsCounter
+              targetPoints={earnedPoints}
+              duration={2500}
+              hapticsEnabled
+            />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(1200).duration(500)} style={styles.pointsBreakdown}>
+            <Text style={styles.breakdownTitle}>Toplam Puanın</Text>
+            <Text style={styles.breakdownValue}>{totalPoints}</Text>
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(2000).duration(500)}>
+            <TouchableOpacity
+              style={styles.returnCTA}
+              onPress={handleReturnHome}
+              activeOpacity={0.88}
+              accessibilityRole="button"
+            >
+              <Text style={styles.returnCTAText}>Ana Sayfaya Dön</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (phase === "active") {
+    const isDark = faceDownEnabled && faceDown.isFaceDown;
+
+    return (
+      <SafeAreaView edges={["top"]} style={styles.darkSafeArea}>
+        <StatusBar style="light" />
+        <View style={[styles.activeContainer, isDark && styles.blackoutContainer]}>
+          {!isDark && (
+            <>
+              <Animated.View entering={FadeIn.duration(300)} style={styles.timerWrap}>
+                <CircularTimer
+                  remainingSeconds={remainingSeconds}
+                  totalSeconds={totalSeconds}
+                  size={240}
+                  strokeWidth={8}
+                />
+                {sessionStatus === "paused" && (
+                  <Text style={styles.pausedLabel}>Duraklatıldı</Text>
+                )}
+              </Animated.View>
+
+              <View style={styles.activeTodoList}>
+                {selectedTodoIds.length > 0 && (
+                  <Text style={styles.activeTodoLabel}>
+                    {selectedTodoIds.length} görev · {selectedDuration} dakika
+                  </Text>
+                )}
+                {pauseCount > 0 && (
+                  <Text style={styles.pauseInfo}>Mola: {pauseCount}/2</Text>
+                )}
+              </View>
+
+              <View style={styles.controlRow}>
+                <TouchableOpacity
+                  style={styles.controlButton}
+                  onPress={handleAbandon}
+                  activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel="Oturumu bitir"
+                >
+                  <ArrowCounterClockwise size={24} color="#FFFFFF" weight="regular" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.mainControlButton}
+                  onPress={handleToggle}
+                  activeOpacity={0.88}
+                  accessibilityRole="button"
+                  accessibilityLabel={sessionStatus === "active" ? "Duraklat" : "Devam et"}
+                >
+                  {sessionStatus === "active" ? (
+                    <Pause size={32} color="#111111" weight="fill" />
+                  ) : (
+                    <Play size={32} color="#111111" weight="fill" />
+                  )}
+                </TouchableOpacity>
+
+                <View style={styles.controlButton} />
+              </View>
+            </>
+          )}
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
-      <StatusBar hidden />
+      <StatusBar style="dark" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.header}>
+        <Animated.View entering={FadeIn.duration(300)}>
           <Text style={styles.title}>Focus</Text>
           <Text style={styles.subtitle}>Derin odaklanma zamanı</Text>
-        </View>
+        </Animated.View>
 
         <View style={[styles.sheet, shadow.soft]}>
-          {/* Mode selector */}
-          <View style={styles.modeRow}>
-            {(Object.keys(MODE_META) as FocusMode[]).map((m) => {
-              const meta = MODE_META[m];
-              const isActive = mode === m;
-              return (
-                <TouchableOpacity
-                  key={m}
-                  style={[styles.modeChip, isActive && styles.modeChipActive]}
-                  onPress={() => setMode(m)}
-                  activeOpacity={0.85}
-                  accessibilityRole="button"
-                  accessibilityLabel={meta.label}
-                >
-                  <Text style={[styles.modeChipText, isActive && styles.modeChipTextActive]}>
-                    {meta.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <TodoSelector
+            todos={activeTodos}
+            selectedIds={selectedTodoIds}
+            onToggle={toggleTodoSelection}
+            onSelectAll={handleSelectAll}
+          />
 
-          {/* Timer */}
-          <View style={styles.timerSection}>
-            <CircularTimer
-              remainingSeconds={remainingSeconds}
-              totalSeconds={totalSeconds}
-              size={240}
-              strokeWidth={10}
-            />
-          </View>
+          <View style={styles.divider} />
 
-          {/* Mode label */}
-          <View style={styles.modeLabelRow}>
-            <currentModeMeta.icon size={18} color={currentModeMeta.color} weight="fill" />
-            <Text style={[styles.modeLabelText, { color: currentModeMeta.color }]}>
-              {currentModeMeta.label}
-            </Text>
-            <Text style={styles.sessionBadge}>
-              Seans {sessionsCompleted + 1}
-            </Text>
-          </View>
+          <DurationPicker
+            selectedDuration={selectedDuration}
+            onSelect={setSelectedDuration}
+          />
 
-          {/* Controls */}
-          <View style={styles.controlRow}>
-            <TouchableOpacity
-              style={styles.secondaryControl}
-              onPress={reset}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Sıfırla"
-            >
-              <ArrowCounterClockwise size={22} color="#7C6C62" weight="bold" />
-            </TouchableOpacity>
+          <View style={styles.divider} />
 
-            <TouchableOpacity
-              style={[styles.primaryControl, shadow.soft]}
-              onPress={handleToggle}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel={isRunning ? "Duraklat" : "Başlat"}
-            >
-              {isRunning ? (
-                <Pause size={28} color="#FFFFFF" weight="fill" />
-              ) : (
-                <Play size={28} color="#FFFFFF" weight="fill" />
-              )}
-            </TouchableOpacity>
-
-            <View style={styles.secondaryControl} />
-          </View>
-
-          {/* Quick duration chips (only in focus mode when not running) */}
-          {mode === "focus" && !isRunning && (
-            <>
-              <Text style={styles.quickLabel}>Hızlı Seçim</Text>
-              <View style={styles.quickRow}>
-                {QUICK_DURATIONS.map((d) => {
-                  const isSelected = selectedDuration === d;
-                  return (
-                    <TouchableOpacity
-                      key={d}
-                      style={[styles.quickChip, isSelected && styles.quickChipSelected]}
-                      onPress={() => setSelectedDuration(d)}
-                      activeOpacity={0.85}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${d} dakika`}
-                    >
-                      <Text style={[styles.quickChipText, isSelected && styles.quickChipTextSelected]}>
-                        {d} dk
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </>
-          )}
-
-          {/* Daily summary */}
-          <View style={styles.summaryWrap}>
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>{todaySessions.length}</Text>
-              <Text style={styles.summaryLabel}>Seans</Text>
-            </View>
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>{totalFocusMinutesToday}</Text>
-              <Text style={styles.summaryLabel}>Dakika</Text>
-            </View>
-            <View style={styles.summaryCard}>
-              <Text style={styles.summaryValue}>{sessionsCompleted}</Text>
-              <Text style={styles.summaryLabel}>Tamamlanan</Text>
-            </View>
-          </View>
+          <FaceDownToggle
+            enabled={faceDownEnabled}
+            onToggle={setFaceDownEnabled}
+            isAvailable={faceDown.isAvailable}
+          />
         </View>
+
+        <TouchableOpacity
+          style={[
+            styles.startCTA,
+            selectedTodoIds.length === 0 && activeTodos.length > 0 && styles.startCTADisabled,
+          ]}
+          onPress={handleStart}
+          activeOpacity={0.88}
+          accessibilityRole="button"
+          accessibilityLabel="Odak oturumunu başlat"
+        >
+          <Text style={styles.startCTAText}>Başla</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -195,13 +410,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: semantic.appBackground,
   },
-  scrollContent: {
-    paddingBottom: 120,
+  darkSafeArea: {
+    flex: 1,
+    backgroundColor: "#111111",
   },
-  header: {
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.sm,
+  scrollContent: {
     paddingHorizontal: 14,
+    paddingBottom: 120,
   },
   title: {
     fontSize: 32,
@@ -209,153 +424,184 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#3A2E28",
     letterSpacing: -0.5,
+    paddingTop: spacing.sm,
   },
   subtitle: {
+    fontSize: 15,
+    color: "#8A7A70",
+    fontWeight: "500",
     marginTop: 4,
-    fontSize: 13,
-    color: "#7C6C62",
+    marginBottom: spacing.lg,
   },
   sheet: {
-    marginTop: spacing.sm,
-    marginHorizontal: 14,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderRadius: radius.xl,
     backgroundColor: "#FDFAF6",
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-  modeRow: {
-    flexDirection: "row",
-    borderRadius: 18,
-    backgroundColor: "#F1EEE9",
-    padding: 3,
-    gap: 3,
-    marginBottom: spacing.xl,
-  },
-  modeChip: {
-    flex: 1,
-    borderRadius: 15,
-    paddingVertical: 9,
-    alignItems: "center",
-  },
-  modeChipActive: {
-    backgroundColor: "#202126",
-    shadowColor: "rgba(0,0,0,0.12)",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 1,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  modeChipText: {
-    fontSize: 13,
-    fontWeight: "500",
-    color: "#7A6A5F",
-  },
-  modeChipTextActive: {
-    color: "#FDFAF6",
-    fontWeight: "600",
-  },
-  timerSection: {
-    alignItems: "center",
+    padding: spacing.lg,
+    gap: spacing.md,
     marginBottom: spacing.lg,
   },
-  modeLabelRow: {
-    flexDirection: "row",
+  divider: {
+    height: 1,
+    backgroundColor: "#F2EEE8",
+  },
+  startCTA: {
+    backgroundColor: semantic.accent,
+    borderRadius: radius.xl,
+    paddingVertical: 18,
+    alignItems: "center",
+  },
+  startCTADisabled: {
+    opacity: 0.5,
+  },
+  startCTAText: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  activeContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    gap: 40,
+  },
+  blackoutContainer: {
+    backgroundColor: "#000000",
+  },
+  timerWrap: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
-    marginBottom: spacing.lg,
   },
-  modeLabelText: {
+  timerCenter: {
+    position: "absolute",
+    alignItems: "center",
+  },
+  timerText: {
+    fontSize: 56,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -2,
+  },
+  pausedLabel: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.5)",
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  activeTodoList: {
+    alignItems: "center",
+    gap: 4,
+  },
+  activeTodoLabel: {
     fontSize: 15,
-    fontWeight: "600",
+    color: "rgba(255,255,255,0.6)",
+    fontWeight: "500",
   },
-  sessionBadge: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#8A7A70",
-    backgroundColor: "#F2EEE8",
-    borderRadius: radius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    overflow: "hidden",
-    marginLeft: 4,
+  pauseInfo: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.4)",
+    fontWeight: "500",
   },
   controlRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 24,
-    marginBottom: spacing.xl,
+    gap: 30,
   },
-  primaryControl: {
+  controlButton: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mainControlButton: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#111111",
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
   },
-  secondaryControl: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#F2EEE8",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quickLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#7C6C62",
-    marginBottom: 8,
-  },
-  quickRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: spacing.xl,
-  },
-  quickChip: {
+  celebrationContainer: {
     flex: 1,
-    borderRadius: radius.pill,
-    backgroundColor: "#F2EEE8",
-    paddingVertical: 10,
+    justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 30,
+    gap: 20,
   },
-  quickChipSelected: {
-    backgroundColor: "#202126",
+  celebrationTitle: {
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    letterSpacing: -1,
   },
-  quickChipText: {
+  celebrationSubtitle: {
+    fontSize: 17,
+    color: "rgba(255,255,255,0.6)",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  streakBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: radius.pill,
+    backgroundColor: "rgba(196,150,42,0.15)",
+    marginTop: spacing.xs,
+  },
+  streakText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#C4962A",
+  },
+  celebrationCTA: {
+    backgroundColor: semantic.accent,
+    borderRadius: radius.xl,
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    marginTop: spacing.lg,
+  },
+  celebrationCTAText: {
+    color: "#FFFFFF",
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  pointsContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+    gap: 40,
+  },
+  pointsBreakdown: {
+    alignItems: "center",
+    gap: 4,
+  },
+  breakdownTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#5C4E46",
+    color: "rgba(255,255,255,0.5)",
+    textTransform: "uppercase",
+    letterSpacing: 1,
   },
-  quickChipTextSelected: {
-    color: "#FDFAF6",
+  breakdownValue: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: "#FFFFFF",
   },
-  summaryWrap: {
-    flexDirection: "row",
-    gap: 8,
+  returnCTA: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: radius.xl,
+    paddingVertical: 16,
+    paddingHorizontal: 48,
   },
-  summaryCard: {
-    flex: 1,
-    borderRadius: 14,
-    backgroundColor: "#F2EEE8",
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  summaryValue: {
-    fontSize: 16,
+  returnCTAText: {
+    color: "#FFFFFF",
+    fontSize: 17,
     fontWeight: "700",
-    color: "#3A2E28",
-  },
-  summaryLabel: {
-    marginTop: 2,
-    fontSize: 11,
-    color: "#7C6C62",
-    fontWeight: "500",
   },
 });

@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { CaretRight, Circle } from "phosphor-react-native";
+import { CaretRight, CircleIcon } from "phosphor-react-native";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTodoStore } from "@state/useTodoStore";
@@ -91,7 +91,7 @@ export default function ActiveStatsScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`${todo.title} detayını aç`}
               >
-                <Circle size={16} color="rgba(17,17,17,0.45)" />
+                <CircleIcon size={16} color="rgba(17,17,17,0.45)" />
                 <View style={styles.todoTextWrap}>
                   <Text style={styles.todoTitle} numberOfLines={1}>
                     {todo.title}

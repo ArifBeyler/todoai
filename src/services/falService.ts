@@ -1,71 +1,94 @@
 import { supabase } from "./supabase";
 
-type GenerateVisualInput = {
-  prompt: string;
+type GenerateTodoVisualInput = {
+  todoId: string;
+  todoTitle: string;
   style: string;
   profilePhoto: string | null;
-  todoIds?: string[];
-  jobType?: "avatar" | "daily_scene" | "regenerate";
-};
-
-type PollResponse = {
-  job?: {
-    status?: string;
-  };
-  visual?: {
-    image_url?: string;
-  };
-  recommendedPollAfterMs?: number;
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const generateMockImage = async (prompt: string, style: string) => {
-  const seed = encodeURIComponent(`${style}-${prompt}-${Date.now()}`);
-  await sleep(600);
-  return `https://picsum.photos/seed/${seed}/1024/1024`;
-};
+// ── Task Scene Generation ───────────────────────────────────────────
 
-export const generateVisual = async ({
-  prompt,
+export const generateTodoVisual = async ({
+  todoId,
+  todoTitle,
   style,
   profilePhoto,
-  todoIds = [],
-  jobType = "daily_scene",
-}: GenerateVisualInput): Promise<string> => {
-  const { data: queueData, error: queueError } = await supabase.functions.invoke("generate-visual", {
-    body: {
-      jobType,
-      todoIds,
-      promptVersion: "v1",
-      metadata: { style, hasProfilePhoto: Boolean(profilePhoto), promptLength: prompt.length },
-    },
-  });
+}: GenerateTodoVisualInput): Promise<string> => {
+  const { data: enqueueData, error: enqueueError } =
+    await supabase.functions.invoke("enqueue-daily-visual", {
+      body: {
+        todoId,
+        todoTitle,
+        jobType: "todo_scene",
+        promptVersion: "v2",
+        metadata: {
+          style,
+          hasProfilePhoto: Boolean(profilePhoto),
+        },
+      },
+    });
 
-  if (queueError || !queueData?.job?.id) {
-    return generateMockImage(prompt, style);
+  if (enqueueError) {
+    throw new Error(enqueueError.message ?? "Görsel kuyruğa eklenemedi");
   }
 
-  const jobId = String(queueData.job.id);
-  const maxPolls = 24;
+  if (enqueueData?.status === "already_exists" && enqueueData?.imageUrl) {
+    return enqueueData.imageUrl;
+  }
+
+  if (enqueueData?.status === "daily_cap_reached") {
+    throw new Error("daily_cap_reached");
+  }
+
+  const jobId = enqueueData?.job?.id ?? enqueueData?.jobId;
+  if (!jobId) {
+    throw new Error("Job ID alınamadı");
+  }
+
+  const maxPolls = 40;
   let pollCount = 0;
+  let pollInterval = 3_000;
 
   while (pollCount < maxPolls) {
     pollCount += 1;
-    const { data: pollData, error: pollError } = await supabase.functions.invoke("poll-generation", {
-      body: { jobId },
+    await sleep(pollInterval);
+
+    const { data, error } = await supabase.functions.invoke("get-home-state", {
+      body: {},
     });
 
-    if (pollError) break;
-    const parsed = pollData as PollResponse;
-    const status = parsed?.job?.status;
-    const imageUrl = parsed?.visual?.image_url;
+    if (error) continue;
 
-    if (status === "succeeded" && imageUrl) return imageUrl;
-    if (status === "failed") break;
+    const todoVisuals = data?.todo_visuals as
+      | Array<{ todo_id?: string; image_url?: string; status?: string }>
+      | undefined;
 
-    await sleep(parsed?.recommendedPollAfterMs ?? 3000);
+    const match = todoVisuals?.find(
+      (v) => v.todo_id === todoId && v.status === "success" && v.image_url,
+    );
+
+    if (match?.image_url) {
+      return match.image_url;
+    }
+
+    const heroVisual = data?.hero_visual as
+      | { image_url?: string; status?: string; todo_id?: string }
+      | undefined;
+
+    if (
+      heroVisual?.todo_id === todoId &&
+      heroVisual?.status === "success" &&
+      heroVisual?.image_url
+    ) {
+      return heroVisual.image_url;
+    }
+
+    pollInterval = Math.min(pollInterval * 1.2, 8_000);
   }
 
-  return generateMockImage(prompt, style);
+  throw new Error("Görsel üretimi zaman aşımına uğradı");
 };
+
