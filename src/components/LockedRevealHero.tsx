@@ -147,11 +147,11 @@ export const LockedRevealHero = ({
 const styles = StyleSheet.create({
   heroCard: {
     width: "100%",
-    height: 272,
-    borderRadius: 32,
+    height: 284,
+    borderRadius: 28,
     overflow: "hidden",
-    borderWidth: 8,
-    borderColor: "#E6DED2",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.07)",
     ...shadow.soft,
     // Keep below white panel's elevation (taskPanel: 12)
     elevation: 4,

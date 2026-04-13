@@ -276,14 +276,18 @@ export default function PaywallScreen() {
         planId: selectedPkg.identifier,
       });
       if (isSoftMode) {
-        router.replace("/(onboarding)/subscription-success");
+        // Soft paywall in onboarding: show the premium activation bridge
+        router.replace("/premium-bridge");
       } else if (isHardMode) {
         completeOnboarding();
-        router.replace("/(tabs)/home");
+        // Hard paywall (post-onboarding): bridge then home
+        router.replace("/premium-bridge");
       } else if (isOnboardingFlow) {
-        router.replace("/(onboarding)/photo");
+        // Mid-onboarding purchase: bridge leads to photo upload
+        router.replace("/premium-bridge");
       } else {
-        router.back();
+        // In-app upgrade: bridge celebrates and leads to photo personalisation
+        router.replace("/premium-bridge");
       }
       return;
     }

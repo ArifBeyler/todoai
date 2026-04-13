@@ -37,7 +37,7 @@ export const FOCUS_PROGRESS = {
 
 export const ITEM_OPACITY = {
   active: 1,
-  inactive: 0.42,
+  inactive: 0.58,
 } as const;
 
 export const ITEM_CONTENT_SCALE = {

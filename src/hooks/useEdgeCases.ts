@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { useSessionStore } from "@state/useSessionStore";
 import { useFTUEStore } from "@state/useFTUEStore";
-import { useTodoStore } from "@state/useTodoStore";
+import { useTodoStore, getEligibleTodos } from "@state/useTodoStore";
+import { useAIVisualStore } from "@state/useAIVisualStore";
 import { TASK_MILESTONE_THRESHOLD } from "@state/useFTUEStore";
 
 export type EdgeCaseType =
@@ -23,12 +24,16 @@ export const useEdgeCases = () => {
     paywallInteraction,
     photoUploadStatus,
     avatarStatus,
-    generationEligibility,
     taskCountAtLastCheck,
   } = useFTUEStore();
 
-  const activeTodoCount = useTodoStore(
-    (s) => s.todos.filter((t) => !t.isCompleted).length,
+  const aiVisualState = useAIVisualStore((s) => s.state);
+  const todos = useTodoStore((s) => s.todos);
+
+  // Use eligible todo count (non-deleted, non-completed, valid title) for edge case detection
+  const activeTodoCount = useMemo(
+    () => getEligibleTodos(todos).length,
+    [todos],
   );
 
   const activeEdgeCases: EdgeCaseType[] = useMemo(() => {
@@ -50,7 +55,7 @@ export const useEdgeCases = () => {
       cases.push("photo_failed");
     }
 
-    if (generationEligibility === "failed") {
+    if (aiVisualState === "daily_visual_failed") {
       cases.push("generation_failed");
     }
 
@@ -75,7 +80,7 @@ export const useEdgeCases = () => {
     isPremium,
     profilePhoto,
     photoUploadStatus,
-    generationEligibility,
+    aiVisualState,
     activeTodoCount,
     taskCountAtLastCheck,
     avatarStatus,

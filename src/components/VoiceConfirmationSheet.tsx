@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Modal,
   StyleSheet,
@@ -8,9 +8,20 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeIn, SlideInDown } from "react-native-reanimated";
-import { Calendar, Clock, Tag, Waveform, X } from "phosphor-react-native";
-import { radius, semantic, spacing } from "@/src/ui/tokens";
+import { Sparkle, X } from "phosphor-react-native";
+import { AIResponseHint } from "@/src/components/AIResponseHint";
+import { ParsedTaskReviewCard } from "@/src/components/ParsedTaskReviewCard";
 import type { ParsedTodoInput } from "@/src/utils/parseTodoInput";
+import {
+  categoryToLabelTr,
+  formatScheduleHint,
+  formatScheduleLine,
+  normalizePriority,
+  normalizeRecurrence,
+  priorityToLabelTr,
+  recurrenceToLabelTr,
+} from "@/src/utils/taskReviewPresentation";
+import { font, radius, semantic, spacing } from "@/src/ui/tokens";
 
 type VoiceConfirmationSheetProps = {
   visible: boolean;
@@ -27,23 +38,38 @@ export const VoiceConfirmationSheet = ({
   onConfirm,
   onDismiss,
 }: VoiceConfirmationSheetProps) => {
-  const [editedTitle, setEditedTitle] = useState(parsedResult?.title ?? "");
-  const [editedDate, setEditedDate] = useState(parsedResult?.date);
-  const [editedTime, setEditedTime] = useState(parsedResult?.time);
+  const titleInputRef = useRef<TextInput>(null);
+  const [editedTitle, setEditedTitle] = useState("");
+  const [editedDate, setEditedDate] = useState<string | undefined>(undefined);
+  const [editedTime, setEditedTime] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!visible || !parsedResult) return;
+    setEditedTitle(parsedResult.title ?? "");
+    setEditedDate(parsedResult.date);
+    setEditedTime(parsedResult.time);
+  }, [visible, parsedResult]);
 
   const handleConfirm = useCallback(() => {
     if (!parsedResult) return;
     onConfirm({
       ...parsedResult,
-      title: editedTitle || parsedResult.title,
+      title: editedTitle.trim() || parsedResult.title,
       date: editedDate,
       time: editedTime,
     });
   }, [parsedResult, editedTitle, editedDate, editedTime, onConfirm]);
 
+  const handleEditPress = useCallback(() => {
+    titleInputRef.current?.focus();
+  }, []);
+
   if (!parsedResult) return null;
 
-  const hasAmbiguities = parsedResult.ambiguities && parsedResult.ambiguities.length > 0;
+  const recurrence = normalizeRecurrence(parsedResult.recurrence);
+  const priority = normalizePriority(parsedResult.priority as string | undefined);
+  const scheduleLine = formatScheduleLine(editedDate, editedTime);
+  const scheduleHint = formatScheduleHint(editedDate, editedTime);
 
   return (
     <Modal
@@ -58,109 +84,56 @@ export const VoiceConfirmationSheet = ({
             style={StyleSheet.absoluteFill}
             onPress={onDismiss}
             activeOpacity={1}
+            accessibilityLabel="Kapat"
           />
         </Animated.View>
 
-        <Animated.View entering={SlideInDown.duration(400).springify()} style={styles.sheet}>
+        <Animated.View entering={SlideInDown.duration(380).springify().damping(22)} style={styles.sheet}>
           <View style={styles.handle} />
 
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <Waveform size={20} color={semantic.accent} weight="fill" />
-              <Text style={styles.headerTitle}>Ses ile Görev</Text>
-            </View>
-            <TouchableOpacity onPress={onDismiss} accessibilityRole="button">
-              <X size={22} color="#8A7A70" weight="regular" />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.transcriptLabel}>Algılanan metin</Text>
-          <Text style={styles.transcript}>"{transcript}"</Text>
-
-          <View style={styles.field}>
-            <Text style={styles.fieldLabel}>Görev başlığı</Text>
-            <TextInput
-              style={styles.input}
-              value={editedTitle}
-              onChangeText={setEditedTitle}
-              placeholder="Görev başlığı"
-              placeholderTextColor="#B2A498"
-              autoFocus={false}
-            />
-          </View>
-
-          <View style={styles.chipRow}>
-            {editedDate && (
-              <TouchableOpacity
-                style={styles.chipButton}
-                onPress={() => setEditedDate(undefined)}
-                accessibilityRole="button"
-              >
-                <Calendar size={14} color="#5C4E46" />
-                <Text style={styles.chipText}>{editedDate}</Text>
-                <X size={12} color="#8A7A70" />
-              </TouchableOpacity>
-            )}
-
-            {editedTime && (
-              <TouchableOpacity
-                style={[
-                  styles.chipButton,
-                  hasAmbiguities &&
-                    parsedResult.ambiguities?.includes("time_ambiguous") &&
-                    styles.chipAmbiguous,
-                ]}
-                onPress={() => setEditedTime(undefined)}
-                accessibilityRole="button"
-              >
-                <Clock size={14} color={hasAmbiguities ? "#C86A62" : "#5C4E46"} />
-                <Text
-                  style={[
-                    styles.chipText,
-                    hasAmbiguities &&
-                      parsedResult.ambiguities?.includes("time_ambiguous") &&
-                      styles.chipTextAmbiguous,
-                  ]}
-                >
-                  {editedTime}
-                </Text>
-                <X size={12} color="#8A7A70" />
-              </TouchableOpacity>
-            )}
-
-            {parsedResult.category && (
-              <View style={styles.chipButton}>
-                <Tag size={14} color="#5C4E46" />
-                <Text style={styles.chipText}>{parsedResult.category}</Text>
+              <View style={styles.headerIcon}>
+                <Sparkle size={16} color={semantic.textOnDark} weight="fill" />
               </View>
-            )}
-          </View>
-
-          {hasAmbiguities && (
-            <Text style={styles.ambiguityNote}>
-              Turuncu alanlar belirsiz — dokunarak düzenleyebilirsin
-            </Text>
-          )}
-
-          <View style={styles.actions}>
+              <View>
+                <Text style={styles.headerTitle}>Sesinden</Text>
+                <Text style={styles.headerSub}>Kısa bir kontrol, ardından listeye eklenir.</Text>
+              </View>
+            </View>
             <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={handleConfirm}
-              activeOpacity={0.88}
-              accessibilityRole="button"
-            >
-              <Text style={styles.confirmText}>Oluştur</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.editButton}
               onPress={onDismiss}
-              activeOpacity={0.85}
               accessibilityRole="button"
+              accessibilityLabel="Kapat"
+              style={styles.closeBtn}
+              hitSlop={12}
             >
-              <Text style={styles.editText}>İptal</Text>
+              <X size={22} color={semantic.textSecondary} weight="regular" />
             </TouchableOpacity>
           </View>
+
+          <Text style={styles.transcriptLabel}>Dediğin</Text>
+          <Text style={styles.transcript} numberOfLines={4}>
+            {transcript ? `“${transcript}”` : "—"}
+          </Text>
+
+          <AIResponseHint text="Bunu senin için göreve dönüştürdüm." />
+
+          <ParsedTaskReviewCard
+            fullWidth
+            title={parsedResult.title}
+            titleEditValue={editedTitle}
+            onTitleEditChange={setEditedTitle}
+            titleInputRef={titleInputRef}
+            scheduleLine={scheduleLine}
+            scheduleHint={scheduleHint}
+            categoryLabel={categoryToLabelTr(parsedResult.category)}
+            recurrenceLabel={recurrenceToLabelTr(recurrence)}
+            priorityLabel={priorityToLabelTr(priority)}
+            onEdit={handleEditPress}
+            onCancel={onDismiss}
+            onAddToTasks={handleConfirm}
+          />
         </Animated.View>
       </View>
     </Modal>
@@ -174,126 +147,84 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
-    backgroundColor: "#FDFAF6",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    backgroundColor: semantic.screenSurface,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
     paddingHorizontal: spacing.lg,
-    paddingTop: 12,
-    paddingBottom: 40,
-    gap: spacing.md,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xl + 8,
+    gap: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: semantic.border,
   },
   handle: {
     width: 36,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#E5E3DF",
+    backgroundColor: semantic.border,
     alignSelf: "center",
-    marginBottom: 8,
+    marginBottom: spacing.sm,
+    opacity: 0.9,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginBottom: spacing.xs,
   },
   headerLeft: {
     flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.sm,
+    flex: 1,
+    paddingRight: spacing.sm,
+  },
+  headerIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: semantic.heroStart,
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
+    marginTop: 2,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
+    fontFamily: font.bold,
     fontWeight: "700",
-    color: "#3A2E28",
+    color: semantic.textPrimary,
+    letterSpacing: -0.35,
+  },
+  headerSub: {
+    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+  },
+  closeBtn: {
+    padding: spacing.xxs,
+    marginTop: 2,
   },
   transcriptLabel: {
-    fontSize: 12,
-    color: "#8A7A70",
-    fontWeight: "600",
+    fontSize: 11,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: semantic.textSecondary,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    marginTop: spacing.xs,
   },
   transcript: {
     fontSize: 15,
-    color: "#5C4E46",
-    fontWeight: "500",
-    fontStyle: "italic",
     lineHeight: 22,
-  },
-  field: {
-    gap: 6,
-  },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#8A7A70",
-  },
-  input: {
-    borderRadius: radius.lg,
-    backgroundColor: "#F2EEE8",
-    paddingHorizontal: spacing.md,
-    paddingVertical: 14,
-    fontSize: 16,
+    fontFamily: font.medium,
     fontWeight: "500",
-    color: "#3A2E28",
-  },
-  chipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  chipButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: "#F2EEE8",
-  },
-  chipAmbiguous: {
-    backgroundColor: "#FFF1EF",
-    borderWidth: 1,
-    borderColor: "#E8C5BE",
-  },
-  chipText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#3A2E28",
-  },
-  chipTextAmbiguous: {
-    color: "#C86A62",
-  },
-  ambiguityNote: {
-    fontSize: 12,
-    color: "#C86A62",
-    fontWeight: "500",
-  },
-  actions: {
-    gap: spacing.sm,
-    marginTop: spacing.xs,
-  },
-  confirmButton: {
-    backgroundColor: semantic.accent,
-    borderRadius: radius.xl,
-    paddingVertical: 16,
-    alignItems: "center",
-  },
-  confirmText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "700",
-  },
-  editButton: {
-    borderRadius: radius.xl,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  editText: {
-    color: "#8A7A70",
-    fontSize: 15,
-    fontWeight: "600",
+    color: semantic.textPrimary,
+    letterSpacing: -0.2,
+    opacity: 0.88,
   },
 });

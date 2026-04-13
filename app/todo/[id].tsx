@@ -38,8 +38,10 @@ const PRIORITY_META: Record<string, { label: string; accent: string; bg: string 
 const RECURRENCE_MAP: Record<string, string> = {
   once: "Bir kez",
   daily: "Her gün",
+  weekdays: "Hafta içi",
   weekly: "Her hafta",
   weekend: "Hafta sonu",
+  custom: "Özel günler",
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -95,7 +97,7 @@ export default function TodoDetailScreen() {
       dailyHeroStatus === "fully_revealed" ||
       dailyHeroStatus === "generating");
 
-  if (!todo) {
+  if (!todo || todo.deletedAt != null) {
     return (
       <View style={styles.notFound}>
         <Warning size={40} color="#8A7A70" weight="regular" />

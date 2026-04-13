@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { supabase } from "@/src/services/supabase";
-import { parseTodoInput, type ParsedTodoInput } from "@/src/utils/parseTodoInput";
+import type { ParsedTodoInput } from "@/src/utils/parseTodoInput";
+import { parseTodoInputWithLLM } from "@/src/utils/parseTodoInputLLM";
 
 type VoiceInputState = {
   isRecording: boolean;
@@ -66,14 +67,25 @@ export const useVoiceInput = () => {
     }
 
     try {
-      await recorder.record();
+      // expo-audio: session + recorder must be prepared before record() or start throws
+      if (audioHooks.setAudioModeAsync) {
+        await audioHooks.setAudioModeAsync({
+          playsInSilentMode: true,
+          allowsRecording: true,
+        });
+      }
+      await recorder.prepareToRecordAsync();
+      await Promise.resolve(recorder.record());
       setState({ ...INITIAL_STATE, isRecording: true });
       return true;
-    } catch {
+    } catch (e) {
+      if (__DEV__) {
+        console.warn("[useVoiceInput] startRecording", e);
+      }
       setState((prev) => ({ ...prev, error: "recording_failed", isRecording: false }));
       return false;
     }
-  }, [available, recorder, checkPermission]);
+  }, [available, recorder, checkPermission, audioHooks]);
 
   const stopRecording = useCallback(async () => {
     setState((prev) => ({ ...prev, isRecording: false, isProcessing: true }));
@@ -124,7 +136,7 @@ export const useVoiceInput = () => {
         return;
       }
 
-      const parsed = parseTodoInput(transcript);
+      const parsed = await parseTodoInputWithLLM(transcript, "tr");
       setState({
         isRecording: false,
         isProcessing: false,

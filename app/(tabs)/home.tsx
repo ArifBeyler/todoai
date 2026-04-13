@@ -7,7 +7,7 @@ import Animated, {
   FadeInDown,
   FadeInUp,
 } from "react-native-reanimated";
-import { CalendarCheck, Sparkle, Trophy } from "phosphor-react-native";
+import { CalendarCheck, Plus, Sparkle, Trophy } from "phosphor-react-native";
 
 // Stagger timing constants — top-to-bottom cascade
 const DUR = 340;
@@ -34,6 +34,7 @@ import { useTodoStore } from "@state/useTodoStore";
 import { useFTUEStore } from "@state/useFTUEStore";
 import { useFTUE } from "@/src/hooks/useFTUE";
 import { useHeroReveal } from "@/src/hooks/useHeroReveal";
+import { useEligibilityEngine } from "@/src/hooks/useEligibilityEngine";
 import { useTodoVisualGeneration } from "@/src/hooks/useTodoVisualGeneration";
 import { usePaywallTrigger } from "@/src/hooks/usePaywallTrigger";
 import { useEdgeCases } from "@/src/hooks/useEdgeCases";
@@ -63,13 +64,6 @@ const HOME_CARD_SHADOW = {
   elevation: 6,
 } as const;
 
-const HOME_RAISED_ITEM_SHADOW = {
-  shadowColor: "#000000",
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.08,
-  shadowRadius: 10,
-  elevation: 3,
-} as const;
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -110,6 +104,9 @@ export default function HomeScreen() {
     totalTodoCount,
     currentHeroTodo,
   } = useFTUE();
+
+  // Drives the eligibility state machine (syncs to useAIVisualStore automatically)
+  const { minutesUntilStable } = useEligibilityEngine();
 
   const {
     dailyHeroStatus,
@@ -194,44 +191,45 @@ export default function HomeScreen() {
   const { primaryEdgeCase, getEdgeCaseMessage } = useEdgeCases();
   const edgeCaseMessage = getEdgeCaseMessage(primaryEdgeCase);
 
-  const completedCount = todos.filter((item) => item.isCompleted).length;
-  const activeCount = todos.length - completedCount;
-  const completionRate = todos.length
-    ? Math.round((completedCount / todos.length) * 100)
+  const visibleTodos = todos.filter((t) => t.deletedAt == null);
+  const completedCount = visibleTodos.filter((item) => item.isCompleted).length;
+  const activeCount = visibleTodos.length - completedCount;
+  const completionRate = visibleTodos.length
+    ? Math.round((completedCount / visibleTodos.length) * 100)
     : 0;
-  const allDone = todos.length > 0 && completedCount === todos.length;
+  const allDone = visibleTodos.length > 0 && completedCount === visibleTodos.length;
   const productivityInsights = useMemo(
     () => calculateMockProductivityInsights(todos),
     [todos],
   );
 
+  const isHabitRecurrence = (r: string) =>
+    r === "daily" || r === "weekly" || r === "weekend" || r === "weekdays" || r === "custom";
+
   const filteredTodos = useMemo(() => {
     if (activeSegment === "habits") {
       return todos.filter(
-        (t) =>
-          (t.recurrence === "daily" ||
-            t.recurrence === "weekly" ||
-            t.recurrence === "weekend") &&
-          !t.isCompleted,
+        (t) => t.deletedAt == null && isHabitRecurrence(t.recurrence) && !t.isCompleted,
       );
     }
-    return todos.filter((t) => t.recurrence === "once" && !t.isCompleted);
+    return todos.filter(
+      (t) => t.deletedAt == null && t.recurrence === "once" && !t.isCompleted,
+    );
   }, [todos, activeSegment]);
 
   const habitsCount = useMemo(
     () =>
       todos.filter(
-        (t) =>
-          (t.recurrence === "daily" ||
-            t.recurrence === "weekly" ||
-            t.recurrence === "weekend") &&
-          !t.isCompleted,
+        (t) => t.deletedAt == null && isHabitRecurrence(t.recurrence) && !t.isCompleted,
       ).length,
     [todos],
   );
 
   const goalsCount = useMemo(
-    () => todos.filter((t) => t.recurrence === "once" && !t.isCompleted).length,
+    () =>
+      todos.filter(
+        (t) => t.deletedAt == null && t.recurrence === "once" && !t.isCompleted,
+      ).length,
     [todos],
   );
 
@@ -307,7 +305,7 @@ export default function HomeScreen() {
     // homeHeroImageUrl varsa belirli geçici state'leri gerçek görsele yükselt
     if (homeHeroImageUrl) {
       if (
-        heroVariant === "processing" ||
+        heroVariant === "profile_generating" ||
         heroVariant === "placeholder" ||
         heroVariant === "empty" ||
         heroVariant === "need_more_todos"
@@ -352,6 +350,7 @@ export default function HomeScreen() {
               revealProgress={revealProgress}
               isFullyRevealed={isFullyRevealed}
               dailyHeroImageUrl={revealHeroImageUrl}
+              minutesUntilStable={minutesUntilStable}
             />
           </TouchableOpacity>
         </Animated.View>
@@ -480,7 +479,7 @@ export default function HomeScreen() {
               {allDone ? (
                 <View style={styles.completedBanner}>
                   <View style={styles.completedIconWrap}>
-                    <Trophy size={24} color="#111111" weight="fill" />
+                    <Trophy size={22} color="#111111" weight="fill" />
                   </View>
                   <Text style={styles.completedTitle}>Tebrikler!</Text>
                   <Text style={styles.completedDesc}>
@@ -489,12 +488,38 @@ export default function HomeScreen() {
                 </View>
               ) : filteredTodos.length === 0 ? (
                 <View style={styles.empty}>
+                  <View style={styles.emptyIconWrap}>
+                    <Plus size={20} color="rgba(17,17,17,0.35)" weight="bold" />
+                  </View>
                   <Text style={styles.emptyTitle}>
-                    Henüz görev eklenmedi
+                    3 görev ekle, görselin oluşsun
                   </Text>
                   <Text style={styles.emptyDesc}>
-                    Aşağıdaki + ile ilk görevinizi oluşturun.
+                    Yapay zekâ görevlerini analiz edip sana özel bir sahne oluşturuyor.
                   </Text>
+                  <View style={styles.emptyActionRow}>
+                    <TouchableOpacity
+                      style={styles.emptyActionButtonPrimary}
+                      onPress={() => router.push("/ai-assistant")}
+                      activeOpacity={0.82}
+                      accessibilityRole="button"
+                      accessibilityLabel="AI asistanıyla görev ekle"
+                    >
+                      <Sparkle size={13} color="#FAFAF9" weight="fill" />
+                      <Text style={styles.emptyActionTextPrimary}>AI ile Ekle</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.emptyActionButtonSecondary}
+                      onPress={() => router.push("/todo/new")}
+                      activeOpacity={0.82}
+                      accessibilityRole="button"
+                      accessibilityLabel="Manuel görev ekle"
+                    >
+                      <Plus size={13} color="#111111" weight="bold" />
+                      <Text style={styles.emptyActionTextSecondary}>Manuel Ekle</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               ) : (
                 filteredTodos.map((item) => (
@@ -514,46 +539,44 @@ export default function HomeScreen() {
 
             <Animated.View
               entering={FadeInDown.delay(D7).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
-              style={styles.summaryWrap}
+              style={styles.statsContainer}
             >
-              <View style={styles.summaryCardWrap}>
-                <TouchableOpacity
-                  style={styles.summaryCard}
-                  onPress={() => router.push("/stats/completed")}
-                  activeOpacity={0.9}
-                  accessibilityRole="button"
-                  accessibilityLabel="Tamamlanan ekranını aç"
-                >
-                  <Text style={styles.summaryValue}>{completedCount}</Text>
-                  <Text style={styles.summaryLabel}>Tamamlanan</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.statCell}
+                onPress={() => router.push("/stats/completed")}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Tamamlanan ekranını aç"
+              >
+                <Text style={styles.statValue}>{completedCount}</Text>
+                <Text style={styles.statLabel}>Tamamlanan</Text>
+              </TouchableOpacity>
 
-              <View style={styles.summaryCardWrap}>
-                <TouchableOpacity
-                  style={styles.summaryCard}
-                  onPress={() => router.push("/stats/active")}
-                  activeOpacity={0.9}
-                  accessibilityRole="button"
-                  accessibilityLabel="Aktif ekranını aç"
-                >
-                  <Text style={styles.summaryValue}>{activeCount}</Text>
-                  <Text style={styles.summaryLabel}>Aktif</Text>
-                </TouchableOpacity>
-              </View>
+              <View style={styles.statDivider} />
 
-              <View style={styles.summaryCardWrap}>
-                <TouchableOpacity
-                  style={styles.summaryCard}
-                  onPress={() => router.push("/stats/completion")}
-                  activeOpacity={0.9}
-                  accessibilityRole="button"
-                  accessibilityLabel="Tamamlama ekranını aç"
-                >
-                  <Text style={styles.summaryValue}>%{completionRate}</Text>
-                  <Text style={styles.summaryLabel}>Tamamlama</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.statCell}
+                onPress={() => router.push("/stats/active")}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Aktif ekranını aç"
+              >
+                <Text style={styles.statValue}>{activeCount}</Text>
+                <Text style={styles.statLabel}>Aktif</Text>
+              </TouchableOpacity>
+
+              <View style={styles.statDivider} />
+
+              <TouchableOpacity
+                style={styles.statCell}
+                onPress={() => router.push("/stats/completion")}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Tamamlama oranı ekranını aç"
+              >
+                <Text style={styles.statValue}>%{completionRate}</Text>
+                <Text style={styles.statLabel}>Oran</Text>
+              </TouchableOpacity>
             </Animated.View>
           </View>
         </Animated.View>
@@ -597,18 +620,21 @@ export default function HomeScreen() {
             <Sparkle size={20} color="#3A2E28" weight="fill" />
           </View>
           <View style={styles.avatarReadyTextWrap}>
-            <Text style={styles.avatarReadyTitle}>Görselin hazır!</Text>
+            <Text style={styles.avatarReadyTitle}>Profilin hazır!</Text>
             <Text style={styles.avatarReadyDesc}>
-              Yapay zekâ ilk görselini oluşturdu.
+              Artık görsellerin sana özel üretilecek.
             </Text>
           </View>
           <TouchableOpacity
-            onPress={() => setAvatarReadyBanner(false)}
+            onPress={() => {
+              setAvatarReadyBanner(false);
+              router.push("/profile-reveal");
+            }}
             style={styles.avatarReadyClose}
             accessibilityRole="button"
-            accessibilityLabel="Kapat"
+            accessibilityLabel="Göster"
           >
-            <Text style={styles.avatarReadyCloseText}>Tamam</Text>
+            <Text style={styles.avatarReadyCloseText}>Göster</Text>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -629,54 +655,51 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   panelWrap: {
-    marginTop: -52,
+    marginTop: -44,
     zIndex: 10,
     marginHorizontal: 14,
-    // Fill the rounded-corner gap so hero card content can't bleed through
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
     backgroundColor: HOME_LAYER.panel,
     overflow: "hidden",
   },
   taskPanel: {
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderTopLeftRadius: 26,
+    borderTopRightRadius: 26,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
     backgroundColor: HOME_LAYER.panel,
     borderWidth: 1,
     borderColor: HOME_LAYER.border,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 10,
+    paddingBottom: 14,
     paddingHorizontal: spacing.xl,
     marginHorizontal: 0,
     ...HOME_CARD_SHADOW,
-    // Must be higher than heroCard's shadow.soft elevation (8) so Android
-    // renders the panel above the hero card in the overlap zone
     elevation: 12,
   },
   dragHandle: {
     alignSelf: "center",
-    width: 36,
-    height: 4,
+    width: 32,
+    height: 3,
     borderRadius: 2,
-    backgroundColor: "#DDDBD7",
-    marginBottom: 10,
+    backgroundColor: "rgba(0,0,0,0.12)",
+    marginBottom: 14,
   },
   welcomeBanner: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 10,
-    backgroundColor: "#FFF8EE",
+    backgroundColor: HOME_LAYER.inset,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "#F0D9B5",
+    borderColor: HOME_LAYER.border,
     padding: 14,
     marginBottom: 14,
   },
   welcomeEmoji: {
-    fontSize: 24,
-    lineHeight: 28,
+    fontSize: 22,
+    lineHeight: 26,
   },
   welcomeTextWrap: {
     flex: 1,
@@ -685,32 +708,32 @@ const styles = StyleSheet.create({
   welcomeTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#3A2E28",
+    color: "#111111",
     lineHeight: 20,
   },
   welcomeDesc: {
     fontSize: 13,
-    color: "#7C6C62",
+    color: "rgba(17,17,17,0.52)",
     lineHeight: 18,
-    fontWeight: "500",
+    fontWeight: "400",
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: 14,
   },
   sectionTitle: {
-    fontSize: 30,
-    lineHeight: 34,
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: "700",
     color: "#111111",
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   calendarPill: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: HOME_LAYER.inset,
     borderWidth: 1,
     borderColor: HOME_LAYER.border,
@@ -724,24 +747,25 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   taskHeaderText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: "#111111",
+    letterSpacing: -0.1,
   },
   badge: {
-    minWidth: 26,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 12,
+    minWidth: 24,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
     backgroundColor: HOME_LAYER.inset,
     borderWidth: 1,
     borderColor: HOME_LAYER.border,
     alignItems: "center",
   },
   badgeText: {
-    color: "rgba(17, 17, 17, 0.7)",
-    fontSize: 12,
-    fontWeight: "700",
+    color: "rgba(17, 17, 17, 0.55)",
+    fontSize: 11,
+    fontWeight: "600",
   },
   errorBanner: {
     marginBottom: spacing.sm,
@@ -756,48 +780,91 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   empty: {
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: HOME_LAYER.borderStrong,
-    borderStyle: "dashed",
-    paddingVertical: 16,
-    paddingHorizontal: spacing.md,
+    borderRadius: 20,
+    paddingVertical: 28,
+    paddingHorizontal: spacing.lg,
     alignItems: "center",
-    gap: 4,
+    gap: 6,
     marginTop: 2,
     backgroundColor: HOME_LAYER.inset,
   },
+  emptyIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: HOME_LAYER.panel,
+    borderWidth: 1,
+    borderColor: HOME_LAYER.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
   emptyTitle: {
-    fontSize: 17,
+    fontSize: 16,
     lineHeight: 21,
     fontWeight: "600",
     color: "#111111",
     textAlign: "center",
+    letterSpacing: -0.1,
   },
   emptyDesc: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: "rgba(17, 17, 17, 0.5)",
+    fontSize: 13,
+    lineHeight: 18,
+    color: "rgba(17, 17, 17, 0.48)",
     textAlign: "center",
+    maxWidth: 240,
+  },
+  emptyActionRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 10,
+  },
+  emptyActionButtonPrimary: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 999,
+    backgroundColor: "#111111",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  emptyActionTextPrimary: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#FAFAF9",
+  },
+  emptyActionButtonSecondary: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 999,
+    backgroundColor: HOME_LAYER.panel,
+    borderWidth: 1,
+    borderColor: HOME_LAYER.borderStrong,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  emptyActionTextSecondary: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#111111",
   },
   completedBanner: {
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor: HOME_LAYER.inset,
     borderWidth: 1,
     borderColor: HOME_LAYER.border,
-    paddingVertical: 20,
+    paddingVertical: 24,
     paddingHorizontal: spacing.lg,
     alignItems: "center",
     gap: 6,
     marginTop: 2,
     marginBottom: spacing.sm,
-    ...HOME_CARD_SHADOW,
-    shadowRadius: 12,
   },
   completedIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: HOME_LAYER.panel,
     borderWidth: 1,
     borderColor: HOME_LAYER.border,
@@ -806,42 +873,48 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   completedTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "700",
     color: "#111111",
   },
   completedDesc: {
     fontSize: 13,
-    color: "rgba(17, 17, 17, 0.55)",
+    color: "rgba(17, 17, 17, 0.52)",
     textAlign: "center",
+    lineHeight: 18,
   },
-  summaryWrap: {
-    marginTop: 12,
+  statsContainer: {
+    marginTop: 14,
     flexDirection: "row",
-    gap: 10,
-  },
-  summaryCardWrap: {
-    flex: 1,
-  },
-  summaryCard: {
-    borderRadius: 14,
-    backgroundColor: HOME_LAYER.panel,
-    borderWidth: 1,
-    borderColor: HOME_LAYER.borderStrong,
-    paddingVertical: 11,
     alignItems: "center",
-    ...HOME_RAISED_ITEM_SHADOW,
+    backgroundColor: HOME_LAYER.inset,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: HOME_LAYER.border,
+    overflow: "hidden",
   },
-  summaryValue: {
-    fontSize: 16,
+  statCell: {
+    flex: 1,
+    paddingVertical: 14,
+    alignItems: "center",
+    gap: 3,
+  },
+  statDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: HOME_LAYER.borderStrong,
+  },
+  statValue: {
+    fontSize: 20,
     fontWeight: "700",
     color: "#111111",
+    letterSpacing: -0.3,
   },
-  summaryLabel: {
-    marginTop: 2,
+  statLabel: {
     fontSize: 11,
-    color: "rgba(17, 17, 17, 0.55)",
+    color: "rgba(17, 17, 17, 0.48)",
     fontWeight: "500",
+    letterSpacing: 0.1,
   },
   avatarReadyBanner: {
     position: "absolute",

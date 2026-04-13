@@ -31,7 +31,7 @@ const getNearestLabel = (createdAt: string) => {
 
 export default function ActiveStatsScreen() {
   const todos = useTodoStore((state) => state.todos);
-  const activeTodos = todos.filter((item) => !item.isCompleted);
+  const activeTodos = todos.filter((item) => item.deletedAt == null && !item.isCompleted);
   const nearestTodos = [...activeTodos].sort((a, b) => {
     const aTime = new Date(a.createdAt).getTime();
     const bTime = new Date(b.createdAt).getTime();

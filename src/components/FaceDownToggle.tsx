@@ -1,6 +1,6 @@
 import { StyleSheet, Switch, Text, View } from "react-native";
 import { DeviceMobileCamera } from "phosphor-react-native";
-import { radius, semantic, spacing } from "@/src/ui/tokens";
+import { semantic, spacing } from "@/src/ui/tokens";
 
 type FaceDownToggleProps = {
   enabled: boolean;
@@ -18,7 +18,7 @@ export const FaceDownToggle = ({
   return (
     <View style={styles.container}>
       <View style={styles.iconWrap}>
-        <DeviceMobileCamera size={20} color="#5C4E46" weight="regular" />
+        <DeviceMobileCamera size={19} color={enabled ? semantic.accent : "rgba(17,17,17,0.48)"} weight={enabled ? "fill" : "regular"} />
       </View>
       <View style={styles.textWrap}>
         <Text style={styles.title}>Telefonu ters çevir</Text>
@@ -27,8 +27,9 @@ export const FaceDownToggle = ({
       <Switch
         value={enabled}
         onValueChange={onToggle}
-        trackColor={{ false: "#E5E3DF", true: semantic.accent }}
+        trackColor={{ false: "#DEDDDA", true: semantic.accent }}
         thumbColor="#FFFFFF"
+        ios_backgroundColor="#DEDDDA"
         accessibilityRole="switch"
         accessibilityLabel="Ters çevirme modu"
       />
@@ -41,16 +42,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.xl,
-    backgroundColor: "#F8F7F5",
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.035)",
   },
   iconWrap: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F2EEE8",
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.05)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -61,11 +62,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#3A2E28",
+    color: "#111111",
   },
   subtitle: {
     fontSize: 12,
-    color: "#8A7A70",
-    fontWeight: "500",
+    color: "rgba(17,17,17,0.45)",
+    fontWeight: "400",
   },
 });

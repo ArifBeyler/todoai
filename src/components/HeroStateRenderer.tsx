@@ -19,8 +19,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import {
   Camera,
-  Crown,
-  Lock,
   Plus,
   Sparkle,
   Trophy,
@@ -30,6 +28,7 @@ import type { HomeHeroVariant } from "@/src/hooks/useFTUE";
 import type { VisualModel } from "@state/useTodoStore";
 import { LockedRevealHero } from "@/src/components/LockedRevealHero";
 import { palette, semantic, shadow } from "@/src/ui/tokens";
+import { Clock, Crown, SealCheck } from "phosphor-react-native";
 
 type HeroStateRendererProps = {
   variant: HomeHeroVariant;
@@ -51,6 +50,7 @@ type HeroStateRendererProps = {
   isFullyRevealed?: boolean;
   dailyHeroImageUrl?: string | null;
   onPressFullScreen?: () => void;
+  minutesUntilStable?: number;
 };
 
 const fallbackHero = require("../../assets/images/hero-sample-full.png");
@@ -60,6 +60,112 @@ const PREMIUM_DEMO_IMAGES = [
   require("../../assets/images/demo-todo-flower.png"),
   require("../../assets/images/demo-todo-dino.png"),
 ];
+
+const AnimatedScoreBadge = ({
+  score,
+  onPress,
+}: {
+  score: number;
+  onPress?: () => void;
+}) => {
+  const prevScore = useRef(score);
+  const badgeScale = useRef(new RNAnimated.Value(1)).current;
+  const glowOpacity = useRef(new RNAnimated.Value(0)).current;
+  const plusOpacity = useRef(new RNAnimated.Value(0)).current;
+  const plusTranslateY = useRef(new RNAnimated.Value(0)).current;
+  const [delta, setDelta] = useState(0);
+
+  useEffect(() => {
+    const prev = prevScore.current;
+    prevScore.current = score;
+
+    if (score <= prev || prev === 0) return;
+
+    const diff = score - prev;
+    setDelta(diff);
+
+    badgeScale.setValue(1);
+    glowOpacity.setValue(0);
+    plusOpacity.setValue(1);
+    plusTranslateY.setValue(0);
+
+    RNAnimated.sequence([
+      RNAnimated.spring(badgeScale, {
+        toValue: 1.22,
+        friction: 5,
+        tension: 320,
+        useNativeDriver: true,
+      }),
+      RNAnimated.spring(badgeScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 180,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    RNAnimated.sequence([
+      RNAnimated.timing(glowOpacity, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      RNAnimated.timing(glowOpacity, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    RNAnimated.parallel([
+      RNAnimated.timing(plusOpacity, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      RNAnimated.timing(plusTranslateY, {
+        toValue: -28,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setDelta(0));
+  }, [score, badgeScale, glowOpacity, plusOpacity, plusTranslateY]);
+
+  return (
+    <View style={styles.scoreContainer}>
+      {delta > 0 && (
+        <RNAnimated.Text
+          style={[
+            styles.plusIndicator,
+            {
+              opacity: plusOpacity,
+              transform: [{ translateY: plusTranslateY }],
+            },
+          ]}
+        >
+          +{delta}
+        </RNAnimated.Text>
+      )}
+
+      <RNAnimated.View style={{ transform: [{ scale: badgeScale }] }}>
+        <TouchableOpacity
+          style={styles.scoreBadge}
+          activeOpacity={0.86}
+          onPress={onPress}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Üretkenlik skor detaylarını aç"
+        >
+          <RNAnimated.View
+            style={[styles.scoreGlow, { opacity: glowOpacity }]}
+          />
+          <TrendUp size={11} color="#D8F8E4" weight="bold" />
+          <Text style={styles.scoreValue}>{score}</Text>
+        </TouchableOpacity>
+      </RNAnimated.View>
+    </View>
+  );
+};
 
 const TopCornerBadges = ({
   onPressAssistant,
@@ -90,21 +196,7 @@ const TopCornerBadges = ({
     </Animated.View>
 
     <Animated.View entering={FadeInRight.delay(550).duration(450).damping(16)}>
-      <TouchableOpacity
-        style={styles.scoreBadge}
-        activeOpacity={0.86}
-        onPress={onPressScore}
-        hitSlop={10}
-        accessibilityRole="button"
-        accessibilityLabel="Üretkenlik skor detaylarını aç"
-      >
-        <Animated.View entering={FadeIn.delay(750).duration(300)}>
-          <TrendUp size={11} color="#D8F8E4" weight="bold" />
-        </Animated.View>
-        <Animated.View entering={FadeIn.delay(850).duration(300)}>
-          <Text style={styles.scoreValue}>{productivityScore}</Text>
-        </Animated.View>
-      </TouchableOpacity>
+      <AnimatedScoreBadge score={productivityScore} onPress={onPressScore} />
     </Animated.View>
   </View>
 );
@@ -341,21 +433,21 @@ const PremiumTeaserHero = ({
         resizeMode="cover"
       />
 
-      {/* Blur overlay to suggest "unlock" */}
+      {/* Subtle blur — keeps image visible while hinting at premium */}
       <BlurView
-        intensity={28}
+        intensity={14}
         tint="dark"
         style={[StyleSheet.absoluteFill, styles.premiumBlurOverlay]}
       />
 
       <LinearGradient
         colors={[
-          "rgba(0,0,0,0.22)",
+          "rgba(0,0,0,0.08)",
           "rgba(0,0,0,0.0)",
-          "rgba(0,0,0,0.0)",
-          "rgba(0,0,0,0.55)",
+          "rgba(0,0,0,0.15)",
+          "rgba(0,0,0,0.62)",
         ]}
-        locations={[0, 0.2, 0.5, 1]}
+        locations={[0, 0.25, 0.55, 1]}
         style={StyleSheet.absoluteFill}
       />
 
@@ -367,7 +459,7 @@ const PremiumTeaserHero = ({
       >
         <View style={styles.premiumTeaserContent}>
           <View style={styles.premiumTeaserLabel}>
-            <Crown size={13} color="#F5C842" weight="fill" />
+            <Sparkle size={11} color="rgba(255,255,255,0.7)" weight="fill" />
             <Text style={styles.premiumTeaserLabelText}>Premium</Text>
           </View>
           <Text style={styles.premiumTeaserTitle}>
@@ -383,7 +475,6 @@ const PremiumTeaserHero = ({
             accessibilityRole="button"
             accessibilityLabel="Kişiselleştirmek için premium'u aç"
           >
-            <Lock size={14} color="#FFF" weight="fill" />
             <Text style={styles.premiumCTAText}>Kilidi Aç</Text>
           </TouchableOpacity>
         </View>
@@ -522,6 +613,261 @@ const ProcessingHero = (
   </LinearGradient>
 );
 
+// --- New AI state hero cards ---
+
+const WaitingForStabilityHero = ({
+  minutesUntilStable,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  "onPressAssistant" | "onPressScore" | "productivityScore" | "minutesUntilStable"
+>) => (
+  <View style={styles.heroCard}>
+    <ImageBackground
+      source={fallbackHero}
+      style={styles.imageBackground}
+      imageStyle={styles.foregroundImage}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={["rgba(0,0,0,0.18)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.50)"]}
+        locations={[0, 0.18, 0.5, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <TopCornerBadges {...badgeProps} />
+      <Animated.View
+        entering={FadeInUp.delay(650).duration(450).damping(16)}
+        style={styles.overlayBottom}
+      >
+        <View style={styles.pillCTA}>
+          <Clock size={13} color="#FFF" weight="fill" />
+          <Text style={styles.pillCTAText}>
+            {minutesUntilStable && minutesUntilStable > 60
+              ? `Görevlerin sabitleniyor — ${Math.ceil(minutesUntilStable / 60)} sa. sonra`
+              : "Görevlerin sabitleniyor. Bir süre sonra değerlendireceğiz."}
+          </Text>
+        </View>
+      </Animated.View>
+    </ImageBackground>
+  </View>
+);
+
+const EligiblePaywallLockedHero = ({
+  onPressPremium,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  "onPressAssistant" | "onPressScore" | "productivityScore" | "onPressPremium"
+>) => (
+  <View style={styles.heroCard}>
+    <ImageBackground
+      source={fallbackHero}
+      style={styles.imageBackground}
+      imageStyle={styles.foregroundImage}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={["rgba(0,0,0,0.08)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.15)", "rgba(0,0,0,0.62)"]}
+        locations={[0, 0.25, 0.55, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <TopCornerBadges {...badgeProps} />
+      <Animated.View
+        entering={FadeInUp.delay(650).duration(450).damping(16)}
+        style={styles.premiumOverlayBottom}
+      >
+        <View style={styles.premiumTeaserContent}>
+          <View style={styles.premiumTeaserLabel}>
+            <Sparkle size={11} color="rgba(255,255,255,0.7)" weight="fill" />
+            <Text style={styles.premiumTeaserLabelText}>Premium</Text>
+          </View>
+          <Text style={styles.premiumTeaserTitle}>Kişisel AI görselleri</Text>
+          <Text style={styles.premiumTeaserSubtitle}>
+            Görevlerin hazır — görsellerin açılsın.
+          </Text>
+          <TouchableOpacity
+            style={styles.premiumCTA}
+            onPress={onPressPremium}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Premium'a geç"
+          >
+            <Crown size={13} color="#FFF" weight="fill" />
+            <Text style={[styles.premiumCTAText, { marginLeft: 6 }]}>Premium'a Geç</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </ImageBackground>
+  </View>
+);
+
+const EligibleNeedsProfileHero = ({
+  onPressUploadPhoto,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  "onPressAssistant" | "onPressScore" | "productivityScore" | "onPressUploadPhoto"
+>) => (
+  <View style={styles.heroCard}>
+    <ImageBackground
+      source={fallbackHero}
+      style={styles.imageBackground}
+      imageStyle={styles.foregroundImage}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={["rgba(0,0,0,0.18)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.48)"]}
+        locations={[0, 0.18, 0.55, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <TopCornerBadges {...badgeProps} />
+      <Animated.View
+        entering={FadeInUp.delay(650).duration(450).damping(16)}
+        style={styles.overlayBottom}
+      >
+        <TouchableOpacity
+          style={styles.uploadCTA}
+          onPress={onPressUploadPhoto}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel="İlk görsel için fotoğraf ekle"
+        >
+          <Camera size={14} color="#FFF" weight="fill" />
+          <Text style={styles.uploadCTAText}>İlk görselini açmak için fotoğrafını ekle</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </ImageBackground>
+  </View>
+);
+
+const DailyVisualQueuedHero = (
+  props: Pick<HeroStateRendererProps, "onPressAssistant" | "onPressScore" | "productivityScore">,
+) => (
+  <LinearGradient
+    colors={[palette.steelTeal, palette.dolphinGray]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.heroLoading}
+  >
+    <TopCornerBadges {...props} />
+    <View style={styles.loadingContent}>
+      <ActivityIndicator color="#FDF7EF" size="small" />
+      <Text style={styles.loadingTitle}>Günlük görsel sırada</Text>
+      <Text style={styles.loadingSub}>Oluşturma başlamak üzere.</Text>
+    </View>
+  </LinearGradient>
+);
+
+const DailyVisualGeneratingHero = (
+  props: Pick<HeroStateRendererProps, "onPressAssistant" | "onPressScore" | "productivityScore">,
+) => (
+  <LinearGradient
+    colors={[palette.steelTeal, palette.dolphinGray]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.heroLoading}
+  >
+    <TopCornerBadges {...props} />
+    <View style={styles.loadingContent}>
+      <ActivityIndicator color="#FDF7EF" size="small" />
+      <Text style={styles.loadingTitle}>Bugünün görseli hazırlanıyor</Text>
+      <Text style={styles.loadingSub}>Yapay zekâ çalışıyor.</Text>
+    </View>
+  </LinearGradient>
+);
+
+const DailyVisualReadyHero = ({
+  heroImageUrl,
+  onPressFullScreen,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  "onPressAssistant" | "onPressScore" | "productivityScore" | "heroImageUrl" | "onPressFullScreen"
+>) => {
+  const heroSource = heroImageUrl ? { uri: heroImageUrl } : fallbackHero;
+  return (
+    <View style={styles.heroCard}>
+      <ImageBackground
+        source={heroSource}
+        style={styles.imageBackground}
+        imageStyle={styles.foregroundImage}
+        resizeMode="cover"
+      >
+        <LinearGradient
+          colors={["rgba(0,0,0,0.12)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.42)"]}
+          locations={[0, 0.15, 0.55, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <TopCornerBadges {...badgeProps} />
+        <Animated.View
+          entering={FadeInUp.delay(400).duration(400).damping(16)}
+          style={styles.overlayBottom}
+        >
+          <TouchableOpacity
+            style={styles.pillCTA}
+            onPress={onPressFullScreen}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Günün görselini aç"
+          >
+            <SealCheck size={13} color="#FFF" weight="fill" />
+            <Text style={styles.pillCTAText}>Günün görseli hazır</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </ImageBackground>
+    </View>
+  );
+};
+
+const DailyVisualFailedHero = ({
+  onPressRetry,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  "onPressAssistant" | "onPressScore" | "productivityScore"
+> & { onPressRetry?: () => void }) => (
+  <View style={[styles.heroCard, styles.allDoneCard]}>
+    <TopCornerBadges {...badgeProps} />
+    <View style={styles.allDoneContent}>
+      <Text style={[styles.allDoneTitle, { fontSize: 18 }]}>Görsel oluşturulamadı</Text>
+      <Text style={styles.allDoneSub}>
+        Bir şeyler ters gitti. Görevlerin değişmiş olabilir.
+      </Text>
+      {onPressRetry && (
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={onPressRetry}
+          activeOpacity={0.82}
+          accessibilityRole="button"
+          accessibilityLabel="Tekrar dene"
+        >
+          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  </View>
+);
+
+const ProfileGeneratingHero = (
+  props: Pick<HeroStateRendererProps, "onPressAssistant" | "onPressScore" | "productivityScore">,
+) => (
+  <LinearGradient
+    colors={[palette.steelTeal, palette.dolphinGray]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.heroLoading}
+  >
+    <TopCornerBadges {...props} />
+    <View style={styles.loadingContent}>
+      <ActivityIndicator color="#FDF7EF" size="small" />
+      <Text style={styles.loadingTitle}>Profilin hazırlanıyor</Text>
+      <Text style={styles.loadingSub}>Yapay zekâ stilini oluşturuyor.</Text>
+    </View>
+  </LinearGradient>
+);
+
+// --- End new AI state hero cards ---
+
 export const HeroStateRenderer = ({
   variant,
   visual,
@@ -542,6 +888,7 @@ export const HeroStateRenderer = ({
   isFullyRevealed,
   dailyHeroImageUrl,
   onPressFullScreen,
+  minutesUntilStable,
 }: HeroStateRendererProps) => {
   const badgeProps = { onPressAssistant, onPressScore, productivityScore };
   const fallbackVisualUrl = heroImageUrl ?? visual?.imageUrl ?? null;
@@ -575,6 +922,39 @@ export const HeroStateRenderer = ({
         <NeedMoreTodosHero
           {...badgeProps}
           tasksUntilMilestone={tasksUntilMilestone}
+        />
+      );
+    case "waiting_for_stability":
+      return (
+        <WaitingForStabilityHero {...badgeProps} minutesUntilStable={minutesUntilStable} />
+      );
+    case "eligible_paywall_locked":
+      return (
+        <EligiblePaywallLockedHero {...badgeProps} onPressPremium={onPressPremium} />
+      );
+    case "eligible_needs_profile":
+      return (
+        <EligibleNeedsProfileHero {...badgeProps} onPressUploadPhoto={onPressUploadPhoto} />
+      );
+    case "profile_generating":
+      return <ProfileGeneratingHero {...badgeProps} />;
+    case "daily_visual_queued":
+      return <DailyVisualQueuedHero {...badgeProps} />;
+    case "daily_visual_generating":
+      return <DailyVisualGeneratingHero {...badgeProps} />;
+    case "daily_visual_ready":
+      return (
+        <DailyVisualReadyHero
+          {...badgeProps}
+          heroImageUrl={heroImageUrl ?? fallbackVisualUrl}
+          onPressFullScreen={onPressFullScreen}
+        />
+      );
+    case "daily_visual_failed":
+      return (
+        <DailyVisualFailedHero
+          {...badgeProps}
+          onPressRetry={onPressFullScreen}
         />
       );
     case "todo_visual":
@@ -614,20 +994,19 @@ export const HeroStateRenderer = ({
 const styles = StyleSheet.create({
   heroCard: {
     width: "100%",
-    height: 272,
-    borderRadius: 32,
+    height: 284,
+    borderRadius: 28,
     overflow: "hidden",
-    borderWidth: 8,
-    borderColor: "#E6DED2",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.07)",
     ...shadow.soft,
     // Keep elevation below the white panel (taskPanel uses elevation: 12)
     elevation: 4,
   },
   emptyHeroCard: {
-    backgroundColor: "#F2F2F0",
-    borderStyle: "dashed",
-    borderWidth: 3,
-    borderColor: "#D8D5D0",
+    backgroundColor: "#EBEBEA",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.06)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -681,11 +1060,11 @@ const styles = StyleSheet.create({
   },
   heroLoading: {
     width: "100%",
-    height: 272,
-    borderRadius: 32,
+    height: 284,
+    borderRadius: 28,
     overflow: "hidden",
-    borderWidth: 8,
-    borderColor: "#E6DED2",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.07)",
     elevation: 4,
   },
   imageBackground: {
@@ -723,6 +1102,9 @@ const styles = StyleSheet.create({
     color: "#FAF6F0",
     letterSpacing: 0.2,
   },
+  scoreContainer: {
+    alignItems: "center",
+  },
   scoreBadge: {
     minWidth: 62,
     height: 32,
@@ -735,6 +1117,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 5,
+    overflow: "hidden",
+  },
+  scoreGlow: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(216,248,228,0.25)",
+    borderRadius: 999,
   },
   scoreValue: {
     fontSize: 13,
@@ -742,6 +1130,18 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#F8F6F2",
     letterSpacing: 0.1,
+  },
+  plusIndicator: {
+    position: "absolute",
+    top: -6,
+    alignSelf: "center",
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#D8F8E4",
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    zIndex: 10,
   },
   overlayBottom: {
     position: "absolute",
@@ -813,46 +1213,47 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     borderRadius: 999,
-    backgroundColor: "rgba(20,18,16,0.55)",
+    backgroundColor: "rgba(255,255,255,0.14)",
     borderWidth: 1,
-    borderColor: "rgba(245,200,66,0.35)",
+    borderColor: "rgba(255,255,255,0.22)",
     paddingHorizontal: 10,
     paddingVertical: 4,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   premiumTeaserLabelText: {
     fontSize: 11,
-    fontWeight: "700",
-    color: "#F5C842",
-    letterSpacing: 0.5,
+    fontWeight: "600",
+    color: "rgba(255,255,255,0.82)",
+    letterSpacing: 0.4,
   },
   premiumTeaserTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
     color: "#FFF",
-    lineHeight: 24,
+    lineHeight: 26,
+    letterSpacing: -0.3,
   },
   premiumTeaserSubtitle: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.75)",
-    fontWeight: "500",
-    marginBottom: 10,
+    color: "rgba(255,255,255,0.68)",
+    fontWeight: "400",
+    lineHeight: 18,
+    marginBottom: 12,
   },
   premiumCTA: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    alignSelf: "flex-start",
     borderRadius: 999,
-    backgroundColor: "rgba(20,18,16,0.65)",
+    backgroundColor: "rgba(255,255,255,0.18)",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.28)",
-    paddingHorizontal: 18,
+    borderColor: "rgba(255,255,255,0.32)",
+    paddingHorizontal: 20,
     paddingVertical: 10,
   },
   premiumCTAText: {
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#FFF",
+    letterSpacing: 0.1,
   },
   uploadCTA: {
     flexDirection: "row",
@@ -886,5 +1287,17 @@ const styles = StyleSheet.create({
   loadingSub: {
     fontSize: 13,
     color: "rgba(253,247,239,0.84)",
+  },
+  retryButton: {
+    marginTop: 12,
+    borderRadius: 999,
+    backgroundColor: "#111111",
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+  },
+  retryButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#FFF",
   },
 });

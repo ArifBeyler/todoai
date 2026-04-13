@@ -34,6 +34,7 @@ export const useTodoVisualGeneration = () => {
 
   const currentHeroTodo = getCurrentHeroTodo(todos);
 
+  // Filter out soft-deleted todos from visual generation candidates
   const generateForTodo = useCallback(
     async (todo: TodoItemModel) => {
       if (processingRef.current.has(todo.id)) return;
@@ -72,7 +73,10 @@ export const useTodoVisualGeneration = () => {
   );
 
   const triggerPendingGenerations = useCallback(() => {
-    if (todos.length < MIN_TODOS_FOR_GENERATION) return;
+    const activeTodosCount = todos.filter(
+      (t) => t.deletedAt == null && !t.isCompleted,
+    ).length;
+    if (activeTodosCount < MIN_TODOS_FOR_GENERATION) return;
     if (!canGenerateMore({ dailyGenerationCount, dailyGenerationDate })) return;
 
     const needingVisuals = getTodosNeedingVisuals(todos);
@@ -91,7 +95,7 @@ export const useTodoVisualGeneration = () => {
   const handleTodoCompleted = useCallback(
     (completedTodoId: string) => {
       const remaining = todos.filter(
-        (t) => !t.isCompleted && t.id !== completedTodoId,
+        (t) => t.deletedAt == null && !t.isCompleted && t.id !== completedTodoId,
       );
       const next = remaining.find((t) => t.visualStatus === "idle");
       if (

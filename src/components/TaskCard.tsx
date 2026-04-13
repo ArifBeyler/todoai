@@ -1,14 +1,14 @@
 import { useMemo, useRef, useState } from "react";
 import { Animated, Easing, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { CheckCircle, Clock } from "phosphor-react-native";
-import { radius, shadow, spacing } from "@/src/ui/tokens";
+import { CheckCircle } from "phosphor-react-native";
 import { CATEGORY_ICON_MAP, DEFAULT_ICON_ENTRY } from "@/src/constants/todoIcons";
-import { resolveTodoIcon } from "@/src/utils/resolveTodoIcon";
 
 const RECURRENCE_LABEL: Record<string, string> = {
   daily: "Her gün",
   weekly: "Her hafta",
   weekend: "Hafta sonu",
+  weekdays: "Hafta içi",
+  custom: "Özel tarihler",
 };
 
 type TaskCardProps = {
@@ -25,16 +25,12 @@ type TaskCardProps = {
 export const TaskCard = ({
   title,
   category,
-  priority,
   isCompleted,
-  dueTime,
   recurrence,
   onToggle,
   onPress,
 }: TaskCardProps) => {
   const categoryEntry = CATEGORY_ICON_MAP[category] ?? DEFAULT_ICON_ENTRY;
-  const resolved = resolveTodoIcon(title, category);
-  const ResolvedIcon = resolved.Icon;
   const recurrenceLabel = recurrence ? RECURRENCE_LABEL[recurrence] : undefined;
   const [isAnimatingComplete, setIsAnimatingComplete] = useState(false);
   const cardOpacity = useRef(new Animated.Value(1)).current;
@@ -122,6 +118,8 @@ export const TaskCard = ({
     });
   };
 
+  const hasMeta = categoryEntry.label || recurrenceLabel;
+
   return (
     <TouchableOpacity
       style={styles.pressableWrap}
@@ -133,49 +131,12 @@ export const TaskCard = ({
       <Animated.View
         style={[
           styles.card,
-          shadow.card,
           {
             opacity: cardOpacity,
             transform: [{ translateX: cardTranslateX }],
           },
         ]}
       >
-        <Animated.View
-          style={[
-            styles.leftContentWrap,
-            {
-              opacity: contentOpacity,
-              transform: [{ scale: contentScale }],
-            },
-          ]}
-        >
-          <View style={[styles.iconArea, { backgroundColor: `${resolved.color}14` }]}>
-            <ResolvedIcon size={20} color={resolved.color} weight="duotone" />
-          </View>
-          <View style={styles.body}>
-            <Text style={[styles.title, isCompleted && styles.titleDone]} numberOfLines={2}>
-              {title}
-            </Text>
-            <View style={styles.metaRow}>
-              {dueTime ? (
-                <>
-                  <Clock size={13} color="#999" />
-                  <Text style={styles.metaText}>{dueTime}</Text>
-                  <Text style={styles.dot}>·</Text>
-                </>
-              ) : null}
-              <Text style={styles.metaText}>{categoryEntry.label}</Text>
-              {recurrenceLabel ? (
-                <>
-                  <Text style={styles.dot}>·</Text>
-                  <View style={styles.recurrenceBadge}>
-                    <Text style={styles.recurrenceBadgeText}>{recurrenceLabel}</Text>
-                  </View>
-                </>
-              ) : null}
-            </View>
-          </View>
-        </Animated.View>
         <TouchableOpacity
           onPress={handleTogglePress}
           hitSlop={12}
@@ -185,7 +146,7 @@ export const TaskCard = ({
           disabled={isInteractionLocked}
         >
           {isCompleted ? (
-            <CheckCircle size={26} color="#76A28A" weight="fill" />
+            <CheckCircle size={24} color="#76A28A" weight="fill" />
           ) : (
             <View style={styles.checkSlot}>
               <View style={styles.uncheckedCircle} />
@@ -199,11 +160,39 @@ export const TaskCard = ({
                   },
                 ]}
               >
-                <CheckCircle size={26} color="#76A28A" weight="fill" />
+                <CheckCircle size={24} color="#76A28A" weight="fill" />
               </Animated.View>
             </View>
           )}
         </TouchableOpacity>
+
+        <Animated.View
+          style={[
+            styles.bodyWrap,
+            {
+              opacity: contentOpacity,
+              transform: [{ scale: contentScale }],
+            },
+          ]}
+        >
+          <Text
+            style={[styles.title, isCompleted && styles.titleDone]}
+            numberOfLines={2}
+          >
+            {title}
+          </Text>
+          {hasMeta && (
+            <View style={styles.metaRow}>
+              <Text style={styles.metaText}>{categoryEntry.label}</Text>
+              {recurrenceLabel ? (
+                <>
+                  <Text style={styles.dot}>·</Text>
+                  <Text style={styles.metaText}>{recurrenceLabel}</Text>
+                </>
+              ) : null}
+            </View>
+          )}
+        </Animated.View>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -211,78 +200,31 @@ export const TaskCard = ({
 
 const styles = StyleSheet.create({
   pressableWrap: {
-    marginBottom: spacing.sm,
+    marginBottom: 10,
   },
   card: {
-    borderRadius: radius.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    borderRadius: 24,
     backgroundColor: "#FFFFFF",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingLeft: spacing.sm,
-  },
-  leftContentWrap: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconArea: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  body: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-  },
-  title: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1A1A1A",
-  },
-  titleDone: {
-    textDecorationLine: "line-through",
-    color: "#AAAAAA",
-  },
-  metaRow: {
-    marginTop: 4,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    flexWrap: "wrap",
-  },
-  metaText: {
-    fontSize: 12,
-    color: "#999999",
-  },
-  dot: {
-    fontSize: 12,
-    color: "#CCCCCC",
-    marginHorizontal: 2,
-  },
-  recurrenceBadge: {
-    borderRadius: radius.pill,
-    backgroundColor: "#F3F3F3",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-  },
-  recurrenceBadgeText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#888888",
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.05)",
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 6,
   },
   checkArea: {
-    paddingRight: spacing.sm,
-    paddingLeft: 4,
-    paddingVertical: spacing.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   checkSlot: {
-    width: 26,
-    height: 26,
+    width: 24,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -291,10 +233,39 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#D5D5D5",
+    borderColor: "rgba(0,0,0,0.15)",
     backgroundColor: "transparent",
   },
   animatedCheck: {
     position: "absolute",
+  },
+  bodyWrap: {
+    flex: 1,
+    gap: 3,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111111",
+  },
+  titleDone: {
+    textDecorationLine: "line-through",
+    color: "rgba(17,17,17,0.35)",
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    flexWrap: "wrap",
+  },
+  metaText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "rgba(17,17,17,0.38)",
+  },
+  dot: {
+    fontSize: 12,
+    color: "rgba(17,17,17,0.2)",
+    marginHorizontal: 1,
   },
 });

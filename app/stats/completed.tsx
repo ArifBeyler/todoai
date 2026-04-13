@@ -15,7 +15,7 @@ import { radius, spacing } from "@/src/ui/tokens";
 export default function CompletedStatsScreen() {
   const todos = useTodoStore((state) => state.todos);
   const completedTodos = todos
-    .filter((item) => item.isCompleted)
+    .filter((item) => item.isCompleted && item.deletedAt == null)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const insights = calculateMockProductivityInsights(todos);
 

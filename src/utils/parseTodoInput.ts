@@ -6,6 +6,7 @@ export type ParsedTodoInput = {
   time?: string;
   category?: string;
   recurrence?: string;
+  priority?: string;
   confidence: number;
   ambiguities?: string[];
 };

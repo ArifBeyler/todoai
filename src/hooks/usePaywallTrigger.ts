@@ -2,7 +2,7 @@ import { useCallback, useRef } from "react";
 import { router } from "expo-router";
 import { useFTUEStore, isPaywallOnCooldown } from "@state/useFTUEStore";
 import { useSessionStore } from "@state/useSessionStore";
-import { useTodoStore } from "@state/useTodoStore";
+import { useTodoStore, getEligibleTodos } from "@state/useTodoStore";
 
 const TASK_THRESHOLD = 3;
 const MAX_PASSIVE_SHOWS_PER_SESSION = 1;
@@ -19,7 +19,7 @@ export const usePaywallTrigger = () => {
     dismissPaywall,
   } = useFTUEStore();
   const activeTodoCount = useTodoStore(
-    (s) => s.todos.filter((t) => !t.isCompleted).length,
+    (s) => getEligibleTodos(s.todos).length,
   );
 
   const isSubscribed = isPremium || paywallInteraction === "subscribed";

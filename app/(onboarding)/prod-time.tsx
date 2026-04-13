@@ -81,7 +81,8 @@ export default function ProdTimeScreen() {
 
   const handleContinue = () => {
     if (!selected) return;
-    triggerExit("forward", () => router.push("/(onboarding)/notifications"));
+    // Route to body-metrics for hydration personalisation before notifications
+    triggerExit("forward", () => router.push("/(onboarding)/body-metrics"));
   };
 
   const handleBack = () => {
@@ -97,7 +98,7 @@ export default function ProdTimeScreen() {
   return (
     <Animated.View style={[styles.container, exitStyle]}>
       <View style={[styles.panel, CARD_SHADOW]}>
-        <OnboardingProgress current={10} total={11} />
+        <OnboardingProgress current={10} total={13} />
         <View style={styles.header}>
           <OnboardingStaggeredParagraph
             text={titleStr}

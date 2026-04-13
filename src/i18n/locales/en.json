@@ -1,1 +1,186 @@
-{"welcome":"Welcome","start":"Start","home":"Home"}
+{
+  "common": {
+    "welcome": "Welcome",
+    "start": "Start",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "done": "Done",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "close": "Close",
+    "settings": "Settings"
+  },
+  "tabs": {
+    "home": "Home",
+    "calendar": "Calendar",
+    "focus": "Focus",
+    "profile": "Profile"
+  },
+  "home": {
+    "title": "Today",
+    "habits": "Habits",
+    "goals": "Goals",
+    "welcomeBanner": "Welcome, {{name}}!",
+    "emptyState": "No tasks added yet",
+    "allDone": "All tasks done! 🎉"
+  },
+  "todo": {
+    "new": "New Task",
+    "title": "Task title",
+    "category": "Category",
+    "priority": "Priority",
+    "recurrence": "Recurrence",
+    "dueDate": "Due date",
+    "reminder": "Reminder",
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this task?",
+    "completed": "Completed",
+    "notFound": "Task not found",
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "recurrences": {
+      "once": "Once",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "weekend": "Weekend"
+    }
+  },
+  "focus": {
+    "title": "Focus",
+    "subtitle": "Time for deep focus",
+    "tasks": "Tasks",
+    "selectAll": "Select All",
+    "noActiveTasks": "No active tasks for today",
+    "duration": "Duration",
+    "minutes": "minutes",
+    "faceDown": "Place phone face down",
+    "faceDownSubtitle": "Don't look at the screen during focus",
+    "start": "Start",
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused": "Paused",
+    "pauseLimit": "Pause Limit Reached",
+    "pauseLimitMsg": "You can only pause up to 2 times.",
+    "endSession": "End Session",
+    "endSessionConfirm": "Are you sure you want to end the session early?",
+    "continueBtn": "Continue",
+    "end": "End",
+    "selectTask": "Select Task",
+    "selectTaskMsg": "You must select at least one task.",
+    "celebration": {
+      "title": "Congratulations!",
+      "subtitle": "You completed a {{duration}}-minute focus session",
+      "streak": "{{count}}-day streak!",
+      "seePoints": "See Your Points",
+      "totalPoints": "Total Points",
+      "returnHome": "Return Home"
+    }
+  },
+  "voice": {
+    "title": "Voice Task",
+    "detected": "Detected text",
+    "taskTitle": "Task title",
+    "create": "Create",
+    "ambiguityNote": "Orange fields are ambiguous — tap to edit",
+    "errors": {
+      "micPermission": "Microphone permission required. Enable it in Settings.",
+      "recordingFailed": "Could not start recording. Try again.",
+      "noAudio": "No audio file generated.",
+      "emptyTranscript": "No speech detected, try again.",
+      "transcriptionFailed": "Speech recognition failed. Try again.",
+      "genericError": "An error occurred. Try again.",
+      "noInternet": "Internet connection required for speech recognition."
+    },
+    "permission": {
+      "headline": "Hear your voice, create your task",
+      "description": "Add tasks by speaking. Let AI understand you.",
+      "examples": "Example commands",
+      "enableMic": "Enable Microphone",
+      "skipForNow": "Skip for Now",
+      "denied": "Microphone permission denied. Enable it in Settings.",
+      "openSettings": "Open Settings"
+    }
+  },
+  "suggestions": {
+    "header": "AI Suggestion",
+    "add": "Add",
+    "dismiss": "Not now"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "portrait": "Portrait",
+    "taskVisual": "Task Visual",
+    "dailyVisual": "Daily Visual",
+    "empty": "No visuals yet. Complete your tasks and create your first visual!",
+    "loadError": "Failed to load visuals.",
+    "save": "Save",
+    "saved": "Saved",
+    "savedMsg": "Visual saved to photo library.",
+    "saveError": "Could not save visual. Try again.",
+    "permissionRequired": "Permission required to save photos."
+  },
+  "profile": {
+    "title": "Profile",
+    "gallery": "Gallery",
+    "settings": "Settings",
+    "free": "Free",
+    "trial": "Trial",
+    "pro": "Pro",
+    "points": "Points",
+    "completed": "Completed",
+    "streak": "Streak",
+    "focusToday": "Focus Today",
+    "upgrade": "Upgrade to Premium",
+    "upgradeSubtitle": "Unlock all features",
+    "manageSubscription": "Manage subscription",
+    "trialEnds": "Trial ends on {{date}}",
+    "renewsAt": "Renews on {{date}}",
+    "manage": "Manage",
+    "signOut": "Sign out",
+    "signOutConfirm": "All your data will be reset. Are you sure?"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "permission": "Permission granted",
+    "permissionNeeded": "Permission needed",
+    "reminderTime": "Reminder Time",
+    "activeHours": "Active Hours",
+    "start": "Start",
+    "end": "End",
+    "categories": "Notification Categories",
+    "taskReminders": "Task reminders",
+    "aiSuggestions": "AI suggestions",
+    "focusNudges": "Focus nudges",
+    "visualReady": "Visual notifications",
+    "achievements": "Achievement notifications",
+    "summary": "Daily summary"
+  },
+  "permissions": {
+    "microphone": "Microphone permission",
+    "notifications": "Notifications"
+  },
+  "settings": {
+    "general": "General",
+    "style": "Change art style",
+    "frequency": "Generation frequency",
+    "language": "Language",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
+    "support": "Support",
+    "subscription": "Subscription",
+    "appearance": "Appearance",
+    "languageComingSoon": "Language (coming soon)"
+  }
+}

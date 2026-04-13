@@ -6,7 +6,8 @@ import {
   TASK_MILESTONE_THRESHOLD,
 } from "@state/useFTUEStore";
 import { useHeroRevealStore } from "@state/useHeroRevealStore";
-import { useTodoStore, getCurrentHeroTodo } from "@state/useTodoStore";
+import { useTodoStore, getEligibleTodos, getCurrentHeroTodo } from "@state/useTodoStore";
+import { useAIVisualStore, type AIVisualState } from "@state/useAIVisualStore";
 
 export type UserState =
   | "new_user"
@@ -20,6 +21,14 @@ export type UserState =
 export type HomeHeroVariant =
   | "empty"
   | "need_more_todos"
+  | "waiting_for_stability"
+  | "eligible_paywall_locked"
+  | "eligible_needs_profile"
+  | "profile_generating"
+  | "daily_visual_queued"
+  | "daily_visual_generating"
+  | "daily_visual_ready"
+  | "daily_visual_failed"
   | "starter_hero"
   | "todo_visual"
   | "todo_generating"
@@ -46,7 +55,6 @@ export const useFTUE = () => {
     avatarStatus,
     paywallInteraction,
     notificationPermission,
-    generationEligibility,
     paywallDismissedAt,
     photoValueSheetShown,
     firstVisualDelivered,
@@ -55,16 +63,28 @@ export const useFTUE = () => {
 
   const { isPremium, profilePhoto } = useSessionStore();
   const todos = useTodoStore((s) => s.todos);
-  const totalTodoCount = todos.length;
-  const activeTodoCount = todos.filter((t) => !t.isCompleted).length;
-  const completedCount = todos.filter((t) => t.isCompleted).length;
-  const allDone = totalTodoCount > 0 && completedCount === totalTodoCount;
+
+  // Use eligible active todos (non-deleted, non-completed, valid title) for all counts
+  const eligibleTodos = useMemo(() => getEligibleTodos(todos), [todos]);
+  const eligibleTodoCount = eligibleTodos.length;
+
+  // Keep totalTodoCount for legacy UI (visible task counts)
+  const allActiveTodos = useMemo(
+    () => todos.filter((t) => t.deletedAt == null && !t.isCompleted),
+    [todos],
+  );
+  const totalTodoCount = allActiveTodos.length;
+  const completedCount = todos.filter((t) => t.isCompleted && t.deletedAt == null).length;
+  const allDone = totalTodoCount > 0 && completedCount === todos.filter((t) => t.deletedAt == null).length;
 
   const currentHeroTodo = useMemo(() => getCurrentHeroTodo(todos), [todos]);
 
   const dailyHeroStatus = useHeroRevealStore((s) => s.dailyHeroStatus);
   const snapshotTodoIds = useHeroRevealStore((s) => s.snapshotTodoIds);
   const snapshotTodoCount = useHeroRevealStore((s) => s.snapshotTodoCount);
+
+  // AI visual state from the new unified store
+  const aiVisualState = useAIVisualStore((s) => s.state);
 
   const completedSnapshotCount = useMemo(() => {
     if (snapshotTodoIds.length === 0) return 0;
@@ -103,7 +123,7 @@ export const useFTUE = () => {
     const isSubscribedUser = isPremium || paywallInteraction === "subscribed";
     const hasUploadedPhoto = photoUploadStatus === "uploaded";
 
-    // 1. Reveal state her zaman en yüksek öncelik
+    // 1. Reveal state always takes highest priority
     if (
       dailyHeroStatus === "locked_reveal" ||
       dailyHeroStatus === "fully_revealed"
@@ -111,38 +131,59 @@ export const useFTUE = () => {
       return snapshotFullyRevealed ? "fully_revealed" : "locked_reveal";
     }
 
-    // 2. Henüz onboarding tamamlanmadıysa placeholder
+    // 2. Not onboarded yet
     if (userState === "new_user") return "placeholder";
 
-    // 3. Abone DEĞİLSE → premium_teaser (generating/avatarStatus bunu override etmesin)
-    if (!isSubscribedUser) return "premium_teaser";
+    // 3. Not subscribed → show the AI visual state messages (premium_teaser is for 0 todos case)
+    if (!isSubscribedUser) {
+      // Map AI visual states for non-subscribers
+      if (aiVisualState === "not_eligible" && eligibleTodoCount === 0) return "premium_teaser";
+      if (aiVisualState === "not_eligible") return "premium_teaser";
+      if (aiVisualState === "waiting_for_stability") return "waiting_for_stability";
+      if (aiVisualState === "eligible_paywall_locked") return "eligible_paywall_locked";
+      return "premium_teaser";
+    }
 
-    // 4. Abone + fotoğraf yüklenmedi ve atlanmadı → upload_prompt
+    // 4. Subscribed + no photo → direct to profile upload
     if (!hasUploadedPhoto && photoUploadStatus !== "skipped") {
+      if (aiVisualState === "eligible_needs_profile") return "eligible_needs_profile";
       return "upload_prompt";
     }
 
-    // 5. Bu noktada kullanıcı abone ve fotoğraf yüklemiş (veya atlamış);
-    //    artık "generating" / "processing" göstermek güvenli
-    if (dailyHeroStatus === "generating") return "processing";
-
+    // 5. Profile being generated
     if (
-      avatarStatus === "processing" &&
-      currentHeroTodo?.visualStatus !== "ready"
+      aiVisualState === "profile_generating" ||
+      (avatarStatus === "processing" && currentHeroTodo?.visualStatus !== "ready")
     ) {
-      return "processing";
+      return "profile_generating";
     }
 
-    // skipped_photo veya photo_uploaded_processing için ek kontroller
-    if (userState === "photo_uploaded_processing") {
-      if (currentHeroTodo?.visualStatus !== "ready") return "processing";
+    if (dailyHeroStatus === "generating") return "daily_visual_generating";
+
+    // 6. Map the 9 AI states to hero variants (subscribed users with profile)
+    switch (aiVisualState) {
+      case "not_eligible":
+        if (eligibleTodoCount === 0) return "empty";
+        return "need_more_todos";
+      case "waiting_for_stability":
+        return "waiting_for_stability";
+      case "eligible_needs_profile":
+        return "eligible_needs_profile";
+      case "daily_visual_queued":
+        return "daily_visual_queued";
+      case "daily_visual_generating":
+        return "daily_visual_generating";
+      case "daily_visual_ready":
+        return "daily_visual_ready";
+      case "daily_visual_failed":
+        return "daily_visual_failed";
+      default:
+        break;
     }
 
     if (totalTodoCount === 0) return "empty";
-    if (totalTodoCount < TASK_MILESTONE_THRESHOLD) return "need_more_todos";
-
+    if (eligibleTodoCount < TASK_MILESTONE_THRESHOLD) return "need_more_todos";
     if (allDone) return "all_done";
-
     if (currentHeroTodo?.visualStatus === "pending") return "todo_generating";
     if (currentHeroTodo?.visualStatus === "ready") return "todo_visual";
 
@@ -153,32 +194,35 @@ export const useFTUE = () => {
     userState,
     avatarStatus,
     totalTodoCount,
+    eligibleTodoCount,
     allDone,
     currentHeroTodo,
     isPremium,
     paywallInteraction,
     photoUploadStatus,
+    aiVisualState,
   ]);
 
+  // taskMilestone uses eligible todo count, not total
   const taskMilestone: TaskMilestoneStatus = useMemo(() => {
-    if (totalTodoCount === 0) return "no_tasks";
-    if (totalTodoCount < TASK_MILESTONE_THRESHOLD) return "in_progress";
+    if (eligibleTodoCount === 0) return "no_tasks";
+    if (eligibleTodoCount < TASK_MILESTONE_THRESHOLD) return "in_progress";
     if (isPremium && profilePhoto) return "generation_eligible";
     return "milestone_reached";
-  }, [totalTodoCount, isPremium, profilePhoto]);
+  }, [eligibleTodoCount, isPremium, profilePhoto]);
 
   const shouldShowPhotoValueSheet = useMemo(() => {
     if (photoValueSheetShown) return false;
     if (photoUploadStatus !== "not_started") return false;
     if (isPremium && profilePhoto) return false;
-    return totalTodoCount >= 2;
-  }, [photoValueSheetShown, photoUploadStatus, isPremium, profilePhoto, totalTodoCount]);
+    return eligibleTodoCount >= 2;
+  }, [photoValueSheetShown, photoUploadStatus, isPremium, profilePhoto, eligibleTodoCount]);
 
   const shouldTriggerPaywall = useMemo(() => {
     if (paywallInteraction === "subscribed" || isPremium) return false;
     if (isPaywallOnCooldown(paywallDismissedAt)) return false;
-    return totalTodoCount >= TASK_MILESTONE_THRESHOLD;
-  }, [paywallInteraction, isPremium, paywallDismissedAt, totalTodoCount]);
+    return eligibleTodoCount >= TASK_MILESTONE_THRESHOLD;
+  }, [paywallInteraction, isPremium, paywallDismissedAt, eligibleTodoCount]);
 
   const shouldPromptNotification = useMemo(() => {
     if (notificationPermission !== "not_asked") return false;
@@ -187,13 +231,13 @@ export const useFTUE = () => {
 
   const canTriggerGeneration = useMemo(() => {
     if (!isPremium && paywallInteraction !== "subscribed") return false;
-    if (totalTodoCount < TASK_MILESTONE_THRESHOLD) return false;
+    if (eligibleTodoCount < TASK_MILESTONE_THRESHOLD) return false;
     return true;
-  }, [isPremium, paywallInteraction, totalTodoCount]);
+  }, [isPremium, paywallInteraction, eligibleTodoCount]);
 
   const tasksUntilMilestone = useMemo(
-    () => Math.max(0, TASK_MILESTONE_THRESHOLD - totalTodoCount),
-    [totalTodoCount],
+    () => Math.max(0, TASK_MILESTONE_THRESHOLD - eligibleTodoCount),
+    [eligibleTodoCount],
   );
 
   const isOnboardingComplete = onboardingSlidesCompleted && accountGateCompleted;
@@ -202,14 +246,14 @@ export const useFTUE = () => {
 
   const getNextAction = useCallback((): string | null => {
     if (!isOnboardingComplete) return "complete_onboarding";
-    if (totalTodoCount === 0) return "add_first_task";
-    if (totalTodoCount < TASK_MILESTONE_THRESHOLD) return "add_more_tasks";
+    if (eligibleTodoCount === 0) return "add_first_task";
+    if (eligibleTodoCount < TASK_MILESTONE_THRESHOLD) return "add_more_tasks";
     if (!isSubscribed) return "subscribe";
     if (!hasPhoto && photoUploadStatus !== "skipped") return "upload_photo";
     return null;
   }, [
     isOnboardingComplete,
-    totalTodoCount,
+    eligibleTodoCount,
     isSubscribed,
     hasPhoto,
     photoUploadStatus,
@@ -219,6 +263,7 @@ export const useFTUE = () => {
     userState,
     heroVariant,
     taskMilestone,
+    aiVisualState,
     shouldShowPhotoValueSheet,
     shouldTriggerPaywall,
     shouldPromptNotification,
@@ -228,7 +273,8 @@ export const useFTUE = () => {
     isSubscribed,
     isGuestUser,
     hasPhoto,
-    activeTodoCount,
+    activeTodoCount: totalTodoCount,
+    eligibleTodoCount,
     totalTodoCount,
     taskCountAtLastCheck,
     firstVisualDelivered,

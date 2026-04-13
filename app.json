@@ -37,7 +37,12 @@
       "expo-sharing",
       "expo-font",
       "@react-native-community/datetimepicker",
-      "expo-audio"
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Görevleri sesle ekleyebilmen için mikrofona ihtiyaç duyuyoruz."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

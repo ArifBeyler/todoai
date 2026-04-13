@@ -8,7 +8,13 @@ import {
 import {
   useTodoStore,
   MIN_TODOS_FOR_GENERATION,
+  getEligibleTodos,
+  hashEligibleTodos,
 } from "@state/useTodoStore";
+import {
+  useAIVisualStore,
+  canDeliverVisualNotification,
+} from "@state/useAIVisualStore";
 import { supabase } from "@/src/services/supabase";
 
 export const MAX_BLUR = 25;
@@ -33,8 +39,15 @@ export const useHeroReveal = () => {
 
   const todos = useTodoStore((s) => s.todos);
   const { isPremium, profilePhoto, stylePreference } = useSessionStore();
-  const avatarStatus = useFTUEStore((s) => s.avatarStatus);
-  const paywallInteraction = useFTUEStore((s) => s.paywallInteraction);
+  const { avatarStatus, paywallInteraction, markFirstVisualDelivered } = useFTUEStore();
+
+  const {
+    state: aiVisualState,
+    snapshotTodoHashes,
+    setDailyVisualReady,
+    markJobStale,
+    profileGenerationState,
+  } = useAIVisualStore();
 
   const isSubscribed = isPremium || paywallInteraction === "subscribed";
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,7 +73,8 @@ export const useHeroReveal = () => {
     dailyHeroStatus !== "idle" &&
     dailyHeroStatus !== "failed";
 
-  const activeTodoCount = todos.filter((t) => !t.isCompleted).length;
+  const eligibleTodos = useMemo(() => getEligibleTodos(todos), [todos]);
+  const activeTodoCount = eligibleTodos.length;
 
   const canShowGenerationCTA =
     !hasGeneratedToday &&
@@ -94,6 +108,16 @@ export const useHeroReveal = () => {
   }, []);
 
   const pollForHeroImage = useCallback(async () => {
+    // Stale-job guard: if the eligible todo composition changed since the job started,
+    // the generated visual no longer reflects the user's actual todos. Mark stale silently.
+    const currentHash = hashEligibleTodos(todos);
+    if (snapshotTodoHashes && snapshotTodoHashes !== currentHash) {
+      markJobStale();
+      setHeroError("Görevler değişti, görsel geçersiz sayıldı.");
+      stopPolling();
+      return;
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke(
         "get-home-state",
@@ -106,15 +130,44 @@ export const useHeroReveal = () => {
 
       if (heroUrl) {
         setHeroReady(heroUrl);
+
+        // Update AI visual store with the ready state
+        setDailyVisualReady(heroUrl);
+
+        // Notification delivery guard — all conditions must pass
+        const canNotify = canDeliverVisualNotification({
+          state: "daily_visual_ready",
+          imageUrl: heroUrl,
+          isPremium: isSubscribed,
+          profileGenerationState,
+          currentTodoHashes: currentHash,
+          snapshotTodoHashes: snapshotTodoHashes,
+        });
+
+        if (canNotify) {
+          markFirstVisualDelivered();
+        }
+
         stopPolling();
       }
     } catch {
       // Silent — keep polling
     }
-  }, [setHeroReady, stopPolling]);
+  }, [
+    todos,
+    snapshotTodoHashes,
+    setHeroReady,
+    setDailyVisualReady,
+    markJobStale,
+    setHeroError,
+    stopPolling,
+    isSubscribed,
+    profileGenerationState,
+    markFirstVisualDelivered,
+  ]);
 
   const handleGenerateCTA = useCallback(async () => {
-    const activeTodos = todos.filter((t) => !t.isCompleted);
+    const activeTodos = getEligibleTodos(todos);
     const todoIds = activeTodos.map((t) => t.id);
 
     if (todoIds.length < MIN_TODOS_FOR_GENERATION) return;
@@ -157,7 +210,7 @@ export const useHeroReveal = () => {
     retryGeneration();
 
     try {
-      const snapshotTodos = todos.filter((t) =>
+      const snapshotTodos = getEligibleTodos(todos).filter((t) =>
         snapshotTodoIds.includes(t.id),
       );
       const snapshotTitles = snapshotTodos.map((t) => t.title);

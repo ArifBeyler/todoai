@@ -105,6 +105,8 @@ export default function RootLayout() {
                 <Stack.Screen name="auth" />
                 <Stack.Screen name="ai-assistant" options={{ presentation: "card" }} />
                 <Stack.Screen name="paywall" options={{ gestureEnabled: false }} />
+                <Stack.Screen name="premium-bridge" options={{ gestureEnabled: false, animation: "fade" }} />
+                <Stack.Screen name="profile-reveal" options={{ gestureEnabled: false, animation: "fade" }} />
                 <Stack.Screen name="(onboarding)" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="todo" />

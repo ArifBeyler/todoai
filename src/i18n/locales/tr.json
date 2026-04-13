@@ -1,5 +1,186 @@
 {
-  "welcome": "Hoş geldiniz",
-  "start": "Başla",
-  "home": "Ana Sayfa"
+  "common": {
+    "welcome": "Hoş geldiniz",
+    "start": "Başla",
+    "cancel": "İptal",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "retry": "Tekrar Dene",
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "done": "Tamam",
+    "back": "Geri",
+    "next": "İleri",
+    "skip": "Atla",
+    "confirm": "Onayla",
+    "edit": "Düzenle",
+    "close": "Kapat",
+    "settings": "Ayarlar"
+  },
+  "tabs": {
+    "home": "Ana Sayfa",
+    "calendar": "Takvim",
+    "focus": "Odak",
+    "profile": "Profil"
+  },
+  "home": {
+    "title": "Bugün",
+    "habits": "Alışkanlıklar",
+    "goals": "Hedefler",
+    "welcomeBanner": "Hoş geldin, {{name}}!",
+    "emptyState": "Henüz görev eklemedin",
+    "allDone": "Tüm görevlerin tamam! 🎉"
+  },
+  "todo": {
+    "new": "Yeni Görev",
+    "title": "Görev başlığı",
+    "category": "Kategori",
+    "priority": "Öncelik",
+    "recurrence": "Tekrarlama",
+    "dueDate": "Bitiş tarihi",
+    "reminder": "Hatırlatma",
+    "create": "Oluştur",
+    "update": "Güncelle",
+    "delete": "Sil",
+    "deleteConfirm": "Bu görevi silmek istediğine emin misin?",
+    "completed": "Tamamlandı",
+    "notFound": "Görev bulunamadı",
+    "priorities": {
+      "low": "Düşük",
+      "medium": "Orta",
+      "high": "Yüksek"
+    },
+    "recurrences": {
+      "once": "Bir kere",
+      "daily": "Her gün",
+      "weekly": "Haftalık",
+      "weekend": "Hafta sonu"
+    }
+  },
+  "focus": {
+    "title": "Focus",
+    "subtitle": "Derin odaklanma zamanı",
+    "tasks": "Görevler",
+    "selectAll": "Tümünü Seç",
+    "noActiveTasks": "Bugün için aktif görev yok",
+    "duration": "Süre",
+    "minutes": "dakika",
+    "faceDown": "Telefonu ters çevir",
+    "faceDownSubtitle": "Odak süresince ekrana bakma",
+    "start": "Başla",
+    "pause": "Duraklat",
+    "resume": "Devam Et",
+    "paused": "Duraklatıldı",
+    "pauseLimit": "Mola Hakkı Doldu",
+    "pauseLimitMsg": "En fazla 2 mola verebilirsin.",
+    "endSession": "Oturumu Bitir",
+    "endSessionConfirm": "Oturumu erken bitirmek istediğine emin misin?",
+    "continueBtn": "Devam Et",
+    "end": "Bitir",
+    "selectTask": "Görev Seç",
+    "selectTaskMsg": "En az bir görev seçmelisin.",
+    "celebration": {
+      "title": "Tebrikler!",
+      "subtitle": "{{duration}} dakikalık odak oturumunu tamamladın",
+      "streak": "{{count}} günlük seri!",
+      "seePoints": "Puanlarını Gör",
+      "totalPoints": "Toplam Puanın",
+      "returnHome": "Ana Sayfaya Dön"
+    }
+  },
+  "voice": {
+    "title": "Ses ile Görev",
+    "detected": "Algılanan metin",
+    "taskTitle": "Görev başlığı",
+    "create": "Oluştur",
+    "ambiguityNote": "Turuncu alanlar belirsiz — dokunarak düzenleyebilirsin",
+    "errors": {
+      "micPermission": "Mikrofon izni gerekli. Ayarlardan izin verebilirsin.",
+      "recordingFailed": "Kayıt başlatılamadı. Tekrar dene.",
+      "noAudio": "Ses dosyası oluşturulamadı.",
+      "emptyTranscript": "Ses algılanamadı, tekrar dene.",
+      "transcriptionFailed": "Ses tanıma başarısız. Tekrar dene.",
+      "genericError": "Bir hata oluştu. Tekrar dene.",
+      "noInternet": "Ses tanıma için internet bağlantısı gerekli."
+    },
+    "permission": {
+      "headline": "Sesini duy, görevini oluştur",
+      "description": "Konuşarak görev ekle. Yapay zeka seni anlasın.",
+      "examples": "Örnek komutlar",
+      "enableMic": "Mikrofonu Etkinleştir",
+      "skipForNow": "Şimdilik Atla",
+      "denied": "Mikrofon izni reddedildi. Ayarlardan izin verebilirsin.",
+      "openSettings": "Ayarları Aç"
+    }
+  },
+  "suggestions": {
+    "header": "AI Önerisi",
+    "add": "Ekle",
+    "dismiss": "Şimdi değil"
+  },
+  "gallery": {
+    "title": "Galeri",
+    "portrait": "Portre",
+    "taskVisual": "Görev Görseli",
+    "dailyVisual": "Günlük Görsel",
+    "empty": "Henüz görselin yok. Görevlerini tamamla ve ilk görselini oluştur!",
+    "loadError": "Görseller yüklenemedi.",
+    "save": "Kaydet",
+    "saved": "Kaydedildi",
+    "savedMsg": "Görsel fotoğraf albümüne kaydedildi.",
+    "saveError": "Görsel kaydedilemedi. Tekrar dene.",
+    "permissionRequired": "Fotoğrafları kaydetmek için izin vermelisin."
+  },
+  "profile": {
+    "title": "Profil",
+    "gallery": "Galeri",
+    "settings": "Ayarlar",
+    "free": "Ücretsiz",
+    "trial": "Deneme",
+    "pro": "Pro",
+    "points": "Puan",
+    "completed": "Tamamlanan",
+    "streak": "Seri",
+    "focusToday": "Bugün Odak",
+    "upgrade": "Premium'a Yükselt",
+    "upgradeSubtitle": "Tüm özelliklerin kilidini aç",
+    "manageSubscription": "Aboneliği yönet",
+    "trialEnds": "Deneme süresi {{date}} tarihine kadar",
+    "renewsAt": "Yenileme tarihi {{date}}",
+    "manage": "Yönet",
+    "signOut": "Çıkış yap",
+    "signOutConfirm": "Tüm verileriniz sıfırlanacak. Emin misiniz?"
+  },
+  "notifications": {
+    "title": "Bildirimler",
+    "permission": "İzin verildi",
+    "permissionNeeded": "İzin gerekli",
+    "reminderTime": "Hatırlatma Zamanı",
+    "activeHours": "Aktif Saatler",
+    "start": "Başlangıç",
+    "end": "Bitiş",
+    "categories": "Bildirim Kategorileri",
+    "taskReminders": "Görev hatırlatmaları",
+    "aiSuggestions": "AI önerileri",
+    "focusNudges": "Odak hatırlatmaları",
+    "visualReady": "Görsel bildirimleri",
+    "achievements": "Başarı bildirimleri",
+    "summary": "Günlük özet"
+  },
+  "permissions": {
+    "microphone": "Mikrofon izni",
+    "notifications": "Bildirimler"
+  },
+  "settings": {
+    "general": "Genel",
+    "style": "Sanat stilini değiştir",
+    "frequency": "Üretim sıklığı",
+    "language": "Dil",
+    "privacy": "Gizlilik politikası",
+    "terms": "Kullanım koşulları",
+    "support": "Destek",
+    "subscription": "Abonelik",
+    "appearance": "Görünüm",
+    "languageComingSoon": "Dil (yakında)"
+  }
 }

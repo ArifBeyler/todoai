@@ -55,6 +55,7 @@ export const parseTodoInputWithLLM = async (
     time: llmResult.time || regexResult.time,
     category: llmResult.category || regexResult.category,
     recurrence: llmResult.recurrence || regexResult.recurrence || "once",
+    priority: llmResult.priority,
     confidence: Math.min(
       (regexResult.confidence + 0.85) / 2,
       0.95,

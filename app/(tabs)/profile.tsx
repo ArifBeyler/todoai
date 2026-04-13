@@ -177,8 +177,9 @@ export default function ProfileScreen() {
   const { items: galleryItems, isLoading, error, refresh } = useProfileGallery();
   const [focusStreak, setFocusStreak] = useState(0);
 
-  const completed = todos.filter((t) => t.isCompleted).length;
-  const completionRate = todos.length ? Math.round((completed / todos.length) * 100) : 0;
+  const visibleTodos = todos.filter((t) => t.deletedAt == null);
+  const completed = visibleTodos.filter((t) => t.isCompleted).length;
+  const completionRate = visibleTodos.length ? Math.round((completed / visibleTodos.length) * 100) : 0;
   const planLabel = planType ? PLAN_LABELS[planType] ?? planType : null;
 
   useEffect(() => {

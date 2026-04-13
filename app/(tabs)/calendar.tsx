@@ -1,17 +1,18 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CheckCircle } from "phosphor-react-native";
+import { Plus } from "phosphor-react-native";
 import { useTodoStore } from "@state/useTodoStore";
 import type { TodoItemModel } from "@state/useTodoStore";
-import { radius, spacing } from "@/src/ui/tokens";
-import { resolveTodoIcon } from "@/src/utils/resolveTodoIcon";
+import { TaskCard } from "@/src/components/TaskCard";
+import { useTodoVisualGeneration } from "@/src/hooks/useTodoVisualGeneration";
 
 type WeekDay = {
   id: string;
   dayNumber: number;
+  date: Date;
   shortLabel: string;
   fullLabel: string;
 };
@@ -36,15 +37,41 @@ const getWeekDays = (): WeekDay[] => {
     return {
       id: `day-${i}`,
       dayNumber: date.getDate(),
+      date,
       shortLabel: DAY_NAMES_SHORT[jsDay],
       fullLabel: DAY_NAMES_FULL[jsDay],
     };
   });
 };
 
-const getMockTime = (index: number): string | undefined => {
-  const times = ["08:30", "09:00", "10:00", "13:00", undefined, undefined, "21:00"];
-  return times[index % times.length];
+const toDateKey = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
+
+const shouldShowOnDay = (todo: TodoItemModel, day: WeekDay): boolean => {
+  const jsDay = day.date.getDay();
+  const dateKey = toDateKey(day.date);
+
+  switch (todo.recurrence) {
+    case "daily":
+      return true;
+    case "weekdays":
+      return jsDay >= 1 && jsDay <= 5;
+    case "weekend":
+      return jsDay === 0 || jsDay === 6;
+    case "weekly": {
+      const created = new Date(todo.createdAt);
+      return created.getDay() === jsDay;
+    }
+    case "custom":
+      return todo.customDates?.includes(dateKey) ?? false;
+    case "once":
+    default:
+      return true;
+  }
 };
 
 export default function CalendarScreen() {
@@ -58,10 +85,31 @@ export default function CalendarScreen() {
   });
 
   const { todos, toggleTodo } = useTodoStore();
+  const { handleTodoCompleted } = useTodoVisualGeneration();
   const selectedDay = weekDays[selectedDayIndex];
 
   const dayAbbrev = selectedDay.fullLabel.slice(0, 3);
   const dateString = `${selectedDay.dayNumber} ${MONTH_NAMES[today.getMonth()]}\n${today.getFullYear()}`;
+
+  const filteredTodos = useMemo(
+    () =>
+      todos.filter(
+        (t) => t.deletedAt == null && !t.isCompleted && shouldShowOnDay(t, selectedDay),
+      ),
+    [todos, selectedDay],
+  );
+
+  const handleToggleTodo = useCallback(
+    (id: string) => {
+      const todo = todos.find((t) => t.id === id);
+      const isCompleting = todo && !todo.isCompleted;
+      toggleTodo(id);
+      if (isCompleting) {
+        handleTodoCompleted(id);
+      }
+    },
+    [todos, toggleTodo, handleTodoCompleted],
+  );
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
@@ -70,7 +118,6 @@ export default function CalendarScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Header — large day name + date */}
         <View style={styles.header}>
           <View style={styles.dayNameRow}>
             <Text style={styles.dayName}>{dayAbbrev}</Text>
@@ -79,11 +126,9 @@ export default function CalendarScreen() {
           <Text style={styles.dateText}>{dateString}</Text>
         </View>
 
-        {/* Week strip */}
         <View style={styles.weekStrip}>
           {weekDays.map((day, index) => {
             const isSelected = index === selectedDayIndex;
-            const isToday = day.dayNumber === todayDayNumber;
             return (
               <TouchableOpacity
                 key={day.id}
@@ -104,85 +149,38 @@ export default function CalendarScreen() {
           })}
         </View>
 
-        {/* Divider */}
         <View style={styles.divider} />
 
-        {/* Task list */}
-        {todos.length === 0 ? (
-          <View style={styles.emptyWrap}>
-            <Text style={styles.emptyTitle}>Bugün için görev yok</Text>
-            <Text style={styles.emptyDesc}>
-              Yeni bir görev ekleyerek planına başla.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.taskList}>
-            {todos.map((task, index) => (
-              <TaskRow
+        <View style={styles.taskList}>
+          {filteredTodos.length === 0 ? (
+            <View style={styles.emptyWrap}>
+              <View style={styles.emptyIconWrap}>
+                <Plus size={18} color="rgba(17,17,17,0.3)" weight="bold" />
+              </View>
+              <Text style={styles.emptyTitle}>Bu gün için görev yok</Text>
+              <Text style={styles.emptyDesc}>
+                Yeni bir görev ekleyerek planına başla.
+              </Text>
+            </View>
+          ) : (
+            filteredTodos.map((task) => (
+              <TaskCard
                 key={task.id}
-                task={task}
-                time={getMockTime(index)}
-                isLast={index === todos.length - 1}
-                onToggle={() => toggleTodo(task.id)}
+                title={task.title}
+                category={task.category}
+                priority={task.priority}
+                isCompleted={task.isCompleted}
+                recurrence={task.recurrence}
+                onToggle={() => handleToggleTodo(task.id)}
                 onPress={() => router.push(`/todo/${task.id}`)}
               />
-            ))}
-          </View>
-        )}
+            ))
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const TaskRow = ({
-  task,
-  time,
-  isLast,
-  onToggle,
-  onPress,
-}: {
-  task: TodoItemModel;
-  time?: string;
-  isLast: boolean;
-  onToggle: () => void;
-  onPress: () => void;
-}) => {
-  const resolved = resolveTodoIcon(task.title, task.category);
-  const Icon = resolved.Icon;
-  const iconColor = resolved.color;
-
-  return (
-    <TouchableOpacity
-      style={[styles.taskRow, !isLast && styles.taskRowBorder]}
-      onPress={onPress}
-      activeOpacity={0.7}
-      accessibilityRole="button"
-    >
-      <TouchableOpacity
-        onPress={onToggle}
-        hitSlop={10}
-        accessibilityRole="checkbox"
-        accessibilityState={{ checked: task.isCompleted }}
-        style={styles.iconArea}
-      >
-        {task.isCompleted ? (
-          <CheckCircle size={22} color="#76A28A" weight="fill" />
-        ) : (
-          <Icon size={20} color={iconColor} weight="regular" />
-        )}
-      </TouchableOpacity>
-
-      <Text
-        style={[styles.taskTitle, task.isCompleted && styles.taskTitleDone]}
-        numberOfLines={1}
-      >
-        {task.title}
-      </Text>
-
-      {time ? <Text style={styles.taskTime}>{time}</Text> : null}
-    </TouchableOpacity>
-  );
-};
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -193,7 +191,6 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
 
-  /* Header */
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -229,7 +226,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  /* Week strip */
   weekStrip: {
     flexDirection: "row",
     paddingHorizontal: 16,
@@ -266,7 +262,6 @@ const styles = StyleSheet.create({
     color: "#666666",
   },
 
-  /* Divider */
   divider: {
     height: 1,
     backgroundColor: "#F0F0F0",
@@ -274,48 +269,26 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
 
-  /* Task list */
   taskList: {
     paddingHorizontal: 20,
     paddingTop: 4,
   },
-  taskRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-  },
-  taskRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F5",
-  },
-  iconArea: {
-    width: 32,
-    alignItems: "center",
-    marginRight: 12,
-  },
-  taskTitle: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#1A1A1A",
-  },
-  taskTitleDone: {
-    color: "#CCCCCC",
-    textDecorationLine: "line-through",
-  },
-  taskTime: {
-    fontSize: 15,
-    fontWeight: "400",
-    color: "#BBBBBB",
-    marginLeft: 12,
-  },
 
-  /* Empty state */
   emptyWrap: {
-    paddingHorizontal: 20,
     paddingTop: 40,
     alignItems: "center",
     gap: 6,
+  },
+  emptyIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F5",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.04)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
   },
   emptyTitle: {
     fontSize: 17,
