@@ -4,7 +4,7 @@ import { useFTUEStore } from "@state/useFTUEStore";
 import { useTodoStore, getEligibleTodos, hashEligibleTodos } from "@state/useTodoStore";
 import { useAIVisualStore, type AIVisualState } from "@state/useAIVisualStore";
 
-const STABILITY_WINDOW_MS = 4 * 60 * 60 * 1000;   // 4 hours
+const STABILITY_WINDOW_MS = 30 * 60 * 1000;        // 30 minutes
 const ACTIVITY_GUARD_MS = 30 * 60 * 1000;          // 30 minutes
 const MIN_ELIGIBLE_TODOS = 3;
 

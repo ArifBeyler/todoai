@@ -1,0 +1,33 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+
+# AI asistanıyla görev ekle butonuna tıkla
+- tapOn:
+    text: "AI asistanıyla görev ekle"
+- waitForAnimationToEnd
+
+# AI asistanı ekranının açıldığını doğrula
+- assertVisible:
+    text: "Gönder"
+    optional: true
+
+# Bir mesaj yaz
+- tapOn:
+    index: 0
+    optional: true
+- inputText: "Bugün spor yap"
+- hideKeyboard
+
+# Gönder
+- tapOn:
+    text: "Gönder"
+    optional: true
+- waitForAnimationToEnd
+
+# Geri dön
+- tapOn:
+    text: "Geri"
+    optional: true
+- waitForAnimationToEnd

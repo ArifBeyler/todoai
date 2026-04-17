@@ -1,0 +1,27 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Takvim tabına geç
+- tapOn:
+    id: "tab-calendar"
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Takvim"
+    optional: true
+
+# Focus tabına geç
+- tapOn:
+    id: "tab-focus"
+- waitForAnimationToEnd
+
+# Profil tabına geç
+- tapOn:
+    id: "tab-profile"
+- waitForAnimationToEnd
+
+# Ana Sayfa'ya geri dön
+- tapOn:
+    id: "tab-home"
+- waitForAnimationToEnd

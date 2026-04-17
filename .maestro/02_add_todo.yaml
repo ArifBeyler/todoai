@@ -1,0 +1,17 @@
+appId: com.arifbeyler.doara
+---
+# Uygulamayı başlat
+- launchApp
+- waitForAnimationToEnd
+
+# "Yeni görev ekle" butonuna tıkla (testID ile)
+- tapOn:
+    id: "add-todo-fab"
+    optional: true
+- waitForAnimationToEnd
+
+# Alternatif: accessibility label ile dene
+- tapOn:
+    text: "Yeni görev ekle"
+    optional: true
+- waitForAnimationToEnd

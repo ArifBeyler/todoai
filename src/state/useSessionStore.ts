@@ -50,6 +50,9 @@ type SessionState = {
   hydrationGoalMl: number | null;
   waterReminderEnabled: boolean;
 
+  /** Persisted hero image URL — avoids flash of wrong content on restart */
+  cachedHeroImageUrl: string | null;
+
   setAuthenticated: (value: boolean) => void;
   setPremium: (value: boolean) => void;
   setProfileName: (value: string) => void;
@@ -70,6 +73,7 @@ type SessionState = {
   setActiveHours: (start: number | null, end: number | null) => void;
   setHydrationGoalMl: (value: number | null) => void;
   setWaterReminderEnabled: (value: boolean) => void;
+  setCachedHeroImageUrl: (value: string | null) => void;
   completeOnboarding: () => void;
   signOut: () => void;
 };
@@ -101,6 +105,7 @@ export const useSessionStore = create<SessionState>()(
       activeHoursEnd: null,
       hydrationGoalMl: null,
       waterReminderEnabled: false,
+      cachedHeroImageUrl: null,
 
       setAuthenticated: (value) => set({ isAuthenticated: value }),
       setPremium: (value) => set({ isPremium: value }),
@@ -128,6 +133,7 @@ export const useSessionStore = create<SessionState>()(
         set({ activeHoursStart: start, activeHoursEnd: end }),
       setHydrationGoalMl: (value) => set({ hydrationGoalMl: value }),
       setWaterReminderEnabled: (value) => set({ waterReminderEnabled: value }),
+      setCachedHeroImageUrl: (value) => set({ cachedHeroImageUrl: value }),
 
       completeOnboarding: () => set({ onboardingCompleted: true }),
 
@@ -156,12 +162,13 @@ export const useSessionStore = create<SessionState>()(
           activeHoursEnd: null,
           hydrationGoalMl: null,
           waterReminderEnabled: false,
+          cachedHeroImageUrl: null,
         });
       },
     }),
     {
       name: "doara-session",
-      version: 7,
+      version: 8,
       storage: createJSONStorage(() => AsyncStorage),
       migrate: (persisted: any, version: number) => {
         if (version < 2) {
@@ -211,6 +218,9 @@ export const useSessionStore = create<SessionState>()(
         }
         if (version < 7) {
           return { ...persisted, generatedAvatarUrl: null };
+        }
+        if (version < 8) {
+          return { ...persisted, cachedHeroImageUrl: null };
         }
         return persisted as SessionState;
       },

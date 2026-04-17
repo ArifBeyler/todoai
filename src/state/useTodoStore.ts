@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "@/src/services/supabase";
 
 export type TodoVisualStatus = "idle" | "pending" | "ready" | "failed";
 
@@ -8,6 +9,8 @@ export type Recurrence = "once" | "daily" | "weekly" | "weekend" | "weekdays" | 
 
 export type TodoItemModel = {
   id: string;
+  /** Supabase UUID assigned after syncing with the backend. Used for edge function calls. */
+  backendId?: string;
   title: string;
   category: string;
   priority: "low" | "medium" | "high";
@@ -81,31 +84,57 @@ export const useTodoStore = create<TodoState>()(
       dailyGenerationCount: 0,
       dailyGenerationDate: null,
 
-      addTodo: (payload) =>
-        set((state) => {
-          const now = new Date().toISOString();
-          return {
-            todos: [
-              {
-                id: randomId(),
-                title: payload.title,
-                category: payload.category,
-                priority: payload.priority,
-                recurrence: payload.recurrence,
-                recurrenceDays: payload.recurrenceDays,
-                customDates: payload.customDates,
-                isCompleted: false,
-                createdAt: now,
-                updatedAt: now,
-                completedAt: null,
-                deletedAt: null,
-                visualUrl: null,
-                visualStatus: "idle",
-              },
-              ...state.todos,
-            ],
-          };
-        }),
+      addTodo: (payload) => {
+        const localId = randomId();
+        const now = new Date().toISOString();
+        set((state) => ({
+          todos: [
+            {
+              id: localId,
+              title: payload.title,
+              category: payload.category,
+              priority: payload.priority,
+              recurrence: payload.recurrence,
+              recurrenceDays: payload.recurrenceDays,
+              customDates: payload.customDates,
+              isCompleted: false,
+              createdAt: now,
+              updatedAt: now,
+              completedAt: null,
+              deletedAt: null,
+              visualUrl: null,
+              visualStatus: "idle",
+            },
+            ...state.todos,
+          ],
+        }));
+
+        // Fire-and-forget backend sync: update the local todo with the assigned backendId on success
+        supabase.functions
+          .invoke("create-task", {
+            body: {
+              title: payload.title,
+              kind: payload.recurrence === "once" ? "task" : "habit",
+              category: payload.category,
+              priority: payload.priority,
+              recurrence: payload.recurrence,
+            },
+          })
+          .then(({ data, error }) => {
+            if (!error && data?.task?.id) {
+              set((state) => ({
+                todos: state.todos.map((t) =>
+                  t.id === localId ? { ...t, backendId: data.task.id } : t,
+                ),
+              }));
+            } else if (__DEV__ && error) {
+              console.warn("[useTodoStore] addTodo backend sync failed:", error.message);
+            }
+          })
+          .catch(() => {
+            // Silent fail — local state is source of truth; sync will re-attempt on next load
+          });
+      },
 
       // Soft delete: sets deletedAt timestamp instead of removing from array.
       // This preserves history for snapshot validation and eligibility stability checks.
@@ -127,11 +156,13 @@ export const useTodoStore = create<TodoState>()(
           ),
         })),
 
-      toggleTodo: (id) =>
+      toggleTodo: (id) => {
+        const current = get().todos.find((t) => t.id === id);
+        const completing = current ? !current.isCompleted : false;
+
         set((state) => ({
           todos: state.todos.map((item) => {
             if (item.id !== id) return item;
-            const completing = !item.isCompleted;
             return {
               ...item,
               isCompleted: completing,
@@ -139,7 +170,19 @@ export const useTodoStore = create<TodoState>()(
               updatedAt: new Date().toISOString(),
             };
           }),
-        })),
+        }));
+
+        // Sync completion to backend (only when completing, not un-completing)
+        if (completing && current?.backendId) {
+          supabase.functions
+            .invoke("complete-task", {
+              body: { taskId: current.backendId },
+            })
+            .catch(() => {
+              // Silent fail — local completion is recorded; backend will self-heal on next app load
+            });
+        }
+      },
 
       clearGenerationError: () => set({ generationError: null }),
 

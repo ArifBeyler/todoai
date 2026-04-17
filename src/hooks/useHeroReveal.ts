@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useSessionStore } from "@state/useSessionStore";
 import { useFTUEStore } from "@state/useFTUEStore";
 import {
@@ -51,6 +51,8 @@ export const useHeroReveal = () => {
 
   const isSubscribed = isPremium || paywallInteraction === "subscribed";
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Always points to the latest pollForHeroImage — prevents stale closure in setInterval
+  const pollFnRef = useRef<() => Promise<void>>(() => Promise.resolve());
 
   const completedSnapshotCount = useMemo(() => {
     if (snapshotTodoIds.length === 0) return 0;
@@ -166,6 +168,11 @@ export const useHeroReveal = () => {
     markFirstVisualDelivered,
   ]);
 
+  // Keep the ref current so the interval always calls the latest version
+  useEffect(() => {
+    pollFnRef.current = pollForHeroImage;
+  }, [pollForHeroImage]);
+
   const handleGenerateCTA = useCallback(async () => {
     const activeTodos = getEligibleTodos(todos);
     const todoIds = activeTodos.map((t) => t.id);
@@ -186,8 +193,9 @@ export const useHeroReveal = () => {
         },
       });
 
-      pollingRef.current = setInterval(pollForHeroImage, 5_000);
-      setTimeout(pollForHeroImage, 2_000);
+      // Use pollFnRef so interval always invokes the latest closure, never a stale one
+      pollingRef.current = setInterval(() => pollFnRef.current(), 5_000);
+      setTimeout(() => pollFnRef.current(), 2_000);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Görsel oluşturulamadı";
@@ -222,8 +230,9 @@ export const useHeroReveal = () => {
         },
       });
 
-      pollingRef.current = setInterval(pollForHeroImage, 5_000);
-      setTimeout(pollForHeroImage, 2_000);
+      // Use pollFnRef so interval always invokes the latest closure, never a stale one
+      pollingRef.current = setInterval(() => pollFnRef.current(), 5_000);
+      setTimeout(() => pollFnRef.current(), 2_000);
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Görsel oluşturulamadı";

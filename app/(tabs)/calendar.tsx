@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Plus } from "phosphor-react-native";
+import { CaretLeft, CaretRight, Plus } from "phosphor-react-native";
 import { useTodoStore } from "@state/useTodoStore";
 import type { TodoItemModel } from "@state/useTodoStore";
 import { TaskCard } from "@/src/components/TaskCard";
@@ -24,25 +24,6 @@ const MONTH_NAMES = [
   "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
 ];
 
-const getWeekDays = (): WeekDay[] => {
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
-
-  return Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    const jsDay = date.getDay();
-    return {
-      id: `day-${i}`,
-      dayNumber: date.getDate(),
-      date,
-      shortLabel: DAY_NAMES_SHORT[jsDay],
-      fullLabel: DAY_NAMES_FULL[jsDay],
-    };
-  });
-};
 
 const toDateKey = (d: Date): string => {
   const y = d.getFullYear();
@@ -75,11 +56,35 @@ const shouldShowOnDay = (todo: TodoItemModel, day: WeekDay): boolean => {
 };
 
 export default function CalendarScreen() {
-  const weekDays = useMemo(getWeekDays, []);
+  const [weekStart, setWeekStart] = useState(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    return monday;
+  });
+
+  const weekDays = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(weekStart);
+      date.setDate(weekStart.getDate() + i);
+      const jsDay = date.getDay();
+      return {
+        id: `day-${i}`,
+        dayNumber: date.getDate(),
+        date,
+        shortLabel: DAY_NAMES_SHORT[jsDay],
+        fullLabel: DAY_NAMES_FULL[jsDay],
+      };
+    });
+  }, [weekStart]);
+
   const today = new Date();
-  const todayDayNumber = today.getDate();
+  const todayKey = toDateKey(today);
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(() => {
+    const todayDayNumber = today.getDate();
     const idx = weekDays.findIndex((d) => d.dayNumber === todayDayNumber);
     return idx >= 0 ? idx : 0;
   });
@@ -88,8 +93,9 @@ export default function CalendarScreen() {
   const { handleTodoCompleted } = useTodoVisualGeneration();
   const selectedDay = weekDays[selectedDayIndex];
 
+  const isToday = toDateKey(selectedDay.date) === todayKey;
   const dayAbbrev = selectedDay.fullLabel.slice(0, 3);
-  const dateString = `${selectedDay.dayNumber} ${MONTH_NAMES[today.getMonth()]}\n${today.getFullYear()}`;
+  const dateString = `${selectedDay.dayNumber} ${MONTH_NAMES[selectedDay.date.getMonth()]}\n${selectedDay.date.getFullYear()}`;
 
   const filteredTodos = useMemo(
     () =>
@@ -111,6 +117,35 @@ export default function CalendarScreen() {
     [todos, toggleTodo, handleTodoCompleted],
   );
 
+  const handlePrevWeek = useCallback(() => {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() - 7);
+      return d;
+    });
+    setSelectedDayIndex(0);
+  }, []);
+
+  const handleNextWeek = useCallback(() => {
+    setWeekStart((prev) => {
+      const d = new Date(prev);
+      d.setDate(d.getDate() + 7);
+      return d;
+    });
+    setSelectedDayIndex(0);
+  }, []);
+
+  const handleGoToday = useCallback(() => {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    setWeekStart(monday);
+    const idx = ((dayOfWeek + 6) % 7);
+    setSelectedDayIndex(idx);
+  }, []);
+
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -121,9 +156,46 @@ export default function CalendarScreen() {
         <View style={styles.header}>
           <View style={styles.dayNameRow}>
             <Text style={styles.dayName}>{dayAbbrev}</Text>
-            <View style={styles.todayDot} />
+            {isToday && <View style={styles.todayDot} />}
           </View>
-          <Text style={styles.dateText}>{dateString}</Text>
+          <View style={styles.headerRight}>
+            <Text style={styles.dateText}>{dateString}</Text>
+            {!isToday && (
+              <TouchableOpacity
+                onPress={handleGoToday}
+                style={styles.todayButton}
+                accessibilityRole="button"
+                accessibilityLabel="Bugüne git"
+                activeOpacity={0.7}
+              >
+                <Text style={styles.todayButtonText}>Bugün</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.weekNav}>
+          <TouchableOpacity
+            onPress={handlePrevWeek}
+            style={styles.weekNavBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Önceki hafta"
+          >
+            <CaretLeft size={16} color="#666" weight="bold" />
+          </TouchableOpacity>
+          <Text style={styles.weekRangeText}>
+            {`${weekDays[0].dayNumber} ${MONTH_NAMES[weekDays[0].date.getMonth()]} – ${weekDays[6].dayNumber} ${MONTH_NAMES[weekDays[6].date.getMonth()]}`}
+          </Text>
+          <TouchableOpacity
+            onPress={handleNextWeek}
+            style={styles.weekNavBtn}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel="Sonraki hafta"
+          >
+            <CaretRight size={16} color="#666" weight="bold" />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.weekStrip}>
@@ -185,7 +257,7 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FAFAF9",
   },
   scrollContent: {
     paddingBottom: 120,
@@ -197,7 +269,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 16,
+    paddingBottom: 8,
+  },
+  headerRight: {
+    alignItems: "flex-end",
+    gap: 4,
   },
   dayNameRow: {
     flexDirection: "row",
@@ -218,12 +294,44 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   dateText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "500",
     color: "#999999",
     textAlign: "right",
-    lineHeight: 22,
+    lineHeight: 20,
     marginTop: 6,
+  },
+  todayButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: "#F0F0EE",
+  },
+  todayButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#555",
+  },
+  weekNav: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 4,
+  },
+  weekNavBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F0F0EE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  weekRangeText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#666",
   },
 
   weekStrip: {

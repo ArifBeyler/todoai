@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -25,49 +26,114 @@ import { font, radius, semantic, spacing } from "@/src/ui/tokens";
 
 type VoiceConfirmationSheetProps = {
   visible: boolean;
-  parsedResult: ParsedTodoInput | null;
+  parsedResults: ParsedTodoInput[];
   transcript: string;
-  onConfirm: (result: ParsedTodoInput) => void;
+  onConfirm: (results: ParsedTodoInput[]) => void;
   onDismiss: () => void;
+};
+
+// Compact read-only card used in the multi-task list
+const MultiTaskRow = ({
+  task,
+  index,
+  editedTitle,
+  onTitleChange,
+}: {
+  task: ParsedTodoInput;
+  index: number;
+  editedTitle: string;
+  onTitleChange: (v: string) => void;
+}) => {
+  const recurrence = normalizeRecurrence(task.recurrence);
+  const priority = normalizePriority(task.priority as string | undefined);
+  const scheduleLine = formatScheduleLine(task.date, task.time);
+
+  return (
+    <View style={rowStyles.container}>
+      <View style={rowStyles.indexBadge}>
+        <Text style={rowStyles.indexText}>{index + 1}</Text>
+      </View>
+      <View style={rowStyles.content}>
+        <TextInput
+          style={rowStyles.titleInput}
+          value={editedTitle}
+          onChangeText={onTitleChange}
+          placeholder="Görev başlığı"
+          placeholderTextColor={semantic.textSecondary}
+          multiline
+          accessibilityLabel={`Görev ${index + 1} başlığı`}
+        />
+        <View style={rowStyles.meta}>
+          {scheduleLine ? (
+            <Text style={rowStyles.metaChip}>{scheduleLine}</Text>
+          ) : null}
+          <Text style={rowStyles.metaChip}>{categoryToLabelTr(task.category)}</Text>
+          {recurrence !== "once" ? (
+            <Text style={rowStyles.metaChip}>{recurrenceToLabelTr(recurrence)}</Text>
+          ) : null}
+          <Text style={rowStyles.metaChip}>{priorityToLabelTr(priority)}</Text>
+        </View>
+      </View>
+    </View>
+  );
 };
 
 export const VoiceConfirmationSheet = ({
   visible,
-  parsedResult,
+  parsedResults,
   transcript,
   onConfirm,
   onDismiss,
 }: VoiceConfirmationSheetProps) => {
   const titleInputRef = useRef<TextInput>(null);
-  const [editedTitle, setEditedTitle] = useState("");
+  const [editedTitles, setEditedTitles] = useState<string[]>([]);
   const [editedDate, setEditedDate] = useState<string | undefined>(undefined);
   const [editedTime, setEditedTime] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    if (!visible || !parsedResult) return;
-    setEditedTitle(parsedResult.title ?? "");
-    setEditedDate(parsedResult.date);
-    setEditedTime(parsedResult.time);
-  }, [visible, parsedResult]);
+  const isMulti = parsedResults.length > 1;
+  const singleResult = parsedResults[0] ?? null;
 
-  const handleConfirm = useCallback(() => {
-    if (!parsedResult) return;
-    onConfirm({
-      ...parsedResult,
-      title: editedTitle.trim() || parsedResult.title,
+  useEffect(() => {
+    if (!visible || parsedResults.length === 0) return;
+    setEditedTitles(parsedResults.map((r) => r.title ?? ""));
+    setEditedDate(singleResult?.date);
+    setEditedTime(singleResult?.time);
+  }, [visible, parsedResults]);
+
+  const handleConfirmSingle = useCallback(() => {
+    if (!singleResult) return;
+    onConfirm([{
+      ...singleResult,
+      title: editedTitles[0]?.trim() || singleResult.title,
       date: editedDate,
       time: editedTime,
-    });
-  }, [parsedResult, editedTitle, editedDate, editedTime, onConfirm]);
+    }]);
+  }, [singleResult, editedTitles, editedDate, editedTime, onConfirm]);
+
+  const handleConfirmAll = useCallback(() => {
+    const results = parsedResults.map((task, i) => ({
+      ...task,
+      title: editedTitles[i]?.trim() || task.title,
+    }));
+    onConfirm(results);
+  }, [parsedResults, editedTitles, onConfirm]);
 
   const handleEditPress = useCallback(() => {
     titleInputRef.current?.focus();
   }, []);
 
-  if (!parsedResult) return null;
+  const handleTitleChange = useCallback((index: number, value: string) => {
+    setEditedTitles((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  }, []);
 
-  const recurrence = normalizeRecurrence(parsedResult.recurrence);
-  const priority = normalizePriority(parsedResult.priority as string | undefined);
+  if (parsedResults.length === 0) return null;
+
+  const recurrence = normalizeRecurrence(singleResult?.recurrence);
+  const priority = normalizePriority(singleResult?.priority as string | undefined);
   const scheduleLine = formatScheduleLine(editedDate, editedTime);
   const scheduleHint = formatScheduleHint(editedDate, editedTime);
 
@@ -96,9 +162,13 @@ export const VoiceConfirmationSheet = ({
               <View style={styles.headerIcon}>
                 <Sparkle size={16} color={semantic.textOnDark} weight="fill" />
               </View>
-              <View>
+              <View style={styles.headerTextBlock}>
                 <Text style={styles.headerTitle}>Sesinden</Text>
-                <Text style={styles.headerSub}>Kısa bir kontrol, ardından listeye eklenir.</Text>
+                <Text style={styles.headerSub}>
+                  {isMulti
+                    ? `${parsedResults.length} görev bulundu. Kontrol et ve ekle.`
+                    : "Kısa bir kontrol, ardından listeye eklenir."}
+                </Text>
               </View>
             </View>
             <TouchableOpacity
@@ -113,32 +183,148 @@ export const VoiceConfirmationSheet = ({
           </View>
 
           <Text style={styles.transcriptLabel}>Dediğin</Text>
-          <Text style={styles.transcript} numberOfLines={4}>
-            {transcript ? `“${transcript}”` : "—"}
+          <Text style={styles.transcript} numberOfLines={3}>
+            {transcript ? `"${transcript}"` : "—"}
           </Text>
 
-          <AIResponseHint text="Bunu senin için göreve dönüştürdüm." />
-
-          <ParsedTaskReviewCard
-            fullWidth
-            title={parsedResult.title}
-            titleEditValue={editedTitle}
-            onTitleEditChange={setEditedTitle}
-            titleInputRef={titleInputRef}
-            scheduleLine={scheduleLine}
-            scheduleHint={scheduleHint}
-            categoryLabel={categoryToLabelTr(parsedResult.category)}
-            recurrenceLabel={recurrenceToLabelTr(recurrence)}
-            priorityLabel={priorityToLabelTr(priority)}
-            onEdit={handleEditPress}
-            onCancel={onDismiss}
-            onAddToTasks={handleConfirm}
+          <AIResponseHint
+            text={
+              isMulti
+                ? `${parsedResults.length} ayrı görevi senin için düzenledim.`
+                : "Bunu senin için göreve dönüştürdüm."
+            }
           />
+
+          {isMulti ? (
+            // ── Multi-task view ──
+            <ScrollView
+              style={styles.multiScroll}
+              contentContainerStyle={styles.multiScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {parsedResults.map((task, i) => (
+                <MultiTaskRow
+                  key={i}
+                  task={task}
+                  index={i}
+                  editedTitle={editedTitles[i] ?? task.title}
+                  onTitleChange={(v) => handleTitleChange(i, v)}
+                />
+              ))}
+            </ScrollView>
+          ) : (
+            // ── Single-task view ──
+            <ParsedTaskReviewCard
+              fullWidth
+              title={singleResult!.title}
+              titleEditValue={editedTitles[0] ?? ""}
+              onTitleEditChange={(v) => handleTitleChange(0, v)}
+              titleInputRef={titleInputRef}
+              scheduleLine={scheduleLine}
+              scheduleHint={scheduleHint}
+              categoryLabel={categoryToLabelTr(singleResult?.category)}
+              recurrenceLabel={recurrenceToLabelTr(recurrence)}
+              priorityLabel={priorityToLabelTr(priority)}
+              onEdit={handleEditPress}
+              onCancel={onDismiss}
+              onAddToTasks={handleConfirmSingle}
+            />
+          )}
+
+          {isMulti && (
+            <View style={styles.multiActions}>
+              <TouchableOpacity
+                style={styles.ghostBtn}
+                onPress={onDismiss}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Vazgeç"
+              >
+                <Text style={styles.ghostBtnText}>Vazgeç</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.primaryBtn}
+                onPress={handleConfirmAll}
+                activeOpacity={0.88}
+                accessibilityRole="button"
+                accessibilityLabel={`Tümünü ekle (${parsedResults.length})`}
+              >
+                <Text style={styles.primaryBtnText}>
+                  Tümünü Ekle ({parsedResults.length})
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </Animated.View>
       </View>
     </Modal>
   );
 };
+
+const rowStyles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: semantic.border,
+  },
+  indexBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: semantic.heroStart,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+    flexShrink: 0,
+  },
+  indexText: {
+    fontSize: 12,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: semantic.textOnDark,
+  },
+  content: {
+    flex: 1,
+    gap: 6,
+  },
+  titleInput: {
+    fontSize: 15,
+    lineHeight: 21,
+    fontFamily: font.semiBold,
+    fontWeight: "600",
+    color: semantic.textPrimary,
+    letterSpacing: -0.25,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: radius.sm,
+    backgroundColor: semantic.appBackground,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: semantic.border,
+    minHeight: 40,
+    textAlignVertical: "top",
+  },
+  meta: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+  },
+  metaChip: {
+    fontSize: 11.5,
+    fontFamily: font.medium,
+    fontWeight: "500",
+    color: semantic.textSecondary,
+    backgroundColor: semantic.appBackground,
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: semantic.border,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    overflow: "hidden",
+  },
+});
 
 const styles = StyleSheet.create({
   overlay: {
@@ -159,6 +345,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderColor: semantic.border,
+    maxHeight: "85%",
   },
   handle: {
     width: 36,
@@ -182,6 +369,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingRight: spacing.sm,
   },
+  headerTextBlock: {
+    flex: 1,
+  },
   headerIcon: {
     width: 36,
     height: 36,
@@ -190,6 +380,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 2,
+    flexShrink: 0,
   },
   headerTitle: {
     fontSize: 17,
@@ -226,5 +417,45 @@ const styles = StyleSheet.create({
     color: semantic.textPrimary,
     letterSpacing: -0.2,
     opacity: 0.88,
+  },
+  multiScroll: {
+    flexGrow: 0,
+    maxHeight: 280,
+  },
+  multiScrollContent: {
+    paddingBottom: spacing.xs,
+  },
+  multiActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  ghostBtn: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    minWidth: 72,
+  },
+  ghostBtnText: {
+    fontSize: 14,
+    fontFamily: font.medium,
+    fontWeight: "500",
+    color: semantic.textSecondary,
+  },
+  primaryBtn: {
+    flex: 1,
+    borderRadius: radius.md,
+    backgroundColor: semantic.heroStart,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryBtnText: {
+    fontSize: 16,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: semantic.textOnDark,
+    letterSpacing: -0.2,
   },
 });

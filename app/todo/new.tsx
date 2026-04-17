@@ -65,6 +65,7 @@ export default function NewTodoScreen() {
   const [visibleColorCount, setVisibleColorCount] = useState(
     Math.min(INITIAL_VISIBLE_COUNT, COLOR_OPTIONS.length),
   );
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [repeatConfig, setRepeatConfig] = useState<RepeatConfig>({
     ...DEFAULT_REPEAT_CONFIG,
   });
@@ -292,7 +293,7 @@ export default function NewTodoScreen() {
     addTodo({
       title: title.trim(),
       category: finalCategory,
-      priority: "medium",
+      priority,
       recurrence,
       customDates:
         mode === "habit" && repeatConfig.type === "customDates"
@@ -448,7 +449,50 @@ export default function NewTodoScreen() {
               />
             </ComposerSection>
 
-            {/* C. Schedule */}
+            {/* C. Priority */}
+            <ComposerSection title="Öncelik" showDivider>
+              <View style={styles.priorityRow}>
+                {(["low", "medium", "high"] as const).map((level) => {
+                  const labels = { low: "Düşük", medium: "Orta", high: "Yüksek" };
+                  const colors = { low: "#4CAF50", medium: "#FF9800", high: "#F44336" };
+                  const isSelected = priority === level;
+                  return (
+                    <TouchableOpacity
+                      key={level}
+                      onPress={() => setPriority(level)}
+                      style={[
+                        styles.priorityBtn,
+                        isSelected && {
+                          borderColor: colors[level],
+                          backgroundColor: `${colors[level]}18`,
+                        },
+                      ]}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isSelected }}
+                      accessibilityLabel={`${labels[level]} öncelik`}
+                      activeOpacity={0.75}
+                    >
+                      <View
+                        style={[
+                          styles.priorityDot,
+                          { backgroundColor: isSelected ? colors[level] : "#D0C8C0" },
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.priorityLabel,
+                          isSelected && { color: colors[level], fontWeight: "700" },
+                        ]}
+                      >
+                        {labels[level]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </ComposerSection>
+
+            {/* D. Schedule */}
             <ComposerSection title="Zamanlama" showDivider>
               {mode === "habit" && (
                 <RepeatSelector
@@ -675,5 +719,34 @@ const styles = StyleSheet.create({
     marginTop: -2,
     width: "100%",
     alignSelf: "center",
+  },
+
+  /* ── Priority picker ── */
+  priorityRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  priorityBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#E5E0DA",
+    backgroundColor: "#FAFAF8",
+  },
+  priorityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  priorityLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#8A7E78",
   },
 });

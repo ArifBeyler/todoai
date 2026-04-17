@@ -126,6 +126,9 @@ export const isInTrial = (info: CustomerInfo): boolean => {
 
 export const addCustomerInfoListener = (
   listener: (info: CustomerInfo) => void,
-): void => {
+): (() => void) => {
   Purchases.addCustomerInfoUpdateListener(listener);
+  return () => {
+    Purchases.removeCustomerInfoUpdateListener(listener);
+  };
 };

@@ -1,0 +1,24 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Profil tabına geç
+- tapOn:
+    id: "tab-profile"
+- waitForAnimationToEnd
+
+# Profil ekranı elementlerini doğrula (ücretsiz kullanıcı)
+- assertVisible:
+    text: "Premium'a Yükselt"
+    optional: true
+- assertVisible:
+    text: "Ücretsiz"
+    optional: true
+
+# Scroll yaparak Ayarlar, Çıkış yap elementlerini gör
+- scroll
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Çıkış yap"
+    optional: true

@@ -1,0 +1,22 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Manuel görev ekle butonuna tıkla
+- tapOn:
+    text: "Manuel görev ekle"
+- waitForAnimationToEnd
+
+# Görev adı gir
+- tapOn:
+    text: "Görev adı"
+    optional: true
+- inputText: "Maestro - Manuel Test Görevi"
+- hideKeyboard
+- waitForAnimationToEnd
+
+# Kaydet
+- tapOn:
+    text: "Kaydet"
+- waitForAnimationToEnd

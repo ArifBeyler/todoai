@@ -39,7 +39,7 @@ export const useEdgeCases = () => {
   const activeEdgeCases: EdgeCaseType[] = useMemo(() => {
     const cases: EdgeCaseType[] = [];
 
-    if (paywallInteraction === "dismissed") {
+    if (paywallInteraction === "dismissed" && !isPremium) {
       cases.push("paywall_dismissed");
     }
 

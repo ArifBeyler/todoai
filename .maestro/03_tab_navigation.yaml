@@ -1,0 +1,20 @@
+appId: com.arifbeyler.doara
+---
+# Uygulamayı başlat
+- launchApp
+- waitForAnimationToEnd
+
+# Takvim sekmesine git
+- tapOn:
+    id: "tab-calendar"
+- waitForAnimationToEnd
+
+# Profil sekmesine git
+- tapOn:
+    id: "tab-profile"
+- waitForAnimationToEnd
+
+# Ana ekrana geri dön
+- tapOn:
+    id: "tab-home"
+- waitForAnimationToEnd

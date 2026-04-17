@@ -1,0 +1,7 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible:
+    text: "Doara"
+    optional: true

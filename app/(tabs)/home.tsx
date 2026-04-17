@@ -67,16 +67,18 @@ const HOME_CARD_SHADOW = {
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+
+  const { profileName, cachedHeroImageUrl, setCachedHeroImageUrl, isPremium, setPremium } = useSessionStore();
+
   const [isScoreSheetVisible, setIsScoreSheetVisible] = useState(false);
   const [isPhotoSheetVisible, setIsPhotoSheetVisible] = useState(false);
   const [isNotifPromptVisible, setIsNotifPromptVisible] = useState(false);
   const [isErrorSheetVisible, setIsErrorSheetVisible] = useState(false);
   const [isGenerationOverlayVisible, setIsGenerationOverlayVisible] = useState(false);
   const [activeSegment, setActiveSegment] = useState("habits");
-  const [homeHeroImageUrl, setHomeHeroImageUrl] = useState<string | null>(null);
+  const [homeHeroImageUrl, setHomeHeroImageUrl] = useState<string | null>(cachedHeroImageUrl);
   const [starterHeroImageUrl, setStarterHeroImageUrl] = useState<string | null>(null);
-
-  const { profileName } = useSessionStore();
+  const [isHeroDataLoaded, setIsHeroDataLoaded] = useState(!!cachedHeroImageUrl);
   const {
     todos,
     toggleTodo,
@@ -86,7 +88,7 @@ export default function HomeScreen() {
   } = useTodoStore();
   const avatarStatus = useFTUEStore((s) => s.avatarStatus);
   const hasSeenHomeScreen = useFTUEStore((s) => s.hasSeenHomeScreen);
-  const { setAvatarStatus, markHomeScreenSeen } = useFTUEStore();
+  const { setAvatarStatus, markHomeScreenSeen, markSubscribed } = useFTUEStore();
 
   const { totalPoints } = useUserScore();
   const [avatarReadyBanner, setAvatarReadyBanner] = useState(false);
@@ -154,6 +156,9 @@ export default function HomeScreen() {
           data.hero?.activeVisualUrl ??
           null;
         setHomeHeroImageUrl(resolvedHeroImageUrl);
+        if (resolvedHeroImageUrl) {
+          setCachedHeroImageUrl(resolvedHeroImageUrl);
+        }
 
         const resolvedStarterHeroUrl =
           data.starterHeroSummary?.signedUrl ??
@@ -169,9 +174,17 @@ export default function HomeScreen() {
             clearInterval(avatarPollRef.current);
             avatarPollRef.current = null;
           }
+          // Server confirms the user has an avatar → they're premium.
+          // Self-heal any stale local state left from sandbox/Simulator edge cases.
+          if (!isPremium) {
+            setPremium(true);
+            markSubscribed();
+          }
         }
       } catch {
         // Silent fail
+      } finally {
+        setIsHeroDataLoaded(true);
       }
     };
 
@@ -281,20 +294,42 @@ export default function HomeScreen() {
   }, [triggerPassivePaywall]);
 
   const effectiveHeroVariant = useMemo(() => {
-    // reveal state'leri her zaman önce (useFTUE zaten handle ediyor ama doubly safe)
-    if (
-      heroVariant === "locked_reveal" ||
-      heroVariant === "fully_revealed"
-    ) {
+    // Reveal state'leri her zaman önce
+    if (heroVariant === "locked_reveal" || heroVariant === "fully_revealed") {
       return heroVariant;
     }
 
     // premium_teaser hiçbir zaman override edilmemeli
     if (heroVariant === "premium_teaser") return heroVariant;
 
-    // starterHero görseli varsa belirli boş state'leri starter_hero'ya yükselt
+    // Veri henüz yüklenmediyse ve remote URL gerektiren bir variant'taysa
+    // placeholder skeleton göster — wrong-content flash'ını önler
+    if (
+      !isHeroDataLoaded &&
+      !homeHeroImageUrl &&
+      !starterHeroImageUrl &&
+      (heroVariant === "empty" ||
+        heroVariant === "need_more_todos" ||
+        heroVariant === "profile_generating")
+    ) {
+      return "placeholder" as const;
+    }
+
+    // Kişisel görsel ÖNCE kontrol edilir — her zaman kazanır
+    if (
+      homeHeroImageUrl &&
+      (heroVariant === "profile_generating" ||
+        heroVariant === "placeholder" ||
+        heroVariant === "empty" ||
+        heroVariant === "need_more_todos")
+    ) {
+      return "todo_visual" as const;
+    }
+
+    // starterHero yalnızca kişisel görsel YOKSA gösterilir
     if (
       starterHeroImageUrl &&
+      !homeHeroImageUrl &&
       (heroVariant === "empty" ||
         heroVariant === "need_more_todos" ||
         heroVariant === "placeholder")
@@ -302,20 +337,8 @@ export default function HomeScreen() {
       return "starter_hero" as const;
     }
 
-    // homeHeroImageUrl varsa belirli geçici state'leri gerçek görsele yükselt
-    if (homeHeroImageUrl) {
-      if (
-        heroVariant === "profile_generating" ||
-        heroVariant === "placeholder" ||
-        heroVariant === "empty" ||
-        heroVariant === "need_more_todos"
-      ) {
-        return "todo_visual";
-      }
-    }
-
     return heroVariant;
-  }, [heroVariant, homeHeroImageUrl, starterHeroImageUrl]);
+  }, [heroVariant, homeHeroImageUrl, starterHeroImageUrl, isHeroDataLoaded]);
 
   return (
     <View style={styles.container}>

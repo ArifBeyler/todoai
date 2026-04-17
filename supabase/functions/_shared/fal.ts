@@ -166,6 +166,40 @@ export const FAL_MODELS = {
   openrouter: "openrouter/router",
 } as const;
 
+/**
+ * Direct synchronous FAL call — no queue, no polling.
+ * Faster and avoids Supabase 60s edge function timeout for short jobs.
+ */
+export const runFalSync = async <T = Record<string, unknown>>(
+  model: string,
+  input: Record<string, unknown>,
+): Promise<{ data: T } | { error: string }> => {
+  if (!FAL_KEY) return { error: "FAL_KEY not configured" };
+
+  const res = await fetch(`https://fal.run/${model}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Key ${FAL_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    return { error: `fal_sync_${res.status}: ${text}` };
+  }
+
+  try {
+    const data = await res.json() as T;
+    const err = (data as { error?: string }).error;
+    if (err && typeof err === "string") return { error: err };
+    return { data };
+  } catch (e) {
+    return { error: `fal_json_parse: ${String(e)}` };
+  }
+};
+
 /** Uint8Array → base64 without stack overflow on large buffers */
 export const uint8ToBase64 = (bytes: Uint8Array): string => {
   const chunk = 0x8000;

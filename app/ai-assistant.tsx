@@ -22,6 +22,7 @@ import {
 } from "phosphor-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AIResponseHint } from "@/src/components/AIResponseHint";
+import { QuickSuggestionsBar } from "@/src/components/ai/QuickSuggestionsBar";
 import { ParsedTaskReviewCard } from "@/src/components/ParsedTaskReviewCard";
 import { VoiceConfirmationSheet } from "@/src/components/VoiceConfirmationSheet";
 import { useVoiceInput } from "@/src/hooks/useVoiceInput";
@@ -29,7 +30,7 @@ import { useTodoStore } from "@/src/state/useTodoStore";
 import type { Recurrence } from "@/src/state/useTodoStore";
 import { font, radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 import type { ParsedTodoInput } from "@/src/utils/parseTodoInput";
-import { parseTodoInputWithLLM } from "@/src/utils/parseTodoInputLLM";
+import { parseTodoInputsWithLLM } from "@/src/utils/parseTodoInputLLM";
 import {
   categoryToLabelTr,
   formatScheduleHint,
@@ -53,15 +54,10 @@ type Message = {
   role: "user" | "assistant";
   text: string;
   taskSuggestion?: SuggestedTask;
+  taskSuggestions?: SuggestedTask[];
   isLoading?: boolean;
 };
 
-const QUICK_SUGGESTIONS = [
-  "Bugün için görev ekle",
-  "Yarın sabah spor yap",
-  "Her gün meditasyon",
-  "Haftalık plan yap",
-];
 
 const AI_TASK_READY_HINT = "Bunu senin için göreve dönüştürdüm.";
 
@@ -87,7 +83,7 @@ export default function AiAssistantScreen() {
     isRecording,
     isProcessing,
     transcript,
-    parsedResult: voiceParsedResult,
+    parsedResults: voiceParsedResults,
     error: voiceError,
     startRecording,
     stopRecording,
@@ -98,10 +94,10 @@ export default function AiAssistantScreen() {
   } = useVoiceInput();
 
   useEffect(() => {
-    if (voiceParsedResult && transcript) {
+    if (voiceParsedResults && voiceParsedResults.length > 0 && transcript) {
       setVoiceSheetVisible(true);
     }
-  }, [voiceParsedResult, transcript]);
+  }, [voiceParsedResults, transcript]);
 
   const lastVoiceErrorRef = useRef<string | null>(null);
   useEffect(() => {
@@ -128,7 +124,7 @@ export default function AiAssistantScreen() {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
   }, []);
 
-  const handleConfirmTodo = useCallback(
+  const addSuggestion = useCallback(
     (suggestion: SuggestedTask) => {
       addTodo({
         title: suggestion.title,
@@ -136,26 +132,83 @@ export default function AiAssistantScreen() {
         priority: suggestion.priority,
         recurrence: suggestion.recurrence,
       });
+    },
+    [addTodo],
+  );
+
+  const handleConfirmTodo = useCallback(
+    (suggestion: SuggestedTask) => {
+      addSuggestion(suggestion);
       setVoiceSheetVisible(false);
       resetVoice();
       router.back();
     },
-    [addTodo, resetVoice],
+    [addSuggestion, resetVoice],
   );
 
   const handleVoiceConfirm = useCallback(
-    (parsed: ParsedTodoInput) => {
-      const suggestion = parsedToSuggestion(transcript ?? "", parsed);
-      handleConfirmTodo(suggestion);
+    (results: ParsedTodoInput[]) => {
+      results.forEach((parsed) => {
+        const suggestion = parsedToSuggestion(transcript ?? "", parsed);
+        addSuggestion(suggestion);
+      });
+      setVoiceSheetVisible(false);
+      resetVoice();
+      router.back();
     },
-    [transcript, handleConfirmTodo],
+    [transcript, addSuggestion, resetVoice],
   );
 
+  // Single task approval from chat bubble — goes back
   const handleApprove = useCallback(
     (suggestion: SuggestedTask) => {
       handleConfirmTodo(suggestion);
     },
     [handleConfirmTodo],
+  );
+
+  // Approve one task from a multi-task chat bubble — adds it and removes from list
+  const handleApproveOne = useCallback(
+    (suggestion: SuggestedTask, messageId: string) => {
+      addSuggestion(suggestion);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId && m.taskSuggestions
+            ? {
+                ...m,
+                taskSuggestions: m.taskSuggestions.filter((s) => s !== suggestion),
+              }
+            : m,
+        ),
+      );
+    },
+    [addSuggestion],
+  );
+
+  // Dismiss one task from a multi-task bubble without adding it
+  const handleDismissOne = useCallback(
+    (suggestion: SuggestedTask, messageId: string) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId && m.taskSuggestions
+            ? {
+                ...m,
+                taskSuggestions: m.taskSuggestions.filter((s) => s !== suggestion),
+              }
+            : m,
+        ),
+      );
+    },
+    [],
+  );
+
+  // Approve all tasks from a multi-task chat bubble — goes back
+  const handleApproveAll = useCallback(
+    (suggestions: SuggestedTask[]) => {
+      suggestions.forEach(addSuggestion);
+      router.back();
+    },
+    [addSuggestion],
   );
 
   const handleEdit = useCallback((suggestion: SuggestedTask) => {
@@ -169,6 +222,7 @@ export default function AiAssistantScreen() {
           ? {
               ...m,
               taskSuggestion: undefined,
+              taskSuggestions: undefined,
               text: "Tamam, vazgeçtim. Başka ne ekleyelim?",
             }
           : m,
@@ -192,21 +246,24 @@ export default function AiAssistantScreen() {
       ]);
       scrollToEnd();
 
-      const parsed = await parseTodoInputWithLLM(text, "tr");
-      const suggestion = parsedToSuggestion(text, parsed);
+      const parsedList = await parseTodoInputsWithLLM(text, "tr");
 
-      setMessages((prev) =>
-        prev
-          .filter((m) => m.id !== loadingMsgId)
-          .concat([
-            {
-              id: randomId(),
-              role: "assistant",
-              text: "",
-              taskSuggestion: suggestion,
-            },
-          ]),
-      );
+      if (parsedList.length === 1) {
+        const suggestion = parsedToSuggestion(text, parsedList[0]);
+        setMessages((prev) =>
+          prev
+            .filter((m) => m.id !== loadingMsgId)
+            .concat([{ id: randomId(), role: "assistant", text: "", taskSuggestion: suggestion }]),
+        );
+      } else {
+        const suggestions = parsedList.map((p) => parsedToSuggestion(text, p));
+        setMessages((prev) =>
+          prev
+            .filter((m) => m.id !== loadingMsgId)
+            .concat([{ id: randomId(), role: "assistant", text: "", taskSuggestions: suggestions }]),
+        );
+      }
+
       scrollToEnd();
     },
     [inputValue, scrollToEnd],
@@ -329,6 +386,39 @@ export default function AiAssistantScreen() {
                   />
                 </View>
               ) : null}
+
+              {msg.taskSuggestions && msg.taskSuggestions.length > 0 ? (
+                <View style={styles.reviewBlock}>
+                  <AIResponseHint
+                    text={`${msg.taskSuggestions.length} ayrı görevi düzenledim.`}
+                  />
+                  {msg.taskSuggestions.map((s, idx) => (
+                    <ParsedTaskReviewCard
+                      key={idx}
+                      title={s.title}
+                      scheduleLine={formatScheduleLine(s.parsed.date, s.parsed.time)}
+                      scheduleHint={formatScheduleHint(s.parsed.date, s.parsed.time)}
+                      categoryLabel={categoryToLabelTr(s.category)}
+                      recurrenceLabel={recurrenceToLabelTr(s.recurrence)}
+                      priorityLabel={priorityToLabelTr(s.priority)}
+                      onEdit={() => handleEdit(s)}
+                      onCancel={() => handleDismissOne(s, msg.id)}
+                      onAddToTasks={() => handleApproveOne(s, msg.id)}
+                    />
+                  ))}
+                  <TouchableOpacity
+                    style={styles.addAllBtn}
+                    onPress={() => handleApproveAll(msg.taskSuggestions!)}
+                    activeOpacity={0.88}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Tümünü ekle (${msg.taskSuggestions.length})`}
+                  >
+                    <Text style={styles.addAllBtnText}>
+                      Tümünü Ekle ({msg.taskSuggestions.length})
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
             </Animated.View>
           ))}
 
@@ -346,29 +436,7 @@ export default function AiAssistantScreen() {
           )}
         </ScrollView>
 
-        <View style={styles.chipsSection}>
-          <Text style={styles.chipsSectionLabel}>Şunu dene</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipsScrollContent}
-            style={styles.chipsScroll}
-          >
-            {QUICK_SUGGESTIONS.map((item) => (
-              <Pressable
-                key={item}
-                style={({ pressed }) => [styles.chipPill, pressed && styles.chipPillPressed]}
-                onPress={() => handleSend(item)}
-                accessibilityRole="button"
-                accessibilityLabel={item}
-              >
-                <Text style={styles.chipPillText} numberOfLines={1}>
-                  {item}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </View>
+        <QuickSuggestionsBar onSelect={handleSend} />
 
         <View style={styles.inputBar}>
           <TouchableOpacity
@@ -425,7 +493,7 @@ export default function AiAssistantScreen() {
 
       <VoiceConfirmationSheet
         visible={voiceSheetVisible}
-        parsedResult={voiceParsedResult}
+        parsedResults={voiceParsedResults ?? []}
         transcript={transcript ?? ""}
         onConfirm={handleVoiceConfirm}
         onDismiss={() => {
@@ -595,6 +663,21 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginTop: spacing.xxs,
   },
+  addAllBtn: {
+    borderRadius: radius.md,
+    backgroundColor: semantic.heroStart,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 2,
+  },
+  addAllBtnText: {
+    fontSize: 16,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: semantic.textOnDark,
+    letterSpacing: -0.2,
+  },
 
   recordingIndicator: {
     flexDirection: "row",
@@ -624,7 +707,8 @@ const styles = StyleSheet.create({
 
   chipsSection: {
     marginTop: spacing.sm,
-    marginBottom: spacing.sm,
+    marginBottom: 6,
+    overflow: "visible",
   },
   chipsSectionLabel: {
     fontSize: 11,
@@ -638,39 +722,37 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   chipsScroll: {
-    marginLeft: -2,
+    marginHorizontal: -4,
   },
   chipsScrollContent: {
     flexDirection: "row",
-    alignItems: "stretch",
-    paddingRight: spacing.md,
-    paddingVertical: 2,
+    alignItems: "center",
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    gap: 10,
   },
   chipPill: {
     flexShrink: 0,
-    marginRight: spacing.sm,
-    minHeight: 44,
+    height: 40,
     justifyContent: "center",
     borderRadius: radius.pill,
-    backgroundColor: semantic.screenSurface,
-    borderWidth: 1,
-    borderColor: semantic.border,
-    paddingHorizontal: spacing.md + 2,
-    paddingVertical: 11,
-    maxWidth: 280,
-    ...shadow.card,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "rgba(0,0,0,0.12)",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 0,
   },
   chipPillPressed: {
-    backgroundColor: semantic.appBackground,
-    borderColor: "rgba(17,17,17,0.16)",
+    backgroundColor: "rgba(0,0,0,0.05)",
+    borderColor: "rgba(0,0,0,0.20)",
   },
   chipPillText: {
-    fontSize: 14,
-    lineHeight: 19,
+    fontSize: 13.5,
+    lineHeight: 18,
     fontFamily: font.medium,
     fontWeight: "500",
     color: semantic.textPrimary,
-    letterSpacing: -0.25,
+    letterSpacing: -0.2,
   },
 
   inputBar: {

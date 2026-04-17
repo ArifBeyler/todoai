@@ -38,6 +38,7 @@ export default function PremiumBridgeScreen() {
   const insets = useSafeAreaInsets();
   const { markSubscribed } = useFTUEStore();
   const onboardingCompleted = useSessionStore((s) => s.onboardingCompleted);
+  const setPremium = useSessionStore((s) => s.setPremium);
 
   // Crown pulse animation
   const crownScale = useSharedValue(1);
@@ -77,6 +78,7 @@ export default function PremiumBridgeScreen() {
   }));
 
   const handleContinue = () => {
+    setPremium(true);
     markSubscribed();
     if (onboardingCompleted) {
       // Existing user upgrading in-app → go to photo upload sheet on home
@@ -88,6 +90,7 @@ export default function PremiumBridgeScreen() {
   };
 
   const handleSkipPersonalization = () => {
+    setPremium(true);
     markSubscribed();
     router.replace("/(tabs)/home");
   };

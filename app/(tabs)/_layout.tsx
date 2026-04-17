@@ -11,19 +11,35 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="home"
-        options={{ title: "Ana Sayfa" }}
+        options={{
+          title: "Ana Sayfa",
+          tabBarAccessibilityLabel: "Ana Sayfa",
+          tabBarButtonTestID: "tab-home",
+        }}
       />
       <Tabs.Screen
         name="calendar"
-        options={{ title: "Takvim" }}
+        options={{
+          title: "Takvim",
+          tabBarAccessibilityLabel: "Takvim",
+          tabBarButtonTestID: "tab-calendar",
+        }}
       />
       <Tabs.Screen
         name="focus"
-        options={{ title: "Focus" }}
+        options={{
+          title: "Focus",
+          tabBarAccessibilityLabel: "Focus",
+          tabBarButtonTestID: "tab-focus",
+        }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: "Profil" }}
+        options={{
+          title: "Profil",
+          tabBarAccessibilityLabel: "Profil",
+          tabBarButtonTestID: "tab-profile",
+        }}
       />
     </Tabs>
   );

@@ -1,21 +1,25 @@
 import { parseTodoInput, type ParsedTodoInput } from "./parseTodoInput";
 import { supabase } from "@/src/services/supabase";
 
-type LLMParsedResult = {
+type LLMParsedTask = {
   title: string;
-  date?: string;
-  time?: string;
+  date?: string | null;
+  time?: string | null;
   category?: string;
   recurrence?: string;
   priority?: string;
 };
 
-const LLM_PARSE_TIMEOUT_MS = 5000;
+type LLMParsedResponse = {
+  tasks: LLMParsedTask[];
+};
+
+const LLM_PARSE_TIMEOUT_MS = 8000;
 
 const callLLMParser = async (
   transcript: string,
   language: string,
-): Promise<LLMParsedResult | null> => {
+): Promise<LLMParsedResponse | null> => {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), LLM_PARSE_TIMEOUT_MS);
@@ -27,47 +31,79 @@ const callLLMParser = async (
     clearTimeout(timeout);
     if (error || !data) return null;
 
-    return data as LLMParsedResult;
+    // Support both new { tasks: [...] } and legacy single-object response
+    if (Array.isArray((data as LLMParsedResponse).tasks)) {
+      return data as LLMParsedResponse;
+    }
+    // Legacy: wrap single object in tasks array
+    return { tasks: [data as LLMParsedTask] };
   } catch {
     return null;
   }
 };
 
+const mergeLLMTask = (llm: LLMParsedTask, regex: ParsedTodoInput): ParsedTodoInput => ({
+  title: llm.title || regex.title,
+  date: llm.date ?? regex.date,
+  time: llm.time ?? regex.time,
+  category: llm.category || regex.category,
+  recurrence: llm.recurrence || regex.recurrence || "once",
+  priority: llm.priority,
+  confidence: Math.min((regex.confidence + 0.85) / 2, 0.95),
+  ambiguities: regex.ambiguities?.filter((a) => {
+    if (a === "time_ambiguous" && llm.time) return false;
+    if (a === "date_ambiguous" && llm.date) return false;
+    return true;
+  }),
+});
+
+/**
+ * Parse a transcript into potentially multiple todos.
+ * Returns an array of 1–N ParsedTodoInput items.
+ */
+export const parseTodoInputsWithLLM = async (
+  transcript: string,
+  language: string = "tr",
+): Promise<ParsedTodoInput[]> => {
+  const regexResult = parseTodoInput(transcript);
+
+  // Fast path: regex confident enough and no multi-task connectors detected
+  const hasMultiTaskSignal = /\b(sonra|ayrıca|bir de|ondan sonra|daha|then|also)\b/i.test(transcript);
+  if (regexResult.confidence >= 0.85 && !hasMultiTaskSignal) {
+    return [regexResult];
+  }
+
+  const llmResponse = await callLLMParser(transcript, language);
+
+  if (!llmResponse || llmResponse.tasks.length === 0) {
+    return [regexResult];
+  }
+
+  if (llmResponse.tasks.length === 1) {
+    return [mergeLLMTask(llmResponse.tasks[0], regexResult)];
+  }
+
+  // Multiple tasks: map each with basic confidence
+  return llmResponse.tasks.map((task) => ({
+    title: task.title || transcript,
+    date: task.date ?? undefined,
+    time: task.time ?? undefined,
+    category: task.category,
+    recurrence: task.recurrence || "once",
+    priority: task.priority,
+    confidence: 0.9,
+  }));
+};
+
+/**
+ * Backward-compatible single-result variant.
+ */
 export const parseTodoInputWithLLM = async (
   transcript: string,
   language: string = "tr",
 ): Promise<ParsedTodoInput> => {
-  const regexResult = parseTodoInput(transcript);
-
-  if (regexResult.confidence >= 0.85) {
-    return regexResult;
-  }
-
-  const llmResult = await callLLMParser(transcript, language);
-
-  if (!llmResult) {
-    return regexResult;
-  }
-
-  return {
-    title: llmResult.title || regexResult.title,
-    date: llmResult.date || regexResult.date,
-    time: llmResult.time || regexResult.time,
-    category: llmResult.category || regexResult.category,
-    recurrence: llmResult.recurrence || regexResult.recurrence || "once",
-    priority: llmResult.priority,
-    confidence: Math.min(
-      (regexResult.confidence + 0.85) / 2,
-      0.95,
-    ),
-    ambiguities: regexResult.ambiguities?.filter(
-      (a) => {
-        if (a === "time_ambiguous" && llmResult.time) return false;
-        if (a === "date_ambiguous" && llmResult.date) return false;
-        return true;
-      },
-    ),
-  };
+  const results = await parseTodoInputsWithLLM(transcript, language);
+  return results[0];
 };
 
 export type LanguageParserConfig = {

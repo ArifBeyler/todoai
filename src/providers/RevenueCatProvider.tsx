@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import type { CustomerInfo } from "react-native-purchases";
 import { useSessionStore } from "@state/useSessionStore";
+import { useFTUEStore } from "@state/useFTUEStore";
 import {
   initializeRevenueCat,
   loginRevenueCat,
@@ -13,6 +14,7 @@ import { supabase } from "@/src/services/supabase";
 
 export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
   const setPremium = useSessionStore((s) => s.setPremium);
+  const markSubscribed = useFTUEStore((s) => s.markSubscribed);
   const prevUserId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +23,12 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
     const handleCustomerInfoUpdate = (info: CustomerInfo) => {
       const hasPro = checkProEntitlement(info);
       setPremium(hasPro);
+      if (hasPro) {
+        markSubscribed();
+      }
     };
+
+    let removeCustomerInfoListener: (() => void) | null = null;
 
     const boot = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -40,7 +47,8 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
         handleCustomerInfoUpdate(info);
       }
 
-      addCustomerInfoListener((updatedInfo) => {
+      // Capture unsubscribe function to call on cleanup
+      removeCustomerInfoListener = addCustomerInfoListener((updatedInfo) => {
         if (mounted) handleCustomerInfoUpdate(updatedInfo);
       });
     };
@@ -72,8 +80,9 @@ export const RevenueCatProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      removeCustomerInfoListener?.();
     };
-  }, [setPremium]);
+  }, [setPremium, markSubscribed]);
 
   return <>{children}</>;
 };

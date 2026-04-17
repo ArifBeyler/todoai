@@ -6,6 +6,7 @@ import {
   Dimensions,
   Image,
   ImageSourcePropType,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -569,11 +570,19 @@ export default function PaywallScreen() {
           </TouchableOpacity>
 
           <View style={styles.footerDot} />
-          <TouchableOpacity accessibilityRole="link">
+          <TouchableOpacity
+            accessibilityRole="link"
+            accessibilityLabel="Gizlilik politikasını aç"
+            onPress={() => Linking.openURL("https://doara.app/privacy")}
+          >
             <Text style={styles.restoreText}>Gizlilik</Text>
           </TouchableOpacity>
           <View style={styles.footerDot} />
-          <TouchableOpacity accessibilityRole="link">
+          <TouchableOpacity
+            accessibilityRole="link"
+            accessibilityLabel="Kullanım şartlarını aç"
+            onPress={() => Linking.openURL("https://doara.app/terms")}
+          >
             <Text style={styles.restoreText}>Kullanım Şartları</Text>
           </TouchableOpacity>
         </View>

@@ -42,6 +42,15 @@
         {
           "microphonePermission": "Görevleri sesle ekleyebilmen için mikrofona ihtiyaç duyuyoruz."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#3A2E28",
+          "sounds": [],
+          "mode": "production"
+        }
       ]
     ],
     "experiments": {

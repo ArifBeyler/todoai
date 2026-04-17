@@ -10,19 +10,37 @@ const FAL_KEY = Deno.env.get("FAL_KEY") ?? "";
 /** Default LLM on Fal (cheap + fast; billed via your Fal balance) */
 const FAL_PARSE_MODEL = Deno.env.get("FAL_PARSE_MODEL") ?? "google/gemini-2.5-flash-lite";
 
+type ParsedTask = {
+  title: string;
+  date: string | null;
+  time: string | null;
+  category: string;
+  recurrence: string;
+  priority: string;
+};
+
+type ParsedTasksResult = { tasks: ParsedTask[] };
+type ParseError = { error: string };
+
 const buildPrompt = (transcript: string, language: string): string => {
   const lang = language === "en" ? "English" : "Turkish";
-  return `Parse this ${lang} voice command into a structured todo task. Extract:
-- title: the main task (cleaned, without time/date fragments)
+  return `Parse this ${lang} voice command into one or more structured todo tasks.
+
+The user may describe multiple tasks connected by words like "sonra" (then), "ayrıca" (also), "bir de" (also), "ve" (and), "ondan sonra" (after that).
+Split them into separate tasks when they are clearly distinct actions.
+
+For each task extract:
+- title: the main task description (cleaned, without time/date fragments)
 - date: ISO date string (YYYY-MM-DD) if mentioned, null otherwise
-- time: HH:mm format if mentioned, null otherwise
+- time: HH:mm 24h format if mentioned, null otherwise
 - category: one of [work, health, home, shopping, social, education, fitness, selfcare, errands, finance, pet, other]
 - recurrence: one of [once, daily, weekly, weekend] if mentioned, "once" otherwise
 - priority: one of [low, medium, high] based on urgency, default "medium"
 
 Voice input: "${transcript.replace(/"/g, '\\"')}"
 
-Return ONLY valid JSON with these exact fields. No explanation, no markdown.`;
+Return ONLY a valid JSON object with a single "tasks" array (1–5 items). No explanation, no markdown.
+Example: {"tasks":[{"title":"...","date":null,"time":null,"category":"other","recurrence":"once","priority":"medium"}]}`;
 };
 
 const stripJsonFences = (raw: string): string => {
@@ -33,20 +51,19 @@ const stripJsonFences = (raw: string): string => {
   return t.trim();
 };
 
+const normalizeTask = (parsed: Record<string, unknown>, fallback: string): ParsedTask => ({
+  title: (parsed.title as string) || fallback,
+  date: (parsed.date as string) ?? null,
+  time: (parsed.time as string) ?? null,
+  category: (parsed.category as string) ?? "other",
+  recurrence: (parsed.recurrence as string) ?? "once",
+  priority: (parsed.priority as string) ?? "medium",
+});
+
 const parseGroq = async (
   transcript: string,
   language: string,
-): Promise<
-  | {
-    title: string;
-    date: string | null;
-    time: string | null;
-    category: string;
-    recurrence: string;
-    priority: string;
-  }
-  | { error: string }
-> => {
+): Promise<ParsedTasksResult | ParseError> => {
   if (!GROQ_API_KEY) return { error: "groq_not_configured" };
 
   const prompt = buildPrompt(transcript, language);
@@ -60,11 +77,15 @@ const parseGroq = async (
     body: JSON.stringify({
       model: GROQ_MODEL,
       messages: [
-        { role: "system", content: "You are a precise task parser. Return only valid JSON." },
+        {
+          role: "system",
+          content:
+            'You are a precise task parser. Return only valid JSON with a "tasks" array. Never use markdown fences.',
+        },
         { role: "user", content: prompt },
       ],
       temperature: 0.1,
-      max_tokens: 200,
+      max_tokens: 500,
       response_format: { type: "json_object" },
     }),
   });
@@ -75,36 +96,24 @@ const parseGroq = async (
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content;
-
-  if (!content) {
-    return { error: "empty_response" };
-  }
+  if (!content) return { error: "empty_response" };
 
   const parsed = JSON.parse(content);
-  return {
-    title: parsed.title ?? transcript,
-    date: parsed.date ?? null,
-    time: parsed.time ?? null,
-    category: parsed.category ?? "other",
-    recurrence: parsed.recurrence ?? "once",
-    priority: parsed.priority ?? "medium",
-  };
+
+  if (Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+    return {
+      tasks: parsed.tasks.map((t: Record<string, unknown>) => normalizeTask(t, transcript)),
+    };
+  }
+
+  // Fallback: LLM returned old single-object shape
+  return { tasks: [normalizeTask(parsed, transcript)] };
 };
 
 const parseFalOpenRouter = async (
   transcript: string,
   language: string,
-): Promise<
-  | {
-    title: string;
-    date: string | null;
-    time: string | null;
-    category: string;
-    recurrence: string;
-    priority: string;
-  }
-  | { error: string }
-> => {
+): Promise<ParsedTasksResult | ParseError> => {
   if (!FAL_KEY) return { error: "fal_not_configured" };
 
   const prompt = buildPrompt(transcript, language);
@@ -114,10 +123,10 @@ const parseFalOpenRouter = async (
     {
       model: FAL_PARSE_MODEL,
       system_prompt:
-        "You are a precise task parser. Reply with ONLY one JSON object (no markdown fences). Fields: title, date, time, category, recurrence, priority.",
+        'You are a precise task parser. Reply with ONLY one JSON object (no markdown fences). It must have a "tasks" array where each item has: title, date, time, category, recurrence, priority.',
       prompt,
       temperature: 0.1,
-      max_tokens: 300,
+      max_tokens: 500,
     },
     60_000,
   );
@@ -127,20 +136,19 @@ const parseFalOpenRouter = async (
   }
 
   const out = falResult.data.output?.trim();
-  if (!out) {
-    return { error: "empty_fal_output" };
-  }
+  if (!out) return { error: "empty_fal_output" };
 
   try {
     const parsed = JSON.parse(stripJsonFences(out));
-    return {
-      title: parsed.title ?? transcript,
-      date: parsed.date ?? null,
-      time: parsed.time ?? null,
-      category: parsed.category ?? "other",
-      recurrence: parsed.recurrence ?? "once",
-      priority: parsed.priority ?? "medium",
-    };
+
+    if (Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+      return {
+        tasks: parsed.tasks.map((t: Record<string, unknown>) => normalizeTask(t, transcript)),
+      };
+    }
+
+    // Fallback: LLM returned old single-object shape
+    return { tasks: [normalizeTask(parsed, transcript)] };
   } catch {
     return { error: "fal_json_parse_failed" };
   }
@@ -162,31 +170,17 @@ serve(async (request) => {
     const { transcript, language } = await request.json();
     if (!transcript) return badRequest("transcript required");
 
-    // Prefer Fal (openrouter/router) when FAL_KEY is set — uses your Fal balance
+    // Prefer Fal (openrouter) when FAL_KEY is set — uses your Fal balance
     if (FAL_KEY) {
       const falParsed = await parseFalOpenRouter(transcript, language ?? "tr");
       if (!("error" in falParsed)) {
-        return json({
-          title: falParsed.title,
-          date: falParsed.date,
-          time: falParsed.time,
-          category: falParsed.category,
-          recurrence: falParsed.recurrence,
-          priority: falParsed.priority,
-        });
+        return json({ tasks: falParsed.tasks });
       }
       // Fal failed — fall back to Groq if configured
       if (GROQ_API_KEY) {
         const groqParsed = await parseGroq(transcript, language ?? "tr");
         if (!("error" in groqParsed)) {
-          return json({
-            title: groqParsed.title,
-            date: groqParsed.date,
-            time: groqParsed.time,
-            category: groqParsed.category,
-            recurrence: groqParsed.recurrence,
-            priority: groqParsed.priority,
-          });
+          return json({ tasks: groqParsed.tasks });
         }
         return serverError("parse_failed", `${falParsed.error}; ${groqParsed.error}`);
       }
@@ -198,14 +192,7 @@ serve(async (request) => {
       return serverError("parse_voice_llm_failed", groqParsed.error);
     }
 
-    return json({
-      title: groqParsed.title,
-      date: groqParsed.date,
-      time: groqParsed.time,
-      category: groqParsed.category,
-      recurrence: groqParsed.recurrence,
-      priority: groqParsed.priority,
-    });
+    return json({ tasks: groqParsed.tasks });
   } catch (err) {
     return serverError("parse_voice_llm_failed", String(err));
   }

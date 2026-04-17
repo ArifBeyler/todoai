@@ -14,16 +14,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeInLeft, FadeInUp } from "react-native-reanimated";
-import * as Notifications from "expo-notifications";
+import { ProfileHeroCard } from "@/src/components/profile/ProfileHeroCard";
+import { PremiumUpgradeCard } from "@/src/components/profile/PremiumUpgradeCard";
+import { UnifiedStatsSection } from "@/src/components/profile/UnifiedStatsSection";
 import {
-  Bell,
   CaretRight,
-  Clock,
   CreditCard,
   Crown,
-  Gear,
   Globe,
-  Lightning,
   Microphone,
   Palette,
   Question,
@@ -31,8 +29,6 @@ import {
   SignOut,
   Scroll,
   Timer,
-  Trophy,
-  Fire,
 } from "phosphor-react-native";
 
 import { useSessionStore } from "@state/useSessionStore";
@@ -50,7 +46,7 @@ import { supabase } from "@/src/services/supabase";
 type SettingItem = {
   key: string;
   label: string;
-  icon: typeof Gear;
+  icon: typeof CreditCard;
   action?: string;
 };
 
@@ -77,6 +73,7 @@ const PROFILE_SEGMENTS = [
   { key: "settings", label: "Ayarlar" },
 ];
 
+
 const formatDate = (date: Date): string => {
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -84,94 +81,78 @@ const formatDate = (date: Date): string => {
   return `${day}.${month}.${year}`;
 };
 
-const PREMIUM_FEATURES = [
-  "Yapay zekâ ile kişisel görseller",
-  "Sınırsız alışkanlık takibi",
-  "Detaylı üretkenlik analizleri",
-  "Öncelikli müşteri desteği",
-];
+// ─── Sub-components ───────────────────────────────────────────────────────────
+// ProfileHeroCard, PremiumUpgradeCard, UnifiedStatsSection are imported from
+// src/components/profile/ — SettingRow and SettingsGroup stay local (profile-specific styles)
 
 const SettingRow = ({
   item,
   isLast,
   onPress,
+  badge,
 }: {
   item: SettingItem;
   isLast: boolean;
   onPress: () => void;
+  badge?: string;
 }) => {
   const Icon = item.icon;
   return (
     <TouchableOpacity
       style={[styles.settingRow, !isLast && styles.settingBorder]}
       onPress={onPress}
-      activeOpacity={0.75}
+      activeOpacity={0.7}
       accessibilityRole="button"
     >
       <View style={styles.settingIconWrap}>
-        <Icon size={18} color="#5C4E46" weight="regular" />
+        <Icon size={16} color="#7A6A60" weight="regular" />
       </View>
       <Text style={styles.settingLabel}>{item.label}</Text>
-      <CaretRight size={16} color="#B2A498" />
+      {badge ? (
+        <View style={styles.soonBadge}>
+          <Text style={styles.soonBadgeText}>{badge}</Text>
+        </View>
+      ) : (
+        <CaretRight size={14} color="#C8BDB5" />
+      )}
     </TouchableOpacity>
   );
 };
 
-const UpgradeCard = ({ onPress }: { onPress: () => void }) => (
-  <TouchableOpacity
-    style={styles.upgradeCard}
-    onPress={onPress}
-    activeOpacity={0.88}
-    accessibilityRole="button"
-    accessibilityLabel="Premium'a yükselt"
-  >
-    <View style={styles.upgradeHeader}>
-      <View style={styles.upgradeIconWrap}>
-        <Crown size={20} color="#C4962A" weight="fill" />
-      </View>
-      <View style={styles.upgradeHeaderText}>
-        <Text style={styles.upgradeTitle}>Premium'a Yükselt</Text>
-        <Text style={styles.upgradeSubtitle}>Tüm özelliklerin kilidini aç</Text>
-      </View>
-      <CaretRight size={18} color="#C4962A" />
-    </View>
-    <View style={styles.upgradeFeatureList}>
-      {PREMIUM_FEATURES.map((feature) => (
-        <View key={feature} style={styles.upgradeFeatureRow}>
-          <Lightning size={13} color="#C4962A" weight="fill" />
-          <Text style={styles.upgradeFeatureText}>{feature}</Text>
-        </View>
+const SettingsGroup = ({
+  title,
+  items,
+  onPress,
+  delay = 0,
+}: {
+  title: string;
+  items: SettingItem[];
+  onPress: (action?: string) => void;
+  delay?: number;
+}) => (
+  <Animated.View entering={FadeInLeft.delay(delay).duration(300)}>
+    <Text style={styles.sectionTitle}>{title}</Text>
+    <View style={[styles.settingsCard, shadow.card]}>
+      {items.map((item, index) => (
+        <SettingRow
+          key={item.key}
+          item={item}
+          isLast={index === items.length - 1}
+          onPress={() => onPress(item.action)}
+        />
       ))}
     </View>
-  </TouchableOpacity>
-);
-
-const StatCard = ({
-  value,
-  label,
-  icon: Icon,
-  iconColor,
-  delay,
-}: {
-  value: string | number;
-  label: string;
-  icon: typeof Trophy;
-  iconColor: string;
-  delay: number;
-}) => (
-  <Animated.View entering={FadeInUp.delay(delay).duration(400)} style={[styles.statCard, shadow.card]}>
-    <Icon size={20} color={iconColor} weight="fill" />
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
   </Animated.View>
 );
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState("profile");
   const { profileName, profilePhoto, isPremium, signOut } = useSessionStore();
   const resetFTUE = useFTUEStore((s) => s.resetFTUE);
   const { todos } = useTodoStore();
-  const { totalFocusMinutesToday, sessionsCompleted } = useFocusStore();
+  const { totalFocusMinutesToday } = useFocusStore();
   const { totalPoints } = useUserScore();
   const { planType, expirationDate, trialActive } = useRevenueCat();
   const { items: galleryItems, isLoading, error, refresh } = useProfileGallery();
@@ -179,13 +160,14 @@ export default function ProfileScreen() {
 
   const visibleTodos = todos.filter((t) => t.deletedAt == null);
   const completed = visibleTodos.filter((t) => t.isCompleted).length;
-  const completionRate = visibleTodos.length ? Math.round((completed / visibleTodos.length) * 100) : 0;
   const planLabel = planType ? PLAN_LABELS[planType] ?? planType : null;
 
   useEffect(() => {
     const loadStreak = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (!session) return;
         const { data } = await supabase
           .from("users")
@@ -198,21 +180,30 @@ export default function ProfileScreen() {
     loadStreak();
   }, []);
 
-  const handleSettingPress = useCallback((action?: string) => {
-    if (action === "subscription") {
-      if (isPremium) {
-        Linking.openURL("https://apps.apple.com/account/subscriptions");
-      } else {
-        router.push("/paywall");
+  const handleSettingPress = useCallback(
+    (action?: string) => {
+      if (action === "subscription") {
+        if (isPremium) {
+          Linking.openURL("https://apps.apple.com/account/subscriptions");
+        } else {
+          router.push("/paywall");
+        }
       }
-    }
-  }, [isPremium]);
+    },
+    [isPremium],
+  );
 
   const getBadgeText = (): string => {
     if (!isPremium) return "Ücretsiz";
     if (trialActive) return "Deneme";
     if (planLabel) return `Pro · ${planLabel}`;
     return "Pro";
+  };
+
+  const getAIStatusText = (): string => {
+    if (!isPremium) return "Premium ile AI görsel oluştur";
+    if (profilePhoto) return "AI profil hazır";
+    return "İlk görsel için fotoğraf ekle";
   };
 
   const handleMicPermission = async () => {
@@ -238,91 +229,69 @@ export default function ProfileScreen() {
 
         {activeTab === "profile" && (
           <>
-            <Animated.View entering={FadeIn.duration(300)} style={[styles.profileCard, shadow.soft]}>
-              {profilePhoto ? (
-                <Image source={{ uri: profilePhoto }} style={styles.avatar} />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Text style={styles.avatarInitial}>
-                    {(profileName || "A")[0].toUpperCase()}
-                  </Text>
-                </View>
-              )}
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>{profileName || "Kullanıcı"}</Text>
-                <View style={[styles.planBadge, isPremium && styles.planBadgePro]}>
-                  {isPremium && <Crown size={12} color={semantic.textOnDark} weight="fill" />}
-                  <Text style={[styles.planBadgeText, isPremium && styles.planBadgeTextPro]}>
-                    {getBadgeText()}
-                  </Text>
-                </View>
-              </View>
-            </Animated.View>
+            <ProfileHeroCard
+              profilePhoto={profilePhoto}
+              profileName={profileName}
+              isPremium={isPremium}
+              badgeText={getBadgeText()}
+              aiStatusText={getAIStatusText()}
+            />
 
-            {!isPremium && <UpgradeCard onPress={() => router.push("/paywall")} />}
+            {!isPremium && (
+              <PremiumUpgradeCard onPress={() => router.push("/paywall")} />
+            )}
 
             {isPremium && (trialActive || expirationDate) && (
-              <View style={[styles.subscriptionInfo, shadow.card]}>
+              <Animated.View
+                entering={FadeIn.delay(60).duration(280)}
+                style={[styles.subscriptionInfo, shadow.card]}
+              >
                 <View style={styles.subscriptionInfoLeft}>
-                  <Crown size={14} color="#C4962A" weight="fill" />
+                  <Crown size={13} color="#C4962A" weight="fill" />
                   {trialActive && expirationDate ? (
                     <Text style={styles.subscriptionInfoText}>
-                      Deneme süresi {formatDate(expirationDate)} tarihine kadar
+                      Deneme {formatDate(expirationDate)} tarihine kadar
                     </Text>
                   ) : expirationDate ? (
                     <Text style={styles.subscriptionInfoText}>
-                      Yenileme tarihi {formatDate(expirationDate)}
+                      Yenileme {formatDate(expirationDate)}
                     </Text>
                   ) : null}
                 </View>
                 <TouchableOpacity
-                  onPress={() => Linking.openURL("https://apps.apple.com/account/subscriptions")}
+                  onPress={() =>
+                    Linking.openURL("https://apps.apple.com/account/subscriptions")
+                  }
                   accessibilityRole="link"
                   accessibilityLabel="Apple abonelik yönetimi"
                 >
                   <Text style={styles.manageLink}>Yönet</Text>
                 </TouchableOpacity>
-              </View>
+              </Animated.View>
             )}
 
-            <View style={styles.statsRow}>
-              <StatCard value={totalPoints} label="Puan" icon={Trophy} iconColor="#C4962A" delay={100} />
-              <StatCard value={completed} label="Tamamlanan" icon={Lightning} iconColor={semantic.accent} delay={200} />
-              <StatCard value={focusStreak} label="Seri" icon={Fire} iconColor="#E25C3E" delay={300} />
-              <StatCard value={`${totalFocusMinutesToday}dk`} label="Bugün Odak" icon={Timer} iconColor="#5C7CAA" delay={400} />
-            </View>
+            <UnifiedStatsSection
+              points={totalPoints}
+              completed={completed}
+              streak={focusStreak}
+              focusMinutes={totalFocusMinutesToday}
+            />
 
             {isPremium && (
-              <>
-                <Animated.Text entering={FadeInLeft.delay(200).duration(300)} style={styles.sectionTitle}>
-                  Abonelik
-                </Animated.Text>
-                <View style={[styles.settingsCard, shadow.card]}>
-                  {SETTINGS_PREMIUM.map((item, index) => (
-                    <SettingRow
-                      key={item.key}
-                      item={item}
-                      isLast={index === SETTINGS_PREMIUM.length - 1}
-                      onPress={() => handleSettingPress(item.action)}
-                    />
-                  ))}
-                </View>
-              </>
+              <SettingsGroup
+                title="Abonelik"
+                items={SETTINGS_PREMIUM}
+                onPress={handleSettingPress}
+                delay={160}
+              />
             )}
 
-            <Animated.Text entering={FadeInLeft.delay(300).duration(300)} style={styles.sectionTitle}>
-              Diğer
-            </Animated.Text>
-            <View style={[styles.settingsCard, shadow.card]}>
-              {SETTINGS_OTHER.map((item, index) => (
-                <SettingRow
-                  key={item.key}
-                  item={item}
-                  isLast={index === SETTINGS_OTHER.length - 1}
-                  onPress={() => handleSettingPress(item.action)}
-                />
-              ))}
-            </View>
+            <SettingsGroup
+              title="Diğer"
+              items={SETTINGS_OTHER}
+              onPress={handleSettingPress}
+              delay={200}
+            />
           </>
         )}
 
@@ -376,24 +345,21 @@ export default function ProfileScreen() {
 
         {activeTab === "settings" && (
           <Animated.View entering={FadeIn.duration(300)} style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>Bildirimler</Text>
-            <View style={[styles.prefsCard, shadow.card]}>
-              <NotificationPreferences />
-            </View>
+            <NotificationPreferences />
 
             <Text style={styles.sectionTitle}>İzinler</Text>
             <View style={[styles.settingsCard, shadow.card]}>
               <TouchableOpacity
                 style={styles.settingRow}
                 onPress={handleMicPermission}
-                activeOpacity={0.75}
+                activeOpacity={0.7}
                 accessibilityRole="button"
               >
                 <View style={styles.settingIconWrap}>
-                  <Microphone size={18} color="#5C4E46" weight="regular" />
+                  <Microphone size={16} color="#7A6A60" weight="regular" />
                 </View>
                 <Text style={styles.settingLabel}>Mikrofon izni</Text>
-                <CaretRight size={16} color="#B2A498" />
+                <CaretRight size={14} color="#C8BDB5" />
               </TouchableOpacity>
             </View>
 
@@ -402,17 +368,26 @@ export default function ProfileScreen() {
               <SettingRow
                 item={{ key: "style", label: "Sanat stilini değiştir", icon: Palette }}
                 isLast={false}
-                onPress={() => {}}
+                badge="Yakında"
+                onPress={() => {
+                  Alert.alert("Yakında", "Farklı sanat stilleri seçimi yakında geliyor.", [{ text: "Tamam" }]);
+                }}
               />
               <SettingRow
                 item={{ key: "frequency", label: "Üretim sıklığı", icon: Timer }}
                 isLast={false}
-                onPress={() => {}}
+                badge="Yakında"
+                onPress={() => {
+                  Alert.alert("Yakında", "Görsel üretim sıklığını özelleştirme yakında geliyor.", [{ text: "Tamam" }]);
+                }}
               />
               <SettingRow
-                item={{ key: "language", label: "Dil (yakında)", icon: Globe }}
+                item={{ key: "language", label: "Dil", icon: Globe }}
                 isLast
-                onPress={() => {}}
+                badge="Yakında"
+                onPress={() => {
+                  Alert.alert("Yakında", "Dil seçenekleri yakında eklenecek.", [{ text: "Tamam" }]);
+                }}
               />
             </View>
           </Animated.View>
@@ -441,7 +416,7 @@ export default function ProfileScreen() {
           activeOpacity={0.85}
           accessibilityRole="button"
         >
-          <SignOut size={18} color="#C86A62" weight="regular" />
+          <SignOut size={16} color="#C86A62" weight="regular" />
           <Text style={styles.logoutText}>Çıkış yap</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -450,56 +425,374 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: semantic.appBackground },
-  scrollContent: { paddingHorizontal: 14, paddingBottom: 120 },
-  screenTitle: { fontSize: 32, lineHeight: 36, fontWeight: "700", color: "#3A2E28", letterSpacing: -0.5, paddingTop: spacing.sm, marginBottom: spacing.md },
-  segmentWrap: { marginBottom: spacing.md },
-  profileCard: { borderRadius: 28, backgroundColor: "#FDFAF6", padding: spacing.lg, flexDirection: "row", alignItems: "center", gap: spacing.md, marginBottom: spacing.md },
-  avatar: { width: 64, height: 64, borderRadius: 32 },
-  avatarPlaceholder: { width: 64, height: 64, borderRadius: 32, backgroundColor: "#EDE5D8", alignItems: "center", justifyContent: "center" },
-  avatarInitial: { color: "#3A2E28", fontSize: 26, fontWeight: "700" },
-  profileInfo: { flex: 1, gap: 6 },
-  profileName: { fontSize: 22, lineHeight: 26, color: "#3A2E28", fontWeight: "700" },
-  planBadge: { alignSelf: "flex-start", borderRadius: radius.pill, backgroundColor: "#F2EEE8", paddingHorizontal: 12, paddingVertical: 4, flexDirection: "row", alignItems: "center", gap: 4 },
-  planBadgePro: { backgroundColor: "#202126" },
-  planBadgeText: { color: "#5C4E46", fontSize: 12, fontWeight: "700" },
-  planBadgeTextPro: { color: semantic.textOnDark },
-  upgradeCard: { borderRadius: radius.xl, backgroundColor: "#FFFBF0", borderWidth: 1.5, borderColor: "#F0D9B5", padding: spacing.md, marginBottom: spacing.md, gap: 12 },
-  upgradeHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
-  upgradeIconWrap: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#FEF3D0", alignItems: "center", justifyContent: "center" },
-  upgradeHeaderText: { flex: 1, gap: 2 },
-  upgradeTitle: { fontSize: 16, fontWeight: "700", color: "#3A2E28", lineHeight: 20 },
-  upgradeSubtitle: { fontSize: 12, color: "#8A7A70", fontWeight: "500" },
-  upgradeFeatureList: { gap: 7, paddingLeft: 4 },
-  upgradeFeatureRow: { flexDirection: "row", alignItems: "center", gap: 7 },
-  upgradeFeatureText: { fontSize: 13, color: "#5C4E46", fontWeight: "500" },
-  subscriptionInfo: { borderRadius: radius.lg, backgroundColor: "#FDFAF6", paddingHorizontal: spacing.md, paddingVertical: 12, marginBottom: spacing.md, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  subscriptionInfoLeft: { flexDirection: "row", alignItems: "center", gap: 6, flex: 1 },
-  subscriptionInfoText: { fontSize: 13, color: "#5C4E46", fontWeight: "500", flex: 1 },
-  manageLink: { fontSize: 13, color: semantic.accent, fontWeight: "700" },
-  statsRow: { flexDirection: "row", gap: 8, marginBottom: spacing.lg, flexWrap: "wrap" },
-  statCard: { flex: 1, minWidth: "22%", borderRadius: radius.lg, backgroundColor: "#FDFAF6", paddingVertical: 14, alignItems: "center", gap: 4 },
-  statValue: { fontSize: 20, fontWeight: "700", color: "#3A2E28" },
-  statLabel: { fontSize: 10, color: "#7C6C62", fontWeight: "500" },
-  sectionTitle: { fontSize: 14, fontWeight: "700", color: "#8A7A70", textTransform: "uppercase", letterSpacing: 0.6, marginBottom: spacing.xs, marginLeft: 4 },
-  settingsCard: { borderRadius: radius.xl, backgroundColor: "#FDFAF6", overflow: "hidden", marginBottom: spacing.lg },
-  prefsCard: { borderRadius: radius.xl, backgroundColor: "#FDFAF6", padding: spacing.md, marginBottom: spacing.lg },
-  settingsSection: { gap: spacing.xs },
-  gallerySection: { marginBottom: spacing.lg },
-  galleryStateCard: { borderRadius: radius.lg, backgroundColor: "#FDFAF6", paddingVertical: spacing.lg, paddingHorizontal: spacing.md, alignItems: "center", gap: 10 },
-  galleryStateText: { fontSize: 14, color: "#5C4E46", fontWeight: "500", textAlign: "center" },
-  retryButton: { borderRadius: radius.md, backgroundColor: "#3A2E28", paddingHorizontal: 14, paddingVertical: 8 },
-  retryButtonText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
-  galleryGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  galleryCard: { width: "48%", borderRadius: radius.lg, backgroundColor: "#FDFAF6", overflow: "hidden" },
-  galleryImage: { width: "100%", aspectRatio: 1 },
-  galleryMeta: { paddingHorizontal: 10, paddingVertical: 8, gap: 2 },
-  galleryType: { fontSize: 12, fontWeight: "700", color: "#3A2E28" },
-  galleryDate: { fontSize: 11, color: "#8A7A70" },
-  settingRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing.md, paddingVertical: 15 },
-  settingBorder: { borderBottomWidth: 1, borderBottomColor: "#F2EEE8" },
-  settingIconWrap: { width: 34, height: 34, borderRadius: 17, backgroundColor: "#F2EEE8", alignItems: "center", justifyContent: "center", marginRight: spacing.sm },
-  settingLabel: { flex: 1, fontSize: 15, color: "#3A2E28", fontWeight: "500" },
-  logoutButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: radius.lg, backgroundColor: "#FDF5F3", borderWidth: 1, borderColor: "#E8C5BE", paddingVertical: 16 },
-  logoutText: { fontSize: 15, fontWeight: "700", color: "#C86A62" },
+  // Layout
+  safeArea: {
+    flex: 1,
+    backgroundColor: semantic.appBackground,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 110,
+  },
+
+  // Header
+  screenTitle: {
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: "700",
+    color: "#3A2E28",
+    letterSpacing: -0.5,
+    paddingTop: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  segmentWrap: {
+    marginBottom: spacing.lg,
+  },
+
+  // Profile Hero Card
+  heroCard: {
+    borderRadius: radius.xl,
+    backgroundColor: "#FDFAF6",
+    padding: spacing.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.md,
+  },
+  heroAvatarWrap: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 2,
+    borderColor: "#EDE5D8",
+    overflow: "hidden",
+  },
+  heroAvatar: {
+    width: "100%",
+    height: "100%",
+  },
+  heroAvatarPlaceholder: {
+    backgroundColor: "#EDE5D8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroAvatarInitial: {
+    color: "#3A2E28",
+    fontSize: 28,
+    fontWeight: "700",
+  },
+  heroInfo: {
+    flex: 1,
+    gap: 5,
+  },
+  heroName: {
+    fontSize: 22,
+    lineHeight: 26,
+    color: "#3A2E28",
+    fontWeight: "700",
+  },
+  planBadge: {
+    alignSelf: "flex-start",
+    borderRadius: radius.pill,
+    backgroundColor: "#F2EEE8",
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  planBadgePro: {
+    backgroundColor: "#202126",
+  },
+  planBadgeText: {
+    color: "#6B5B52",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  planBadgeTextPro: {
+    color: semantic.textOnDark,
+  },
+  heroStatusText: {
+    fontSize: 12,
+    color: "#9E8E84",
+    fontWeight: "400",
+  },
+
+  // Premium Upgrade Card
+  upgradeCard: {
+    borderRadius: radius.xl,
+    backgroundColor: "#FDFAF6",
+    borderWidth: 1,
+    borderColor: "#EDE5D8",
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
+  },
+  upgradeTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  upgradeIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 9,
+    backgroundColor: "#FEF7E7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  upgradeTopText: {
+    flex: 1,
+  },
+  upgradeTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#3A2E28",
+    lineHeight: 19,
+  },
+  upgradeSubtitle: {
+    fontSize: 12,
+    color: "#9E8E84",
+    fontWeight: "400",
+    marginTop: 1,
+  },
+  upgradeBenefitsList: {
+    gap: 7,
+    paddingLeft: 2,
+  },
+  upgradeBenefitRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+  },
+  upgradeBenefitDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#C4962A",
+  },
+  upgradeBenefitText: {
+    fontSize: 13,
+    color: "#6B5B52",
+    fontWeight: "500",
+  },
+  upgradeCTA: {
+    borderRadius: radius.md,
+    backgroundColor: "#3A2E28",
+    paddingVertical: 13,
+    alignItems: "center",
+    marginTop: 2,
+  },
+  upgradeCTAText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#FFFFFF",
+    letterSpacing: 0.1,
+  },
+
+  // Subscription Info (premium)
+  subscriptionInfo: {
+    borderRadius: radius.lg,
+    backgroundColor: "#FDFAF6",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+    marginBottom: spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  subscriptionInfoLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    flex: 1,
+  },
+  subscriptionInfoText: {
+    fontSize: 13,
+    color: "#6B5B52",
+    fontWeight: "500",
+    flex: 1,
+  },
+  manageLink: {
+    fontSize: 13,
+    color: semantic.accent,
+    fontWeight: "700",
+  },
+
+  // Unified Stats Section
+  statsContainer: {
+    borderRadius: radius.xl,
+    backgroundColor: "#FDFAF6",
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+    paddingVertical: spacing.md + 2,
+  },
+  statColumn: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 3,
+    paddingVertical: 2,
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#3A2E28",
+    lineHeight: 26,
+  },
+  statLabel: {
+    fontSize: 10,
+    color: "#9E8E84",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  statDivider: {
+    width: 1,
+    height: 34,
+    backgroundColor: "#EDE5D8",
+  },
+
+  // Section title (shared)
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#B2A498",
+    letterSpacing: 0.4,
+    marginBottom: 6,
+    marginLeft: 4,
+  },
+
+  // Settings
+  settingsCard: {
+    borderRadius: radius.xl,
+    backgroundColor: "#FDFAF6",
+    overflow: "hidden",
+    marginBottom: spacing.lg,
+  },
+  prefsCard: {
+    borderRadius: radius.xl,
+    backgroundColor: "#FDFAF6",
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  settingsSection: {
+    gap: spacing.xs,
+  },
+  settingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingVertical: 14,
+  },
+  settingBorder: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(0,0,0,0.06)",
+  },
+  settingIconWrap: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: "#F5F1EB",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.sm,
+  },
+  soonBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: "#F0EDE8",
+  },
+  soonBadgeText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#9A8880",
+    letterSpacing: 0.2,
+  },
+  settingLabel: {
+    flex: 1,
+    fontSize: 15,
+    color: "#3A2E28",
+    fontWeight: "500",
+  },
+
+  // Gallery
+  gallerySection: {
+    marginBottom: spacing.lg,
+  },
+  galleryStateCard: {
+    borderRadius: radius.lg,
+    backgroundColor: "#FDFAF6",
+    paddingVertical: spacing.lg,
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+    gap: 10,
+  },
+  galleryStateText: {
+    fontSize: 14,
+    color: "#6B5B52",
+    fontWeight: "500",
+    textAlign: "center",
+  },
+  retryButton: {
+    borderRadius: radius.md,
+    backgroundColor: "#3A2E28",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  galleryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  galleryCard: {
+    width: "48%",
+    borderRadius: radius.lg,
+    backgroundColor: "#FDFAF6",
+    overflow: "hidden",
+  },
+  galleryImage: {
+    width: "100%",
+    aspectRatio: 1,
+  },
+  galleryMeta: {
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    gap: 2,
+  },
+  galleryType: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#3A2E28",
+  },
+  galleryDate: {
+    fontSize: 11,
+    color: "#8A7A70",
+  },
+
+  // Logout
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderRadius: radius.lg,
+    backgroundColor: "#FDF5F3",
+    borderWidth: 1,
+    borderColor: "#E8C5BE",
+    paddingVertical: 15,
+    marginTop: spacing.xs,
+  },
+  logoutText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#C86A62",
+  },
 });

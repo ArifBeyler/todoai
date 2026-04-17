@@ -1,0 +1,36 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Alışkanlıklar segmentine geç
+- tapOn:
+    text: "Alışkanlıklar"
+- waitForAnimationToEnd
+
+# Hedefler segmentine geç
+- tapOn:
+    text: "Hedefler"
+- waitForAnimationToEnd
+
+# Stats kısayollarını doğrula
+- assertVisible:
+    text: "Tamamlanan ekranını aç"
+- assertVisible:
+    text: "Aktif ekranını aç"
+- assertVisible:
+    text: "Tamamlama oranı ekranını aç"
+
+# Tamamlanan ekranına git
+- tapOn:
+    text: "Tamamlanan ekranını aç"
+- waitForAnimationToEnd
+- back
+- waitForAnimationToEnd
+
+# Aktif ekranına git
+- tapOn:
+    text: "Aktif ekranını aç"
+- waitForAnimationToEnd
+- back
+- waitForAnimationToEnd
