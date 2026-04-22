@@ -107,7 +107,7 @@ export default function FreeIntroScreen() {
   );
 
   return (
-    <Animated.View style={[styles.container, exitStyle]}>
+    <Animated.View style={[styles.container, exitStyle]} testID="onboarding-free-intro-screen">
       <View style={styles.content}>
         <Animated.View
           entering={preHomeMotion.sectionEnter(71)}

@@ -208,6 +208,7 @@ function CarouselHero({ isSoftMode, isHardMode, hasIntroOffer, onDismiss }: {
         accessibilityRole="button"
         accessibilityLabel="Kapat"
         hitSlop={12}
+        testID="paywall-dismiss"
       >
         <X size={14} color="#FFF" weight="bold" />
       </TouchableOpacity>
@@ -225,6 +226,8 @@ export default function PaywallScreen() {
     isLoading,
     isPurchasing,
     isRestoring,
+    isRefetchingOfferings,
+    refetchOfferings,
     purchasePackage,
     restorePurchases,
   } = useRevenueCat();
@@ -320,7 +323,7 @@ export default function PaywallScreen() {
       trackEvent("paywall_restore_success");
       if (isSoftMode) {
         Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
-          { text: "Tamam", onPress: () => router.replace("/(onboarding)/subscription-success") },
+          { text: "Tamam", onPress: () => router.replace("/premium-bridge") },
         ]);
       } else if (isHardMode) {
         Alert.alert("Başarılı", "Aboneliğiniz geri yüklendi.", [
@@ -358,7 +361,7 @@ export default function PaywallScreen() {
     dismissPaywall();
     if (isSoftMode) {
       completeAccountGate(true);
-      router.replace("/(onboarding)/photo");
+      router.replace("/(onboarding)/free-intro");
     } else if (isHardMode) {
       completeOnboarding();
       router.replace("/(tabs)/home");
@@ -374,6 +377,43 @@ export default function PaywallScreen() {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
         <ActivityIndicator size="large" color={semantic.heroStart} />
+      </View>
+    );
+  }
+
+  if (packages.length === 0) {
+    return (
+      <View style={[styles.container, styles.offeringsErrorRoot]}>
+        <Text style={styles.offeringsErrorTitle}>Teklifler yüklenemedi</Text>
+        <Text style={styles.offeringsErrorSub}>
+          Abonelik paketleri şu an görüntülenemiyor. İnternet bağlantını kontrol et ve tekrar dene. Sorun
+          devam ederse RevenueCat panelinde varsayılan bir offering tanımlı olduğundan emin ol.
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.offeringsRetryButton,
+            isRefetchingOfferings && styles.disabled,
+          ]}
+          onPress={() => void refetchOfferings()}
+          disabled={isRefetchingOfferings}
+          accessibilityRole="button"
+          accessibilityLabel="Tekrar dene"
+          testID="paywall-retry-offerings"
+        >
+          {isRefetchingOfferings ? (
+            <ActivityIndicator size="small" color="#FFF" />
+          ) : (
+            <Text style={styles.offeringsRetryButtonText}>Tekrar dene</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.offeringsDismissButton}
+          onPress={handleDismiss}
+          accessibilityRole="button"
+          accessibilityLabel="Ücretsiz devam et"
+        >
+          <Text style={styles.offeringsDismissText}>Şimdilik ücretsiz devam et</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -610,6 +650,51 @@ const styles = StyleSheet.create({
   loadingContainer: {
     alignItems: "center",
     justifyContent: "center",
+  },
+  offeringsErrorRoot: {
+    paddingHorizontal: 28,
+    paddingTop: 72,
+    paddingBottom: 40,
+    justifyContent: "flex-start",
+    gap: 14,
+  },
+  offeringsErrorTitle: {
+    fontSize: 22,
+    fontFamily: font.bold,
+    fontWeight: "700",
+    color: semantic.textPrimary,
+    letterSpacing: -0.3,
+  },
+  offeringsErrorSub: {
+    fontSize: 15,
+    fontFamily: font.regular,
+    color: semantic.textSecondary,
+    lineHeight: 22,
+  },
+  offeringsRetryButton: {
+    marginTop: 8,
+    borderRadius: 16,
+    backgroundColor: semantic.heroStart,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    minHeight: 52,
+  },
+  offeringsRetryButtonText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontFamily: font.bold,
+    fontWeight: "700",
+  },
+  offeringsDismissButton: {
+    alignItems: "center",
+    paddingVertical: 14,
+  },
+  offeringsDismissText: {
+    color: semantic.textSecondary,
+    fontSize: 15,
+    fontFamily: font.semiBold,
+    fontWeight: "600",
   },
 
   heroWrap: {

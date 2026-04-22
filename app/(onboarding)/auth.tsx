@@ -32,6 +32,14 @@ export default function AuthScreen() {
 
   const isLoading = isAppleLoading || isDeviceLoading;
 
+  const nextRouteAfterAuth = (): "/(onboarding)/photo" | "/(onboarding)/free-intro" => {
+    const { isPremium } = useSessionStore.getState();
+    const { paywallInteraction } = useFTUEStore.getState();
+    return isPremium || paywallInteraction === "subscribed"
+      ? "/(onboarding)/photo"
+      : "/(onboarding)/free-intro";
+  };
+
   const handleAppleSignIn = async () => {
     if (isLoading) return;
     setIsAppleLoading(true);
@@ -45,7 +53,8 @@ export default function AuthScreen() {
         setProfileName(result.fullName);
       }
       completeAccountGate(false);
-      triggerExit("forward", () => router.push("/(onboarding)/photo"));
+      const next = nextRouteAfterAuth();
+      triggerExit("forward", () => router.push(next));
       return;
     }
 
@@ -68,7 +77,8 @@ export default function AuthScreen() {
 
     if (success) {
       completeAccountGate(true);
-      triggerExit("forward", () => router.push("/(onboarding)/photo"));
+      const next = nextRouteAfterAuth();
+      triggerExit("forward", () => router.push(next));
       return;
     }
 
@@ -79,9 +89,9 @@ export default function AuthScreen() {
     );
   };
 
-  const titleStr = "Hesabını oluştur,\navatarını al";
+  const titleStr = "Hesabını oluştur\nve devam et";
   const descStr =
-    "Fotoğrafından yapay zekâ ile kişisel avatarını oluşturmak için hesabını oluştur.";
+    "Görevlerin, hatırlatıcıların ve tercihlerin güvenli bir şekilde senkronlansın.";
   const trustStr = "Verileriniz şifreli olarak korunur";
   const st = 31;
   const titleSteps = countStaggerSteps(titleStr);

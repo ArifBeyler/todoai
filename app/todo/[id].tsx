@@ -26,6 +26,7 @@ import {
 } from "phosphor-react-native";
 import { useTodoStore } from "@state/useTodoStore";
 import { useHeroRevealStore } from "@state/useHeroRevealStore";
+import { useTodoVisualGeneration } from "@/src/hooks/useTodoVisualGeneration";
 import { resolveTodoIcon } from "@/src/utils/resolveTodoIcon";
 import { radius, spacing } from "@/src/ui/tokens";
 
@@ -85,6 +86,7 @@ export default function TodoDetailScreen() {
   const { todos, removeTodo, updateTodo, toggleTodo } = useTodoStore();
   const snapshotTodoIds = useHeroRevealStore((s) => s.snapshotTodoIds);
   const dailyHeroStatus = useHeroRevealStore((s) => s.dailyHeroStatus);
+  const { handleTodoCompleted } = useTodoVisualGeneration();
 
   const todo = useMemo(() => todos.find((item) => item.id === params.id), [params.id, todos]);
   const [isEditing, setIsEditing] = useState(false);
@@ -96,6 +98,50 @@ export default function TodoDetailScreen() {
     (dailyHeroStatus === "locked_reveal" ||
       dailyHeroStatus === "fully_revealed" ||
       dailyHeroStatus === "generating");
+
+  // Keep this hook unconditional — must come before any early return
+  const resolvedIcon = useMemo(
+    () => resolveTodoIcon(todo?.title ?? "", todo?.category ?? ""),
+    [todo?.title, todo?.category],
+  );
+  const HeroIcon = resolvedIcon.Icon;
+
+  // useCallback hooks must be unconditional — keep them above the early return.
+  const handleEditPress = useCallback(() => {
+    if (isSnapshotTodo) {
+      Alert.alert(
+        "Bu görev görseline bağlı",
+        "Bu görev bugünün görseline bağlı, yarın düzenleyebilirsin.",
+        [{ text: "Tamam" }],
+      );
+      return;
+    }
+    setIsEditing((prev) => !prev);
+  }, [isSnapshotTodo]);
+
+  const handleDelete = useCallback(() => {
+    const todoId = params.id;
+    if (isSnapshotTodo) {
+      Alert.alert(
+        "Bu görev görünün bir parçası",
+        "Bu görevi silersen, bugünün görselini tamamen açman mümkün olmayacak. Yine de silmek istiyor musun?",
+        [
+          { text: "Vazgeç", style: "cancel" },
+          {
+            text: "Yine de Sil",
+            style: "destructive",
+            onPress: () => {
+              removeTodo(todoId);
+              router.back();
+            },
+          },
+        ],
+      );
+      return;
+    }
+    removeTodo(todoId);
+    router.back();
+  }, [isSnapshotTodo, params.id, removeTodo]);
 
   if (!todo || todo.deletedAt != null) {
     return (
@@ -115,49 +161,12 @@ export default function TodoDetailScreen() {
 
   const priorityMeta = PRIORITY_META[todo.priority] ?? PRIORITY_META.medium;
   const categoryLabel = CATEGORY_LABELS[todo.category] ?? todo.category;
-  const resolvedIcon = useMemo(() => resolveTodoIcon(todo.title, todo.category), [todo.title, todo.category]);
-  const HeroIcon = resolvedIcon.Icon;
 
   const handleSave = () => {
     if (isSnapshotTodo) return;
     updateTodo(todo.id, { title: editTitle.trim() || todo.title });
     setIsEditing(false);
   };
-
-  const handleEditPress = useCallback(() => {
-    if (isSnapshotTodo) {
-      Alert.alert(
-        "Bu görev görseline bağlı",
-        "Bu görev bugünün görseline bağlı, yarın düzenleyebilirsin.",
-        [{ text: "Tamam" }],
-      );
-      return;
-    }
-    setIsEditing((prev) => !prev);
-  }, [isSnapshotTodo]);
-
-  const handleDelete = useCallback(() => {
-    if (isSnapshotTodo) {
-      Alert.alert(
-        "Bu görev görünün bir parçası",
-        "Bu görevi silersen, bugünün görselini tamamen açman mümkün olmayacak. Yine de silmek istiyor musun?",
-        [
-          { text: "Vazgeç", style: "cancel" },
-          {
-            text: "Yine de Sil",
-            style: "destructive",
-            onPress: () => {
-              removeTodo(todo.id);
-              router.back();
-            },
-          },
-        ],
-      );
-      return;
-    }
-    removeTodo(todo.id);
-    router.back();
-  }, [isSnapshotTodo, todo.id, removeTodo]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -283,7 +292,13 @@ export default function TodoDetailScreen() {
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.toggleButton, todo.isCompleted && styles.toggleDone]}
-            onPress={() => toggleTodo(todo.id)}
+            onPress={() => {
+              const completing = !todo.isCompleted;
+              toggleTodo(todo.id);
+              if (completing) {
+                handleTodoCompleted(todo.id);
+              }
+            }}
             activeOpacity={0.85}
             accessibilityRole="button"
           >

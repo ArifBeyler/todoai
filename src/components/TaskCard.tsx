@@ -1,7 +1,22 @@
 import { useMemo, useRef, useState } from "react";
-import { Animated, Easing, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { CheckCircle } from "phosphor-react-native";
+import {
+  ActivityIndicator,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { CheckCircle, Sparkle, SealCheck, Hourglass } from "phosphor-react-native";
 import { CATEGORY_ICON_MAP, DEFAULT_ICON_ENTRY } from "@/src/constants/todoIcons";
+import type { TodoVisualStatus } from "@state/useTodoStore";
+
+export type TaskGenerationState =
+  | "none" // no active batch affects this row
+  | "queued" // in the batch, waiting its turn
+  | "generating" // currently being generated
+  | "ready"; // visual produced
 
 const RECURRENCE_LABEL: Record<string, string> = {
   daily: "Her gün",
@@ -18,8 +33,20 @@ type TaskCardProps = {
   isCompleted: boolean;
   dueTime?: string;
   recurrence?: string;
+  visualStatus?: TodoVisualStatus;
+  generationState?: TaskGenerationState;
   onToggle: () => void;
   onPress: () => void;
+};
+
+const GENERATION_BADGE_COPY: Record<
+  TaskGenerationState,
+  { label: string; testID: string } | null
+> = {
+  none: null,
+  queued: { label: "Sırada", testID: "task-generation-queued" },
+  generating: { label: "Üretiliyor", testID: "task-generation-generating" },
+  ready: { label: "Hazır", testID: "task-generation-ready" },
 };
 
 export const TaskCard = ({
@@ -27,6 +54,8 @@ export const TaskCard = ({
   category,
   isCompleted,
   recurrence,
+  visualStatus = "idle",
+  generationState = "none",
   onToggle,
   onPress,
 }: TaskCardProps) => {
@@ -193,6 +222,64 @@ export const TaskCard = ({
             </View>
           )}
         </Animated.View>
+        {!isCompleted ? (() => {
+          const badgeCopy = GENERATION_BADGE_COPY[generationState];
+          if (badgeCopy) {
+            const isGenerating = generationState === "generating";
+            const isReady = generationState === "ready";
+            return (
+              <View
+                style={[
+                  styles.generationBadge,
+                  isGenerating && styles.generationBadgeGenerating,
+                  isReady && styles.generationBadgeReady,
+                ]}
+                accessibilityLabel={`Görsel ${badgeCopy.label}`}
+                testID={badgeCopy.testID}
+              >
+                {isGenerating ? (
+                  <ActivityIndicator size="small" color="#3A2E28" />
+                ) : isReady ? (
+                  <SealCheck size={12} color="#2F5E46" weight="fill" />
+                ) : (
+                  <Hourglass size={12} color="#6A5D53" weight="fill" />
+                )}
+                <Text
+                  style={[
+                    styles.generationBadgeText,
+                    isGenerating && styles.generationBadgeTextGenerating,
+                    isReady && styles.generationBadgeTextReady,
+                  ]}
+                >
+                  {badgeCopy.label}
+                </Text>
+              </View>
+            );
+          }
+          if (visualStatus === "pending") {
+            return (
+              <View
+                style={styles.visualPendingWrap}
+                accessibilityLabel="Görsel oluşturuluyor"
+                testID="task-visual-pending"
+              >
+                <ActivityIndicator size="small" color="#3A2E28" />
+              </View>
+            );
+          }
+          if (visualStatus === "ready") {
+            return (
+              <View
+                style={styles.visualReadyWrap}
+                accessibilityLabel="Görsel hazır"
+                testID="task-visual-ready"
+              >
+                <Sparkle size={14} color="#2F5E46" weight="fill" />
+              </View>
+            );
+          }
+          return null;
+        })() : null}
       </Animated.View>
     </TouchableOpacity>
   );
@@ -242,6 +329,47 @@ const styles = StyleSheet.create({
   bodyWrap: {
     flex: 1,
     gap: 3,
+  },
+  visualPendingWrap: {
+    width: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  visualReadyWrap: {
+    width: 28,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  generationBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(17,17,17,0.08)",
+    backgroundColor: "#F1EEE8",
+  },
+  generationBadgeGenerating: {
+    backgroundColor: "#EAE3D5",
+    borderColor: "rgba(17,17,17,0.1)",
+  },
+  generationBadgeReady: {
+    backgroundColor: "#E0F0E2",
+    borderColor: "rgba(47,94,70,0.18)",
+  },
+  generationBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#6A5D53",
+    letterSpacing: 0.1,
+  },
+  generationBadgeTextGenerating: {
+    color: "#3A2E28",
+  },
+  generationBadgeTextReady: {
+    color: "#2F5E46",
   },
   title: {
     fontSize: 16,

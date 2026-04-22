@@ -1,13 +1,22 @@
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, {
   FadeIn,
   FadeInDown,
   FadeInUp,
 } from "react-native-reanimated";
 import { CalendarCheck, Plus, Sparkle, Trophy } from "phosphor-react-native";
+// Trophy is used in the "all done" banner below
 
 // Stagger timing constants — top-to-bottom cascade
 const DUR = 340;
@@ -27,15 +36,17 @@ import { GenerationProcessingOverlay } from "@/src/components/GenerationProcessi
 import { PhotoValueSheet } from "@/src/components/PhotoValueSheet";
 import { NotificationPrompt } from "@/src/components/NotificationPrompt";
 import { ProductivityScoreSheet } from "@/src/components/ProductivityScoreSheet";
-import { TaskCard } from "@/src/components/TaskCard";
+import { TaskCard, type TaskGenerationState } from "@/src/components/TaskCard";
 import { AnimatedSegmentedControl } from "@/src/components/AnimatedSegmentedControl";
 import { useSessionStore } from "@state/useSessionStore";
 import { useTodoStore } from "@state/useTodoStore";
 import { useFTUEStore } from "@state/useFTUEStore";
+import { useHeroRevealStore } from "@state/useHeroRevealStore";
 import { useFTUE } from "@/src/hooks/useFTUE";
 import { useHeroReveal } from "@/src/hooks/useHeroReveal";
 import { useEligibilityEngine } from "@/src/hooks/useEligibilityEngine";
 import { useTodoVisualGeneration } from "@/src/hooks/useTodoVisualGeneration";
+import { useShakeDetection } from "@/src/hooks/useShakeDetection";
 import { usePaywallTrigger } from "@/src/hooks/usePaywallTrigger";
 import { useEdgeCases } from "@/src/hooks/useEdgeCases";
 import { EdgeCaseBanner } from "@/src/components/EdgeCaseBanner";
@@ -105,6 +116,8 @@ export default function HomeScreen() {
     activeTodoCount,
     totalTodoCount,
     currentHeroTodo,
+    generationBatch,
+    todoShakeReveal,
   } = useFTUE();
 
   // Drives the eligibility state machine (syncs to useAIVisualStore automatically)
@@ -125,7 +138,66 @@ export default function HomeScreen() {
     stopPolling,
   } = useHeroReveal();
 
-  const { handleTodoCompleted } = useTodoVisualGeneration();
+  const { handleTodoCompleted, triggerPendingGenerations } = useTodoVisualGeneration();
+
+  const primeTodoShakeReveal = useHeroRevealStore((s) => s.primeTodoShakeReveal);
+  const markTodoShakeRevealed = useHeroRevealStore((s) => s.markTodoShakeRevealed);
+
+  // Title of the todo whose visual is currently being generated. Lets the hero
+  // say "Şu an: Spor" so the user knows each todo is processed in sequence.
+  const generationCurrentTodoTitle = useMemo(() => {
+    const id = generationBatch.currentTodoId;
+    if (!id) return null;
+    return todos.find((t) => t.id === id)?.title ?? null;
+  }, [generationBatch.currentTodoId, todos]);
+
+  // When the batch completes, promote the first ready todo visual to shake-reveal.
+  const firstReadyTodo = useMemo(
+    () =>
+      todos
+        .filter(
+          (t) =>
+            t.deletedAt == null &&
+            !t.isCompleted &&
+            t.visualStatus === "ready" &&
+            !!t.visualUrl,
+        )
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt))[0] ?? null,
+    [todos],
+  );
+
+  useEffect(() => {
+    if (
+      generationBatch.status === "done" &&
+      firstReadyTodo &&
+      todoShakeReveal.todoId !== firstReadyTodo.id &&
+      !todoShakeReveal.isRevealed
+    ) {
+      primeTodoShakeReveal(firstReadyTodo.id);
+    }
+  }, [
+    generationBatch.status,
+    firstReadyTodo,
+    todoShakeReveal.todoId,
+    todoShakeReveal.isRevealed,
+    primeTodoShakeReveal,
+  ]);
+
+  const handleShakeReveal = useCallback(() => {
+    if (todoShakeReveal.isRevealed || !todoShakeReveal.todoId) return;
+    markTodoShakeRevealed();
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, [todoShakeReveal.isRevealed, todoShakeReveal.todoId, markTodoShakeRevealed]);
+
+  // Only arm the accelerometer when the reveal is actually pending. Without
+  // this the sensor would run forever in the background.
+  useShakeDetection({
+    enabled:
+      generationBatch.status === "done" &&
+      !!todoShakeReveal.todoId &&
+      !todoShakeReveal.isRevealed,
+    onShake: handleShakeReveal,
+  });
 
   useEffect(() => {
     checkDailyReset();
@@ -206,15 +278,69 @@ export default function HomeScreen() {
 
   const visibleTodos = todos.filter((t) => t.deletedAt == null);
   const completedCount = visibleTodos.filter((item) => item.isCompleted).length;
-  const activeCount = visibleTodos.length - completedCount;
-  const completionRate = visibleTodos.length
-    ? Math.round((completedCount / visibleTodos.length) * 100)
-    : 0;
   const allDone = visibleTodos.length > 0 && completedCount === visibleTodos.length;
   const productivityInsights = useMemo(
     () => calculateMockProductivityInsights(todos),
     [todos],
   );
+
+  const hasTodoVisualPending = useMemo(
+    () =>
+      todos.some(
+        (t) => t.deletedAt == null && !t.isCompleted && t.visualStatus === "pending",
+      ),
+    [todos],
+  );
+
+  const hasIdleTodosForGeneration = useMemo(
+    () =>
+      todos.some(
+        (t) => t.deletedAt == null && !t.isCompleted && t.visualStatus === "idle",
+      ),
+    [todos],
+  );
+
+  // Per-todo generation state for the task rows. Only shows chips for todos
+  // that are part of the active (or just-finished) batch; otherwise rows stay
+  // clean. Ready state is derived from `visualStatus` so it persists after
+  // the batch completes.
+  const generationStateByTodoId = useMemo(() => {
+    const map = new Map<string, TaskGenerationState>();
+    // Defensive: an older persisted batch (pre-migration) may be missing
+    // targetTodoIds/currentTodoId. Coerce to safe defaults.
+    const targetIds = generationBatch.targetTodoIds ?? [];
+    const currentId = generationBatch.currentTodoId ?? null;
+    // Only show per-todo badges when a batch is actively running or completed.
+    // "error" state (all todos skipped / no session) should not show "Sırada"
+    // badges — the generate button handles that call-to-action instead.
+    const isActive =
+      generationBatch.status === "running" ||
+      generationBatch.status === "done";
+
+    if (isActive && targetIds.length > 0) {
+      for (const id of targetIds) {
+        const todo = todos.find((t) => t.id === id);
+        if (!todo || todo.deletedAt != null || todo.isCompleted) continue;
+        if (todo.visualStatus === "ready") {
+          map.set(id, "ready");
+          continue;
+        }
+        if (id === currentId || todo.visualStatus === "pending") {
+          map.set(id, "generating");
+          continue;
+        }
+        if (todo.visualStatus === "idle") {
+          map.set(id, "queued");
+        }
+      }
+    }
+    return map;
+  }, [
+    todos,
+    generationBatch.status,
+    generationBatch.targetTodoIds,
+    generationBatch.currentTodoId,
+  ]);
 
   const isHabitRecurrence = (r: string) =>
     r === "daily" || r === "weekly" || r === "weekend" || r === "weekdays" || r === "custom";
@@ -374,6 +500,13 @@ export default function HomeScreen() {
               isFullyRevealed={isFullyRevealed}
               dailyHeroImageUrl={revealHeroImageUrl}
               minutesUntilStable={minutesUntilStable}
+              generationCompleted={generationBatch.completed}
+              generationTotal={generationBatch.total}
+              generationCurrentTodoTitle={generationCurrentTodoTitle}
+              shakeRevealImageUrl={firstReadyTodo?.visualUrl ?? null}
+              shakeRevealTodoTitle={firstReadyTodo?.title ?? null}
+              isShakeRevealed={todoShakeReveal.isRevealed}
+              onPressDebugReveal={handleShakeReveal}
             />
           </TouchableOpacity>
         </Animated.View>
@@ -466,6 +599,11 @@ export default function HomeScreen() {
                   isSubscribed={isSubscribed}
                   hasGeneratedToday={hasGeneratedToday}
                   onPressGenerate={handleGenerateCTA}
+                  generationBatchStatus={generationBatch.status}
+                  generationCompleted={generationBatch.completed}
+                  generationTotal={generationBatch.total}
+                  hasIdleTodosForGeneration={hasIdleTodosForGeneration}
+                  onStartGeneration={triggerPendingGenerations}
                 />
               </Animated.View>
             )}
@@ -497,6 +635,43 @@ export default function HomeScreen() {
                 >
                   <Text style={styles.errorText}>{generationError}</Text>
                 </TouchableOpacity>
+              ) : null}
+
+              {generationBatch.status === "running" && generationBatch.total > 0 ? (
+                <View
+                  style={styles.visualGeneratingBanner}
+                  accessibilityRole="text"
+                  accessibilityLabel={`Görseller ${generationBatch.completed} / ${generationBatch.total}`}
+                  testID="visual-generation-banner"
+                >
+                  <ActivityIndicator size="small" color="#3A2E28" />
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={styles.visualGeneratingText}
+                      testID="visual-generation-banner-counter"
+                    >
+                      {generationBatch.total} görev için görsel üretiliyor ·{" "}
+                      {generationBatch.completed}/{generationBatch.total} hazır
+                    </Text>
+                    <Text style={styles.visualGeneratingSub} numberOfLines={1}>
+                      {generationCurrentTodoTitle
+                        ? `Şu an: "${generationCurrentTodoTitle}"`
+                        : "Her görev için ayrı sahne hazırlanıyor"}
+                    </Text>
+                  </View>
+                </View>
+              ) : hasTodoVisualPending ? (
+                <View
+                  style={styles.visualGeneratingBanner}
+                  accessibilityRole="text"
+                  accessibilityLabel="Görseller oluşturuluyor"
+                  testID="visual-generation-banner"
+                >
+                  <ActivityIndicator size="small" color="#3A2E28" />
+                  <Text style={styles.visualGeneratingText}>
+                    Bu görev için görsel hazırlanıyor…
+                  </Text>
+                </View>
               ) : null}
 
               {allDone ? (
@@ -553,6 +728,10 @@ export default function HomeScreen() {
                     priority={item.priority}
                     isCompleted={item.isCompleted}
                     recurrence={item.recurrence}
+                    visualStatus={item.visualStatus}
+                    generationState={
+                      generationStateByTodoId.get(item.id) ?? "none"
+                    }
                     onToggle={() => handleToggleTodo(item.id)}
                     onPress={() => router.push(`/todo/${item.id}`)}
                   />
@@ -560,47 +739,6 @@ export default function HomeScreen() {
               )}
             </Animated.View>
 
-            <Animated.View
-              entering={FadeInDown.delay(D7).duration(DUR).springify().damping(SPR.damping).stiffness(SPR.stiffness)}
-              style={styles.statsContainer}
-            >
-              <TouchableOpacity
-                style={styles.statCell}
-                onPress={() => router.push("/stats/completed")}
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel="Tamamlanan ekranını aç"
-              >
-                <Text style={styles.statValue}>{completedCount}</Text>
-                <Text style={styles.statLabel}>Tamamlanan</Text>
-              </TouchableOpacity>
-
-              <View style={styles.statDivider} />
-
-              <TouchableOpacity
-                style={styles.statCell}
-                onPress={() => router.push("/stats/active")}
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel="Aktif ekranını aç"
-              >
-                <Text style={styles.statValue}>{activeCount}</Text>
-                <Text style={styles.statLabel}>Aktif</Text>
-              </TouchableOpacity>
-
-              <View style={styles.statDivider} />
-
-              <TouchableOpacity
-                style={styles.statCell}
-                onPress={() => router.push("/stats/completion")}
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel="Tamamlama oranı ekranını aç"
-              >
-                <Text style={styles.statValue}>%{completionRate}</Text>
-                <Text style={styles.statLabel}>Oran</Text>
-              </TouchableOpacity>
-            </Animated.View>
           </View>
         </Animated.View>
       </ScrollView>
@@ -802,6 +940,30 @@ const styles = StyleSheet.create({
     color: "rgba(17, 17, 17, 0.6)",
     fontSize: 13,
   },
+  visualGeneratingBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: HOME_LAYER.inset,
+    borderWidth: 1,
+    borderColor: HOME_LAYER.border,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+  },
+  visualGeneratingText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111111",
+  },
+  visualGeneratingSub: {
+    marginTop: 2,
+    fontSize: 12,
+    fontWeight: "500",
+    color: "rgba(17,17,17,0.55)",
+  },
   empty: {
     borderRadius: 20,
     paddingVertical: 28,
@@ -905,39 +1067,6 @@ const styles = StyleSheet.create({
     color: "rgba(17, 17, 17, 0.52)",
     textAlign: "center",
     lineHeight: 18,
-  },
-  statsContainer: {
-    marginTop: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: HOME_LAYER.inset,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: HOME_LAYER.border,
-    overflow: "hidden",
-  },
-  statCell: {
-    flex: 1,
-    paddingVertical: 14,
-    alignItems: "center",
-    gap: 3,
-  },
-  statDivider: {
-    width: 1,
-    height: 32,
-    backgroundColor: HOME_LAYER.borderStrong,
-  },
-  statValue: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#111111",
-    letterSpacing: -0.3,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: "rgba(17, 17, 17, 0.48)",
-    fontWeight: "500",
-    letterSpacing: 0.1,
   },
   avatarReadyBanner: {
     position: "absolute",

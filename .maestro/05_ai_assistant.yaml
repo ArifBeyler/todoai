@@ -2,27 +2,52 @@ appId: com.arifbeyler.doara
 ---
 - launchApp
 - waitForAnimationToEnd
+- repeat:
+    times: 12
+    commands:
+      - tapOn:
+          text: "Devam Et"
+          optional: true
+      - tapOn:
+          text: "İleri"
+          optional: true
+      - tapOn:
+          text: "Hadi Başlayalım!"
+          optional: true
+      - tapOn:
+          id: "paywall-dismiss"
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 1200
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 
 # AI asistanıyla görev ekle butonuna tıkla
 - tapOn:
+    text: "AI ile Ekle"
+    optional: true
+- tapOn:
     text: "AI asistanıyla görev ekle"
+    optional: true
 - waitForAnimationToEnd
 
 # AI asistanı ekranının açıldığını doğrula
 - assertVisible:
-    text: "Gönder"
+    id: "btn-send-message"
     optional: true
 
 # Bir mesaj yaz
 - tapOn:
-    index: 0
-    optional: true
+    id: "ai-text-input"
 - inputText: "Bugün spor yap"
 - hideKeyboard
 
 # Gönder
 - tapOn:
-    text: "Gönder"
+    id: "btn-send-message"
     optional: true
 - waitForAnimationToEnd
 

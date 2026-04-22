@@ -412,6 +412,7 @@ export default function FocusScreen() {
             activeOpacity={0.88}
             accessibilityRole="button"
             accessibilityLabel={sessionStatus === "active" ? "Duraklat" : "Devam et"}
+            testID="btn-toggle-session"
           >
             {sessionStatus === "active" ? (
               <Pause size={30} color="#111111" weight="fill" />
@@ -494,6 +495,7 @@ export default function FocusScreen() {
             activeOpacity={0.84}
             accessibilityRole="button"
             accessibilityLabel="Odak oturumunu başlat"
+            testID="btn-start-session"
           >
             <Play size={16} color="#FFFFFF" weight="fill" />
             <Text style={styles.startCTAText}>Seansı Başlat</Text>

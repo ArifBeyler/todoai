@@ -51,7 +51,7 @@ const FEATURES: Feature[] = [
   {
     icon: Lock,
     title: "AI Görseller",
-    desc: "Fotoğrafını ekleyince aktif olur.",
+    desc: "Premium ile kilidi açılır.",
     locked: true,
   },
 ];
@@ -88,7 +88,7 @@ export default function FreeRevealScreen() {
   };
 
   return (
-    <Animated.View style={[styles.container, exitStyle]}>
+    <Animated.View style={[styles.container, exitStyle]} testID="onboarding-free-reveal-screen">
       <Animated.View
         entering={FadeIn.delay(80).duration(400)}
         style={styles.ghostBlock}

@@ -1,8 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Sparkle, Target } from "phosphor-react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { CheckCircle, Sparkle, Target } from "phosphor-react-native";
 import type { TaskMilestoneStatus } from "@/src/hooks/useFTUE";
 import { TASK_MILESTONE_THRESHOLD } from "@state/useFTUEStore";
 import { radius, semantic, spacing } from "@/src/ui/tokens";
+
+type GenerationBatchStatus = "idle" | "running" | "error" | "done";
 
 type TaskProgressBannerProps = {
   milestoneStatus: TaskMilestoneStatus;
@@ -11,6 +13,11 @@ type TaskProgressBannerProps = {
   isSubscribed: boolean;
   hasGeneratedToday?: boolean;
   onPressGenerate?: () => void;
+  generationBatchStatus?: GenerationBatchStatus;
+  generationCompleted?: number;
+  generationTotal?: number;
+  hasIdleTodosForGeneration?: boolean;
+  onStartGeneration?: () => void;
 };
 
 export const TaskProgressBanner = ({
@@ -20,6 +27,11 @@ export const TaskProgressBanner = ({
   isSubscribed,
   hasGeneratedToday = false,
   onPressGenerate,
+  generationBatchStatus = "idle",
+  generationCompleted = 0,
+  generationTotal = 0,
+  hasIdleTodosForGeneration = false,
+  onStartGeneration,
 }: TaskProgressBannerProps) => {
   if (milestoneStatus === "no_tasks") return null;
   if (hasGeneratedToday) return null;
@@ -27,21 +39,60 @@ export const TaskProgressBanner = ({
   const progress = Math.min(activeTodoCount / TASK_MILESTONE_THRESHOLD, 1);
 
   if (milestoneStatus === "generation_eligible") {
+    // All visuals already generated — hide the banner
+    if (generationBatchStatus === "done" && !hasIdleTodosForGeneration) return null;
+
+    // Batch is running — show live progress
+    if (generationBatchStatus === "running" && generationTotal > 0) {
+      return (
+        <View style={styles.generatingBanner}>
+          <ActivityIndicator size="small" color={semantic.textOnDark} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.eligibleTitle}>
+              Görseller oluşturuluyor · {generationCompleted}/{generationTotal}
+            </Text>
+            <Text style={styles.eligibleSub}>
+              Her görev için ayrı sahne hazırlanıyor
+            </Text>
+          </View>
+        </View>
+      );
+    }
+
+    // All done — show success state briefly
+    if (generationBatchStatus === "done" && generationTotal > 0) {
+      return (
+        <View style={[styles.eligibleBanner, { backgroundColor: "#1A6B3C" }]}>
+          <View style={styles.eligibleIconWrap}>
+            <CheckCircle size={20} color={semantic.textOnDark} weight="fill" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.eligibleTitle}>Görseller hazır!</Text>
+            <Text style={styles.eligibleSub}>
+              Telefonu salla — görseli ortaya çıkar.
+            </Text>
+          </View>
+        </View>
+      );
+    }
+
+    // Idle or error — show "Start generation" button
     return (
       <TouchableOpacity
         style={styles.eligibleBanner}
-        onPress={onPressGenerate}
+        onPress={onStartGeneration ?? onPressGenerate}
         activeOpacity={0.85}
         accessibilityRole="button"
-        accessibilityLabel="Günün görselini oluştur"
+        accessibilityLabel="Todo görsellerini oluştur"
+        testID="start-generation-btn"
       >
         <View style={styles.eligibleIconWrap}>
           <Sparkle size={20} color={semantic.textOnDark} weight="fill" />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.eligibleTitle}>Günün görseli hazır</Text>
+          <Text style={styles.eligibleTitle}>Görselleri Oluştur</Text>
           <Text style={styles.eligibleSub}>
-            Görevlerini tamamladıkça görsel açılacak.
+            Her görev için yapay zekâ sahnesi hazırlanacak.
           </Text>
         </View>
       </TouchableOpacity>
@@ -148,6 +199,16 @@ const styles = StyleSheet.create({
   eligibleBanner: {
     borderRadius: radius.md,
     backgroundColor: semantic.heroStart,
+    padding: spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  generatingBanner: {
+    borderRadius: radius.md,
+    backgroundColor: semantic.heroStart,
+    opacity: 0.85,
     padding: spacing.sm,
     flexDirection: "row",
     alignItems: "center",

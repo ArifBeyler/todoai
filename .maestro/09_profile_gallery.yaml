@@ -1,0 +1,29 @@
+appId: com.arifbeyler.doara
+---
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    id: "tab-profile"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn:
+    text: "Galeri"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Galeri doluysa ilk kutuya bas → detay + profil aksiyonu (opsiyonel)
+- tapOn:
+    id: "profile-gallery-tile-0"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+
+- assertVisible:
+    id: "gallery-set-profile-photo"
+    optional: true
+
+- back:
+    optional: true

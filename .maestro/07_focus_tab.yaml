@@ -2,6 +2,11 @@ appId: com.arifbeyler.doara
 ---
 - launchApp
 - waitForAnimationToEnd
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 
 # Focus tabına geç
 - tapOn:
@@ -10,7 +15,7 @@ appId: com.arifbeyler.doara
 
 # Odak oturumunu başlat butonu görünür mü?
 - assertVisible:
-    text: "Odak oturumunu başlat"
+    id: "btn-start-session"
     optional: true
 
 # Timer geçmişini aç (varsa)

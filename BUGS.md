@@ -36,13 +36,13 @@
   2. Veya `DevSettings.setIsDebuggingRemotely(false)` ile debug menüsünü kapat
 - **Etkilenen Dosyalar:** `app/(tabs)/calendar.tsx` (satır 163–172)
 
-### BUG-03 — "Tamamlama Oranı" Stats Kartı Görünürlük Sorunu
+### BUG-03 — "Tamamlama Oranı" Stats Kartı Görünürlük Sorunu — **düzeltildi (kod)**
 
 - **Ekran:** `app/(tabs)/home.tsx`
 - **Semptom:** Segment geçişlerinden sonra "Tamamlama oranı ekranını aç" butonu bazen accessibility tree'de görünmüyor (test 03'te uyarı verdi, doğrudan açıldığında mevcut).
 - **Kök Neden:** `completionRate` hesaplaması `visibleTodos.length` 0 olduğunda edge case → muhtemelen segment değişiminde re-render sırasında kısa bir an için view gizleniyor ya da animasyon devam ediyor.
-- **Düzeltme:** Stats kart containerına `minHeight` ekle, visibility'i `opacity` ile yönet (unmount/mount yerine), `waitForAnimationToEnd` süresini artır.
-- **Etkilenen Dosyalar:** `app/(tabs)/home.tsx` (satır 572–600), ilgili styles
+- **Yapılan:** Stats satırına `minHeight: 88`, `collapsable={false}`; Maestro `03_home_segments.yaml` içinde `waitForAnimationToEnd` timeout’ları artırıldı.
+- **Etkilenen Dosyalar:** `app/(tabs)/home.tsx`, `.maestro/03_home_segments.yaml`
 
 ### BUG-04 — RevenueCat "Test Store API Key" Uyarısı
 
@@ -55,12 +55,11 @@
 - **Düzeltme:** `.env.production` dosyası oluştur, EAS build'de environment'a göre doğru key inject et.
 - **Etkilenen Dosyalar:** `.env`, `eas.json`
 
-### BUG-05 — Profil: "Apple Abonelik Yönetimi" Sadece Premium Kullanıcılarda Görünüyor
+### BUG-05 — Profil: "Apple Abonelik Yönetimi" / geri yükle — **düzeltildi (kod)**
 
 - **Ekran:** `app/(tabs)/profile.tsx`
-- **Semptom:** `isPremium && (trialActive || expirationDate)` koşulu sağlanmadığı için ücretsiz kullanıcılarda bu element görünmüyor.
-- **Durum:** Bu **expected behavior** — ancak ücretsiz kullanıcıların subscription durumunu yönetmek için alternatif bir erişim noktası sunulmalı (örn. restore purchases butonu her zaman görünür olmalı).
-- **Düzeltme:** Profil ekranına her kullanıcı için "Satın alımları geri yükle" (Restore Purchases) butonu ekle.
+- **Semptom:** `isPremium && (trialActive || expirationDate)` koşulu sağlanmadığı için ücretsiz kullanıcılarda "Yönet" satırı görünmüyordu; geri yükle üstte keşfedilmiyordu.
+- **Durum:** Apple abonelik linki premium + tarih bilgisi varken doğru; ücretsizler için üstte belirgin **Satın alımları geri yükle** şeridi eklendi. Ayarlar listesindeki satıra `testID="profile-restore-purchases"` verildi.
 - **Etkilenen Dosyalar:** `app/(tabs)/profile.tsx`
 
 ---

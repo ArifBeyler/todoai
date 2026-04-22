@@ -10,6 +10,12 @@ export type DailyHeroStatus =
   | "fully_revealed"
   | "failed";
 
+export type TodoShakeReveal = {
+  todoId: string | null;
+  isRevealed: boolean;
+  revealedAt: string | null;
+};
+
 type HeroRevealState = {
   dailyHeroStatus: DailyHeroStatus;
   dailyHeroDate: string | null;
@@ -21,11 +27,18 @@ type HeroRevealState = {
   dailyHeroImageUrl: string | null;
   dailyHeroError: string | null;
 
+  // Shake-to-reveal on the first todo visual after a batch completes. Persists
+  // so the user doesn't see the blur a second time.
+  todoShakeReveal: TodoShakeReveal;
+
   startGeneration: (todoIds: string[]) => void;
   setHeroReady: (imageUrl: string) => void;
   setHeroError: (error: string) => void;
   retryGeneration: () => void;
   resetDailyHero: () => void;
+  primeTodoShakeReveal: (todoId: string) => void;
+  markTodoShakeRevealed: () => void;
+  resetTodoShakeReveal: () => void;
 };
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -42,6 +55,8 @@ export const useHeroRevealStore = create<HeroRevealState>()(
 
       dailyHeroImageUrl: null,
       dailyHeroError: null,
+
+      todoShakeReveal: { todoId: null, isRevealed: false, revealedAt: null },
 
       startGeneration: (todoIds: string[]) => {
         const today = todayStr();
@@ -102,6 +117,35 @@ export const useHeroRevealStore = create<HeroRevealState>()(
           dailyHeroError: null,
         });
       },
+
+      primeTodoShakeReveal: (todoId: string) => {
+        const current = get().todoShakeReveal;
+        if (current.todoId === todoId) return;
+        set({
+          todoShakeReveal: {
+            todoId,
+            isRevealed: false,
+            revealedAt: null,
+          },
+        });
+      },
+
+      markTodoShakeRevealed: () => {
+        const current = get().todoShakeReveal;
+        if (!current.todoId || current.isRevealed) return;
+        set({
+          todoShakeReveal: {
+            ...current,
+            isRevealed: true,
+            revealedAt: new Date().toISOString(),
+          },
+        });
+      },
+
+      resetTodoShakeReveal: () =>
+        set({
+          todoShakeReveal: { todoId: null, isRevealed: false, revealedAt: null },
+        }),
     }),
     {
       name: "doara-hero-reveal",

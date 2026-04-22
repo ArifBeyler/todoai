@@ -32,6 +32,8 @@ export type HomeHeroVariant =
   | "starter_hero"
   | "todo_visual"
   | "todo_generating"
+  | "todo_batch_generating"
+  | "todo_shake_reveal"
   | "all_done"
   | "placeholder"
   | "premium_teaser"
@@ -63,6 +65,8 @@ export const useFTUE = () => {
 
   const { isPremium, profilePhoto } = useSessionStore();
   const todos = useTodoStore((s) => s.todos);
+  const generationBatch = useTodoStore((s) => s.generationBatch);
+  const todoShakeReveal = useHeroRevealStore((s) => s.todoShakeReveal);
 
   // Use eligible active todos (non-deleted, non-completed, valid title) for all counts
   const eligibleTodos = useMemo(() => getEligibleTodos(todos), [todos]);
@@ -160,7 +164,21 @@ export const useFTUE = () => {
 
     if (dailyHeroStatus === "generating") return "daily_visual_generating";
 
-    // 6. Map the 9 AI states to hero variants (subscribed users with profile)
+    // 6. Batch generation and shake-reveal take priority over the AI state
+    // machine. The eligibility engine may still report "not_eligible" while
+    // a batch is already running (state machines are async), so we must check
+    // these BEFORE the aiVisualState switch to avoid an invisible batch.
+    if (generationBatch.status === "running") return "todo_batch_generating";
+
+    if (
+      generationBatch.status === "done" &&
+      todoShakeReveal.todoId &&
+      !todoShakeReveal.isRevealed
+    ) {
+      return "todo_shake_reveal";
+    }
+
+    // 7. Map AI visual states to hero variants (subscribed users with profile)
     switch (aiVisualState) {
       case "not_eligible":
         if (eligibleTodoCount === 0) return "empty";
@@ -184,6 +202,7 @@ export const useFTUE = () => {
     if (totalTodoCount === 0) return "empty";
     if (eligibleTodoCount < TASK_MILESTONE_THRESHOLD) return "need_more_todos";
     if (allDone) return "all_done";
+
     if (currentHeroTodo?.visualStatus === "pending") return "todo_generating";
     if (currentHeroTodo?.visualStatus === "ready") return "todo_visual";
 
@@ -201,6 +220,9 @@ export const useFTUE = () => {
     paywallInteraction,
     photoUploadStatus,
     aiVisualState,
+    generationBatch.status,
+    todoShakeReveal.todoId,
+    todoShakeReveal.isRevealed,
   ]);
 
   // taskMilestone uses eligible todo count, not total
@@ -226,8 +248,9 @@ export const useFTUE = () => {
 
   const shouldPromptNotification = useMemo(() => {
     if (notificationPermission !== "not_asked") return false;
-    return firstVisualDelivered;
-  }, [notificationPermission, firstVisualDelivered]);
+    if (firstVisualDelivered) return true;
+    return totalTodoCount >= TASK_MILESTONE_THRESHOLD;
+  }, [notificationPermission, firstVisualDelivered, totalTodoCount]);
 
   const canTriggerGeneration = useMemo(() => {
     if (!isPremium && paywallInteraction !== "subscribed") return false;
@@ -279,6 +302,8 @@ export const useFTUE = () => {
     taskCountAtLastCheck,
     firstVisualDelivered,
     currentHeroTodo,
+    generationBatch,
+    todoShakeReveal,
     getNextAction,
   };
 };

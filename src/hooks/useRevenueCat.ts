@@ -30,6 +30,14 @@ export const useRevenueCat = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [offeringsError, setOfferingsError] = useState(false);
+  const [isRefetchingOfferings, setIsRefetchingOfferings] = useState(false);
+
+  const syncOfferingsFromResult = useCallback((current: PurchasesOffering | null) => {
+    setOffering(current);
+    const count = current?.availablePackages?.length ?? 0;
+    setOfferingsError(count === 0);
+  }, []);
 
   const syncPremiumState = useCallback(
     (info: CustomerInfo) => {
@@ -57,7 +65,7 @@ export const useRevenueCat = () => {
       if (info) {
         syncPremiumState(info);
       }
-      setOffering(currentOffering);
+      syncOfferingsFromResult(currentOffering);
       setIsLoading(false);
     };
 
@@ -72,6 +80,27 @@ export const useRevenueCat = () => {
     return () => {
       mounted = false;
     };
+  }, [syncPremiumState, syncOfferingsFromResult]);
+
+  const refetchOfferings = useCallback(async () => {
+    setIsRefetchingOfferings(true);
+    try {
+      const currentOffering = await getOfferings();
+      syncOfferingsFromResult(currentOffering);
+    } finally {
+      setIsRefetchingOfferings(false);
+    }
+  }, [syncOfferingsFromResult]);
+
+  // Pulls the latest CustomerInfo from RevenueCat and syncs the local premium
+  // state. Safe to call on screen focus, after purchase, on app resume, or on
+  // the premium bridge — single source of truth for "am I premium right now?".
+  const refreshEntitlement = useCallback(async () => {
+    const info = await getCustomerInfo();
+    if (info) {
+      syncPremiumState(info);
+    }
+    return info;
   }, [syncPremiumState]);
 
   const packages = offering?.availablePackages ?? [];
@@ -133,11 +162,15 @@ export const useRevenueCat = () => {
     isRestoring,
     offering,
     packages,
+    offeringsError,
+    isRefetchingOfferings,
+    refetchOfferings,
     planType,
     expirationDate,
     trialActive,
     customerInfo,
     purchasePackage: handlePurchase,
     restorePurchases: handleRestore,
+    refreshEntitlement,
   };
 };

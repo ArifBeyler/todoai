@@ -260,6 +260,7 @@ const PlusButton = () => {
       style={styles.plusItem}
       accessibilityRole="button"
       accessibilityLabel="Yeni görev ekle"
+      testID="add-todo-fab"
     >
       <Animated.View style={[styles.plusShell, pressStyle]}>
         <Plus size={22} color="#1F1F1F" weight="bold" />

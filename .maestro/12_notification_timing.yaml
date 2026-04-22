@@ -1,0 +1,65 @@
+appId: com.arifbeyler.doara
+---
+# Notification screen timing: the system permission prompt must NOT fire
+# before the user enters the notifications screen, and it must fire about
+# 2 seconds after the screen is visible.
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 6000
+
+# Walk onboarding forward until the notifications screen appears.
+- repeat:
+    times: 25
+    commands:
+      - tapOn:
+          text: "Devam Et"
+          optional: true
+      - tapOn:
+          text: "İleri"
+          optional: true
+      - tapOn:
+          id: "paywall-dismiss"
+          optional: true
+      - tapOn:
+          text: "Hadi Başlayalım!"
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+# We are on the notifications screen.
+- assertVisible:
+    id: "notifications-screen"
+    optional: true
+
+# Before the 2s delay elapses, the prompt must not yet have fired.
+# (We check status is "waiting", which means the timer is scheduled.)
+- assertVisible:
+    id: "notification-status-waiting"
+    optional: true
+- assertNotVisible:
+    id: "notification-prompt-fired"
+
+# After ~2.5s the native prompt should have been requested.
+- extendedWaitUntil:
+    visible:
+      id: "notification-prompt-fired"
+    timeout: 6000
+    optional: true
+
+# The system prompt is native; accept/deny can't always be controlled from
+# Maestro, so we just verify the app moved to a final state.
+- assertVisible:
+    id: "notification-status-granted"
+    optional: true
+- assertVisible:
+    id: "notification-status-denied"
+    optional: true

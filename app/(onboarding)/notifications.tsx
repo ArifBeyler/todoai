@@ -1,6 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { router } from "expo-router";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  InteractionManager,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Animated, {
   Easing,
   FadeIn,
@@ -10,8 +16,10 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { Bell, BellSlash } from "phosphor-react-native";
+import { Bell, BellSlash, CheckCircle } from "phosphor-react-native";
+import * as Notifications from "expo-notifications";
 import { usePushNotifications } from "@/src/hooks/usePushNotifications";
+import { useFTUEStore } from "@state/useFTUEStore";
 import { font, semantic, shadow, spacing } from "@/src/ui/tokens";
 import { preHomeMotion } from "@/src/ui/motion";
 import { OnboardingProgress } from "@/src/components/OnboardingProgress";
@@ -28,11 +36,21 @@ const BENEFITS = [
   "Görsel hazır bildirim",
 ];
 
+// Delay before the native prompt appears. This gives the user time to read the
+// screen copy and understand why we're asking.
+const PROMPT_DELAY_MS = 2_000;
+
+type PromptState = "checking" | "waiting" | "prompted" | "granted" | "denied";
+
 export default function NotificationsScreen() {
   const { requestPermissions } = usePushNotifications();
-  const [isRequesting, setIsRequesting] = useState(false);
+  const setNotificationPermission = useFTUEStore((s) => s.setNotificationPermission);
+  const [promptState, setPromptState] = useState<PromptState>("checking");
   const pulseScale = useSharedValue(1);
   const { triggerExit, exitStyle } = useOnboardingExit();
+
+  const hasFiredRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     pulseScale.value = withRepeat(
@@ -45,23 +63,78 @@ export default function NotificationsScreen() {
     );
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const fireNativePrompt = async () => {
+      if (hasFiredRef.current) return;
+      hasFiredRef.current = true;
+      setPromptState("prompted");
+      const granted = await requestPermissions();
+      if (cancelled) return;
+      setPromptState(granted ? "granted" : "denied");
+      setNotificationPermission(granted ? "granted" : "denied");
+    };
+
+    const schedulePromptIfNeeded = async () => {
+      const existing = await Notifications.getPermissionsAsync();
+      if (cancelled) return;
+
+      const alreadyGranted =
+        existing.granted ||
+        existing.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
+      const alreadyDenied =
+        !existing.granted && existing.status === "denied";
+
+      if (alreadyGranted) {
+        setPromptState("granted");
+        setNotificationPermission("granted");
+        return;
+      }
+
+      if (alreadyDenied) {
+        setPromptState("denied");
+        setNotificationPermission("denied");
+        return;
+      }
+
+      setPromptState("waiting");
+      // Let the screen finish its enter animation before asking, then pause for
+      // PROMPT_DELAY_MS so the user can read the benefits.
+      InteractionManager.runAfterInteractions(() => {
+        if (cancelled) return;
+        timerRef.current = setTimeout(fireNativePrompt, PROMPT_DELAY_MS);
+      });
+    };
+
+    schedulePromptIfNeeded();
+
+    return () => {
+      cancelled = true;
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [requestPermissions, setNotificationPermission]);
+
   const iconPulseStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pulseScale.value }],
   }));
 
-  const handleAllow = async () => {
-    if (isRequesting) return;
-    setIsRequesting(true);
-    try {
-      await requestPermissions();
-    } finally {
-      setIsRequesting(false);
-      triggerExit("forward", () => router.push("/(onboarding)/microphone"));
-    }
+  const goNext = () => {
+    triggerExit("forward", () => router.push("/(onboarding)/microphone"));
+  };
+
+  const handleContinue = () => {
+    goNext();
   };
 
   const handleSkip = () => {
-    triggerExit("forward", () => router.push("/(onboarding)/microphone"));
+    if (promptState === "waiting" || promptState === "checking") {
+      setNotificationPermission("skipped");
+    }
+    goNext();
   };
 
   const handleBack = () => {
@@ -70,7 +143,7 @@ export default function NotificationsScreen() {
 
   const titleText = "Hiçbir görevi\nkaçırma";
   const subText =
-    "Görev ve alışkanlık hatırlatmalarını zamanında alabilmen için bildirim iznine ihtiyacımız var.";
+    "Hatırlatıcılar, odak uyarıları ve görsel hazır bildirimleri için izne ihtiyacımız var. Birkaç saniye sonra sistem penceresi açılır.";
 
   const benefitTiming = useMemo(() => {
     const t0 = 157;
@@ -81,8 +154,35 @@ export default function NotificationsScreen() {
     return { t0, subStart, listStart };
   }, [titleText, subText]);
 
+  const statusLabel = (() => {
+    switch (promptState) {
+      case "waiting":
+        return "İzin kutusu birazdan açılacak…";
+      case "prompted":
+        return "Sistem izin penceresi açıldı";
+      case "granted":
+        return "Bildirimler açık";
+      case "denied":
+        return "Bildirimler kapalı. Ayarlardan açabilirsin.";
+      default:
+        return "";
+    }
+  })();
+
+  const nextLabel = (() => {
+    if (promptState === "granted") return "Harika, devam et";
+    if (promptState === "denied") return "Devam et";
+    if (promptState === "prompted") return "İzin isteniyor…";
+    return "Devam Et";
+  })();
+
+  const nextDisabled = promptState === "prompted";
+
   return (
-    <Animated.View style={[styles.container, exitStyle]}>
+    <Animated.View
+      style={[styles.container, exitStyle]}
+      testID="notifications-screen"
+    >
       <OnboardingProgress current={11} total={11} />
 
       <Animated.View
@@ -135,15 +235,31 @@ export default function NotificationsScreen() {
         })}
       </View>
 
+      {statusLabel ? (
+        <View
+          style={styles.statusRow}
+          testID={
+            promptState === "prompted"
+              ? "notification-prompt-fired"
+              : `notification-status-${promptState}`
+          }
+        >
+          {promptState === "granted" ? (
+            <CheckCircle size={14} color={semantic.success} weight="fill" />
+          ) : null}
+          <Text style={styles.statusText}>{statusLabel}</Text>
+        </View>
+      ) : null}
+
       <Animated.View
         entering={preHomeMotion.ctaEnter(571)}
         style={styles.buttonGroup}
       >
         <OnboardingFooter
-          onNext={handleAllow}
+          onNext={handleContinue}
           onBack={handleBack}
-          nextLabel={isRequesting ? "İzin isteniyor…" : "İzin Ver"}
-          nextDisabled={isRequesting}
+          nextLabel={nextLabel}
+          nextDisabled={nextDisabled}
           showBack
         />
 
@@ -234,6 +350,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: font.semiBold,
     color: semantic.textPrimary,
+  },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: spacing.md,
+    alignSelf: "center",
+  },
+  statusText: {
+    fontSize: 13,
+    fontFamily: font.medium,
+    color: semantic.textSecondary,
   },
   buttonGroup: {
     marginTop: "auto",

@@ -1,0 +1,51 @@
+[
+  {
+    "flow": "11_non_premium_branching.yaml",
+    "ok": false,
+    "code": "timeout",
+    "seconds": 120.0,
+    "tail": "Tap on (Optional) \"Doara, http://.*:8081\"... COMPLETED\nTap on (Optional) \"Doara\"... COMPLETED\nWait for animation to end... COMPLETED\nRepeat while id: paywall-dismiss is not visible...\n  Tap on (Optional) \"Devam Et\"... WARNED\n  Tap on (Optional) \"İleri\"... COMPLETED\n  Tap on (Optional) \"Başla\"... WARNED\n  Tap on (Optional) \"Hadi Başlayalım!\"... WARNED\n  Tap on (Optional) \"Şimdilik Atla\"... WARNED\n  Wait for animation to end... COMPLETED"
+  },
+  {
+    "flow": "12_notification_timing.yaml",
+    "ok": false,
+    "code": "timeout",
+    "seconds": 120.0,
+    "tail": "\n Warning: Element not found: Text matching regex: Doara, http://.*:8081\nTap on (Optional) \"Doara\"... COMPLETED\nWait for animation to end... COMPLETED\nRepeat while id: notifications-screen is not visible...\n  Tap on (Optional) \"Devam Et\"... WARNED\n  Tap on (Optional) \"İleri\"... COMPLETED\n  Tap on (Optional) id: paywall-dismiss... WARNED\n  Tap on (Optional) \"Hadi Başlayalım!\"... WARNED\n  Wait for animation to end... COMPLETED"
+  },
+  {
+    "flow": "13_todo_batch_progress.yaml",
+    "ok": false,
+    "code": 1,
+    "seconds": 44.2,
+    "tail": "Element with Id matching regex: add-todo-fab not found. Check the UI hierarchy in debug artifacts to verify if the element exists.\n\nPossible causes:\n- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.\n- Element may be temporarily unavailable due to loading state.\n- This could be a real regression that needs to be addressed.\n\n==== Debug output (logs & screenshots) ====\n\n/Users/arifbeyler/.maestro/tests/2026-04-20_135044"
+  },
+  {
+    "flow": "14_shake_reveal.yaml",
+    "ok": false,
+    "code": "timeout",
+    "seconds": 120.0,
+    "tail": "\tat maestro.cli.command.TestCommand.access$runShardSuite(TestCommand.kt:80)\n\tat maestro.cli.command.TestCommand$handleSessions$1$results$1$1.invokeSuspend(TestCommand.kt:435)\n\tat kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)\n\tat kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)\n\tat kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)\n\tat kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)"
+  },
+  {
+    "flow": "15_profile_non_premium.yaml",
+    "ok": false,
+    "code": "timeout",
+    "seconds": 120.0,
+    "tail": "\tat maestro.cli.command.TestCommand.access$runShardSuite(TestCommand.kt:80)\n\tat maestro.cli.command.TestCommand$handleSessions$1$results$1$1.invokeSuspend(TestCommand.kt:435)\n\tat kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)\n\tat kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)\n\tat kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)\n\tat kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)"
+  },
+  {
+    "flow": "16_premium_state_persistence.yaml",
+    "ok": false,
+    "code": 1,
+    "seconds": 35.4,
+    "tail": "Element with Id matching regex: tab-profile not found. Check the UI hierarchy in debug artifacts to verify if the element exists.\n\nPossible causes:\n- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.\n- Element may be temporarily unavailable due to loading state.\n- This could be a real regression that needs to be addressed.\n\n==== Debug output (logs & screenshots) ====\n\n/Users/arifbeyler/.maestro/tests/2026-04-20_135528"
+  },
+  {
+    "flow": "17_restore_purchases.yaml",
+    "ok": false,
+    "code": "timeout",
+    "seconds": 120.0,
+    "tail": "\tat maestro.cli.command.TestCommand.access$runShardSuite(TestCommand.kt:80)\n\tat maestro.cli.command.TestCommand$handleSessions$1$results$1$1.invokeSuspend(TestCommand.kt:435)\n\tat kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)\n\tat kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:104)\n\tat kotlinx.coroutines.internal.LimitedDispatcher$Worker.run(LimitedDispatcher.kt:111)\n\tat kotlinx.coroutines.scheduling.TaskImpl.run(Tasks.kt:99)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler.runSafely(CoroutineScheduler.kt:585)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.executeTask(CoroutineScheduler.kt:802)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.runWorker(CoroutineScheduler.kt:706)\n\tat kotlinx.coroutines.scheduling.CoroutineScheduler$Worker.run(CoroutineScheduler.kt:693)"
+  }
+]

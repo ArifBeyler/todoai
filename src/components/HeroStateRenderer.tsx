@@ -51,6 +51,16 @@ type HeroStateRendererProps = {
   dailyHeroImageUrl?: string | null;
   onPressFullScreen?: () => void;
   minutesUntilStable?: number;
+  // Multi-todo batch generation progress.
+  generationCompleted?: number;
+  generationTotal?: number;
+  // Shake-to-reveal for the first todo visual.
+  shakeRevealImageUrl?: string | null;
+  shakeRevealTodoTitle?: string | null;
+  isShakeRevealed?: boolean;
+  onPressDebugReveal?: () => void;
+  // Active todo title in a running batch (the one currently being generated).
+  generationCurrentTodoTitle?: string | null;
 };
 
 const fallbackHero = require("../../assets/images/hero-sample-full.png");
@@ -325,19 +335,171 @@ const TodoGeneratingHero = ({
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={styles.heroLoading}
+    testID="hero-single-generating-card"
   >
     <TopCornerBadges {...badgeProps} />
     <View style={styles.loadingContent}>
       <ActivityIndicator color="#FDF7EF" size="small" />
-      <Text style={styles.loadingTitle}>Görselin hazırlanıyor...</Text>
+      <Text style={styles.loadingTitle}>Bu görev için görsel hazırlanıyor</Text>
       <Text style={styles.loadingSub} numberOfLines={1}>
         {currentTodoTitle
-          ? `"${currentTodoTitle}" için karakter oluşturuluyor.`
-          : "Yapay zekâ karakterini oluşturuyor."}
+          ? `"${currentTodoTitle}" sahnesi oluşturuluyor.`
+          : "Yapay zekâ tek bir sahne oluşturuyor."}
       </Text>
     </View>
   </LinearGradient>
 );
+
+const TodoBatchGeneratingHero = ({
+  generationCompleted = 0,
+  generationTotal = 0,
+  generationCurrentTodoTitle,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  | "onPressAssistant"
+  | "onPressScore"
+  | "productivityScore"
+  | "generationCompleted"
+  | "generationTotal"
+  | "generationCurrentTodoTitle"
+>) => {
+  const safeTotal = Math.max(generationTotal, 1);
+  const progress = Math.max(0, Math.min(1, generationCompleted / safeTotal));
+  // The current-todo title comes from the store while a batch is running.
+  // If it's ever missing we still show a meaningful line so the user knows
+  // each todo is processed individually.
+  const currentLine = generationCurrentTodoTitle
+    ? `Şu an: "${generationCurrentTodoTitle}"`
+    : "Her görev için ayrı sahne hazırlanıyor.";
+
+  return (
+    <LinearGradient
+      colors={[palette.steelTeal, palette.dolphinGray]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.heroLoading}
+      testID="hero-generation-card"
+    >
+      <TopCornerBadges {...badgeProps} />
+      <View style={styles.loadingContent}>
+        <View style={styles.batchHeaderPill} testID="generation-batch-header">
+          <Sparkle size={12} color="#FDF7EF" weight="fill" />
+          <Text style={styles.batchHeaderText}>
+            {generationTotal} görev için görsel üretimi başladı
+          </Text>
+        </View>
+        <ActivityIndicator color="#FDF7EF" size="small" />
+        <Text style={styles.loadingTitle}>Todo görselleriniz üretiliyor</Text>
+        <Text
+          style={styles.loadingSub}
+          testID="generation-progress-counter"
+          accessibilityLabel={`${generationCompleted} of ${generationTotal}`}
+          numberOfLines={1}
+        >
+          {generationCompleted}/{generationTotal} hazır · {currentLine}
+        </Text>
+        <View style={styles.batchProgressTrack}>
+          <View
+            style={[
+              styles.batchProgressFill,
+              { width: `${Math.round(progress * 100)}%` },
+            ]}
+          />
+        </View>
+      </View>
+    </LinearGradient>
+  );
+};
+
+const TodoShakeRevealHero = ({
+  shakeRevealImageUrl,
+  shakeRevealTodoTitle,
+  isShakeRevealed,
+  onPressDebugReveal,
+  ...badgeProps
+}: Pick<
+  HeroStateRendererProps,
+  | "onPressAssistant"
+  | "onPressScore"
+  | "productivityScore"
+  | "shakeRevealImageUrl"
+  | "shakeRevealTodoTitle"
+  | "isShakeRevealed"
+  | "onPressDebugReveal"
+>) => {
+  const heroSource = shakeRevealImageUrl ? { uri: shakeRevealImageUrl } : fallbackHero;
+
+  return (
+    <View
+      style={styles.heroCard}
+      testID={isShakeRevealed ? "hero-revealed-image" : "hero-blurred-image"}
+    >
+      <ImageBackground
+        source={heroSource}
+        style={styles.imageBackground}
+        imageStyle={styles.foregroundImage}
+        resizeMode="cover"
+      >
+        {!isShakeRevealed ? (
+          <BlurView
+            intensity={60}
+            tint="dark"
+            style={StyleSheet.absoluteFill}
+          />
+        ) : null}
+
+        <LinearGradient
+          colors={["rgba(0,0,0,0.08)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.0)", "rgba(0,0,0,0.45)"]}
+          locations={[0, 0.15, 0.55, 1]}
+          style={StyleSheet.absoluteFill}
+        />
+        <TopCornerBadges {...badgeProps} />
+
+        {!isShakeRevealed ? (
+          <Animated.View
+            entering={FadeIn.duration(450)}
+            style={styles.shakeOverlay}
+          >
+            <Text style={styles.shakeHintTitle} testID="shake-hint">
+              Telefonu salla
+            </Text>
+            <Text style={styles.shakeHintSub}>
+              {shakeRevealTodoTitle
+                ? `"${shakeRevealTodoTitle}" görselini açmak için telefonu salla.`
+                : "İlk todo görselin sallamayı bekliyor."}
+            </Text>
+            {__DEV__ && onPressDebugReveal ? (
+              <TouchableOpacity
+                onPress={onPressDebugReveal}
+                style={styles.shakeDebugButton}
+                testID="hero-shake-debug-reveal"
+                accessibilityRole="button"
+                accessibilityLabel="Geliştirici sallama"
+              >
+                <Text style={styles.shakeDebugButtonText}>Simülatörde aç</Text>
+              </TouchableOpacity>
+            ) : null}
+          </Animated.View>
+        ) : (
+          <Animated.View
+            entering={FadeInUp.duration(400)}
+            style={styles.overlayBottom}
+          >
+            <View style={styles.pillCTA}>
+              <SealCheck size={13} color="#FFF" weight="fill" />
+              <Text style={styles.pillCTAText}>
+                {shakeRevealTodoTitle
+                  ? `"${shakeRevealTodoTitle}" görseli açıldı`
+                  : "Todo görseli açıldı"}
+              </Text>
+            </View>
+          </Animated.View>
+        )}
+      </ImageBackground>
+    </View>
+  );
+};
 
 const AllDoneHero = (
   props: Pick<
@@ -889,6 +1051,13 @@ export const HeroStateRenderer = ({
   dailyHeroImageUrl,
   onPressFullScreen,
   minutesUntilStable,
+  generationCompleted,
+  generationTotal,
+  generationCurrentTodoTitle,
+  shakeRevealImageUrl,
+  shakeRevealTodoTitle,
+  isShakeRevealed,
+  onPressDebugReveal,
 }: HeroStateRendererProps) => {
   const badgeProps = { onPressAssistant, onPressScore, productivityScore };
   const fallbackVisualUrl = heroImageUrl ?? visual?.imageUrl ?? null;
@@ -969,6 +1138,25 @@ export const HeroStateRenderer = ({
     case "todo_generating":
       return (
         <TodoGeneratingHero {...badgeProps} currentTodoTitle={currentTodoTitle} />
+      );
+    case "todo_batch_generating":
+      return (
+        <TodoBatchGeneratingHero
+          {...badgeProps}
+          generationCompleted={generationCompleted}
+          generationTotal={generationTotal}
+          generationCurrentTodoTitle={generationCurrentTodoTitle}
+        />
+      );
+    case "todo_shake_reveal":
+      return (
+        <TodoShakeRevealHero
+          {...badgeProps}
+          shakeRevealImageUrl={shakeRevealImageUrl}
+          shakeRevealTodoTitle={shakeRevealTodoTitle}
+          isShakeRevealed={isShakeRevealed}
+          onPressDebugReveal={onPressDebugReveal}
+        />
       );
     case "all_done":
       return <AllDoneHero {...badgeProps} />;
@@ -1299,5 +1487,77 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#FFF",
+  },
+  batchHeaderPill: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderRadius: 999,
+    backgroundColor: "rgba(20,18,16,0.42)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 6,
+  },
+  batchHeaderText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FDF7EF",
+    letterSpacing: 0.1,
+  },
+  batchProgressTrack: {
+    marginTop: 14,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(253,247,239,0.18)",
+    overflow: "hidden",
+  },
+  batchProgressFill: {
+    height: "100%",
+    backgroundColor: "#FDF7EF",
+  },
+  shakeOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    gap: 8,
+  },
+  shakeHintTitle: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#FFF",
+    letterSpacing: -0.3,
+    textAlign: "center",
+    textShadowColor: "rgba(0,0,0,0.45)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
+  },
+  shakeHintSub: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.82)",
+    textAlign: "center",
+    lineHeight: 18,
+    maxWidth: 260,
+  },
+  shakeDebugButton: {
+    marginTop: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+  },
+  shakeDebugButtonText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#FFF",
+    letterSpacing: 0.2,
   },
 });

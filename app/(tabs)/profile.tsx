@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -18,6 +18,7 @@ import { ProfileHeroCard } from "@/src/components/profile/ProfileHeroCard";
 import { PremiumUpgradeCard } from "@/src/components/profile/PremiumUpgradeCard";
 import { UnifiedStatsSection } from "@/src/components/profile/UnifiedStatsSection";
 import {
+  ArrowCounterClockwise,
   CaretRight,
   CreditCard,
   Crown,
@@ -48,6 +49,7 @@ type SettingItem = {
   label: string;
   icon: typeof CreditCard;
   action?: string;
+  testID?: string;
 };
 
 const SETTINGS_PREMIUM: SettingItem[] = [
@@ -55,6 +57,13 @@ const SETTINGS_PREMIUM: SettingItem[] = [
 ];
 
 const SETTINGS_OTHER: SettingItem[] = [
+  {
+    key: "restore",
+    label: "Satın alımları geri yükle",
+    icon: ArrowCounterClockwise,
+    action: "restore",
+    testID: "profile-restore-purchases",
+  },
   { key: "language", label: "Dil", icon: Globe },
   { key: "privacy", label: "Gizlilik politikası", icon: Shield },
   { key: "terms", label: "Kullanım koşulları", icon: Scroll },
@@ -103,6 +112,7 @@ const SettingRow = ({
       onPress={onPress}
       activeOpacity={0.7}
       accessibilityRole="button"
+      testID={item.testID}
     >
       <View style={styles.settingIconWrap}>
         <Icon size={16} color="#7A6A60" weight="regular" />
@@ -149,14 +159,42 @@ const SettingsGroup = ({
 
 export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState("profile");
-  const { profileName, profilePhoto, isPremium, signOut } = useSessionStore();
+  const { profileName, profilePhoto, generatedAvatarUrl, isPremium, signOut } =
+    useSessionStore();
   const resetFTUE = useFTUEStore((s) => s.resetFTUE);
   const { todos } = useTodoStore();
   const { totalFocusMinutesToday } = useFocusStore();
   const { totalPoints } = useUserScore();
-  const { planType, expirationDate, trialActive } = useRevenueCat();
+  const {
+    planType,
+    expirationDate,
+    trialActive,
+    restorePurchases,
+    isRestoring,
+    refreshEntitlement,
+  } = useRevenueCat();
   const { items: galleryItems, isLoading, error, refresh } = useProfileGallery();
   const [focusStreak, setFocusStreak] = useState(0);
+
+  const oldestGalleryUri = useMemo(() => {
+    if (galleryItems.length === 0) return null;
+    const sorted = [...galleryItems].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+    return sorted[0]?.imageUrl ?? null;
+  }, [galleryItems]);
+
+  const profileAvatarDisplayUri =
+    profilePhoto ?? generatedAvatarUrl ?? oldestGalleryUri ?? null;
+
+  // Pull the latest CustomerInfo on every focus so a purchase/restore/refund
+  // that happened off-screen is reflected immediately (no stale Premium CTA).
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+      void refreshEntitlement();
+    }, [refresh, refreshEntitlement]),
+  );
 
   const visibleTodos = todos.filter((t) => t.deletedAt == null);
   const completed = visibleTodos.filter((t) => t.isCompleted).length;
@@ -182,6 +220,22 @@ export default function ProfileScreen() {
 
   const handleSettingPress = useCallback(
     (action?: string) => {
+      if (action === "restore") {
+        if (isRestoring) return;
+        void (async () => {
+          const result = await restorePurchases();
+          if (result.success) {
+            Alert.alert("Başarılı", "Satın alımların geri yüklendi.", [{ text: "Tamam" }]);
+            return;
+          }
+          Alert.alert(
+            "Geri yükleme",
+            "Aktif bir abonelik bulunamadı veya işlem tamamlanamadı.",
+            [{ text: "Tamam" }],
+          );
+        })();
+        return;
+      }
       if (action === "subscription") {
         if (isPremium) {
           Linking.openURL("https://apps.apple.com/account/subscriptions");
@@ -190,7 +244,7 @@ export default function ProfileScreen() {
         }
       }
     },
-    [isPremium],
+    [isPremium, isRestoring, restorePurchases],
   );
 
   const getBadgeText = (): string => {
@@ -230,15 +284,31 @@ export default function ProfileScreen() {
         {activeTab === "profile" && (
           <>
             <ProfileHeroCard
-              profilePhoto={profilePhoto}
+              profilePhoto={profileAvatarDisplayUri}
               profileName={profileName}
               isPremium={isPremium}
               badgeText={getBadgeText()}
               aiStatusText={getAIStatusText()}
             />
 
-            {!isPremium && (
-              <PremiumUpgradeCard onPress={() => router.push("/paywall")} />
+            {isPremium === false && (
+              <View testID="profile-premium-upgrade-card">
+                <PremiumUpgradeCard onPress={() => router.push("/paywall")} />
+                <TouchableOpacity
+                  style={styles.restorePurchasesBanner}
+                  onPress={() => handleSettingPress("restore")}
+                  disabled={isRestoring}
+                  activeOpacity={0.75}
+                  accessibilityRole="button"
+                  accessibilityLabel="Satın alımları geri yükle"
+                  testID="profile-restore-purchases-banner"
+                >
+                  <ArrowCounterClockwise size={16} color="#7A6A60" weight="regular" />
+                  <Text style={styles.restorePurchasesBannerText}>
+                    Satın alımları geri yükle
+                  </Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {isPremium && (trialActive || expirationDate) && (
@@ -322,21 +392,33 @@ export default function ProfileScreen() {
             ) : (
               <View style={styles.galleryGrid}>
                 {galleryItems.map((item, index) => (
-                  <Animated.View
+                  <TouchableOpacity
                     key={item.id}
-                    entering={FadeInUp.delay(index * 80).duration(300)}
-                    style={[styles.galleryCard, shadow.card]}
+                    activeOpacity={0.88}
+                    onPress={() =>
+                      router.push(`/profile-gallery/${encodeURIComponent(item.id)}`)
+                    }
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      item.type === "avatar" ? "Avatar görsel detayı" : "Görsel detayı"
+                    }
+                    testID={`profile-gallery-tile-${index}`}
                   >
-                    <Image source={{ uri: item.imageUrl }} style={styles.galleryImage} />
-                    <View style={styles.galleryMeta}>
-                      <Text style={styles.galleryType}>
-                        {item.type === "avatar" ? "Avatar" : "Görsel"}
-                      </Text>
-                      <Text style={styles.galleryDate}>
-                        {new Date(item.createdAt).toLocaleDateString("tr-TR")}
-                      </Text>
-                    </View>
-                  </Animated.View>
+                    <Animated.View
+                      entering={FadeInUp.delay(index * 80).duration(300)}
+                      style={[styles.galleryCard, shadow.card]}
+                    >
+                      <Image source={{ uri: item.imageUrl }} style={styles.galleryImage} />
+                      <View style={styles.galleryMeta}>
+                        <Text style={styles.galleryType}>
+                          {item.type === "avatar" ? "Avatar" : "Görsel"}
+                        </Text>
+                        <Text style={styles.galleryDate}>
+                          {new Date(item.createdAt).toLocaleDateString("tr-TR")}
+                        </Text>
+                      </View>
+                    </Animated.View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}
@@ -588,6 +670,24 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#FFFFFF",
     letterSpacing: 0.1,
+  },
+
+  restorePurchasesBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: spacing.md,
+    paddingVertical: 12,
+    borderRadius: radius.lg,
+    backgroundColor: "#F5F1EB",
+    borderWidth: 1,
+    borderColor: "#EDE5D8",
+  },
+  restorePurchasesBannerText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#5C4F47",
   },
 
   // Subscription Info (premium)

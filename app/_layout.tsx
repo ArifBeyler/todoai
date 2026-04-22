@@ -110,6 +110,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(onboarding)" />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="todo" />
+                <Stack.Screen name="profile-gallery/[id]" options={{ presentation: "card" }} />
                 <Stack.Screen name="visual" options={{ presentation: "modal" }} />
                 <Stack.Screen name="stats" />
               </Stack>

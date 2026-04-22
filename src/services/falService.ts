@@ -32,6 +32,21 @@ export const generateTodoVisual = async ({
     });
 
   if (enqueueError) {
+    // Try to get the HTTP status from the Supabase FunctionsHttpError context.
+    // This lets callers distinguish "not premium" (403) from real failures.
+    const httpStatus: number | undefined = (enqueueError as any)?.context?.status;
+    if (httpStatus === 401) throw new Error("auth_required");
+    if (httpStatus === 403) throw new Error("premium_required");
+    if (httpStatus === 400) {
+      // Could be avatar_required or bad params — treat as non-retryable.
+      let body: Record<string, unknown> = {};
+      try {
+        body = await (enqueueError as any)?.context?.json();
+      } catch {}
+      throw new Error(
+        (body?.error as string) ?? "bad_request",
+      );
+    }
     throw new Error(enqueueError.message ?? "Görsel kuyruğa eklenemedi");
   }
 

@@ -2,6 +2,11 @@ appId: com.arifbeyler.doara
 ---
 - launchApp
 - waitForAnimationToEnd
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 
 # Takvim tabına geç
 - tapOn:
@@ -10,13 +15,13 @@ appId: com.arifbeyler.doara
 
 # Hafta navigasyon butonları her zaman görünür olmalı
 - assertVisible:
-    text: "Önceki hafta"
+    id: "btn-prev-week"
 - assertVisible:
-    text: "Sonraki hafta"
+    id: "btn-next-week"
 
 # Sonraki haftaya git
 - tapOn:
-    text: "Sonraki hafta"
+    id: "btn-next-week"
 - waitForAnimationToEnd
 
 # Eğer dev tools açılırsa kapat (dev build quirk)
@@ -25,13 +30,13 @@ appId: com.arifbeyler.doara
     optional: true
 - waitForAnimationToEnd
 
-# "Bugüne git" butonu görünmeli (artık bugün seçili değil)
+# "Bugüne git" butonu (artık bugün seçili değilken görünür)
 - assertVisible:
-    text: "Bugüne git"
+    id: "btn-go-today"
     optional: true
 
 # Önceki haftaya dön
 - tapOn:
-    text: "Önceki hafta"
+    id: "btn-prev-week"
     optional: true
 - waitForAnimationToEnd

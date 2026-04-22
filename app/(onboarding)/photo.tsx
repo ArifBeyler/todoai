@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -33,8 +33,21 @@ export default function PhotoScreen() {
   const [isUploading, setIsUploading] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const { setProfilePhoto, isPremium } = useSessionStore();
+  const paywallInteraction = useFTUEStore((s) => s.paywallInteraction);
   const { setPhotoUploadStatus } = useFTUEStore();
   const { triggerExit, exitStyle } = useOnboardingExit();
+
+  // Premium-only screen: redirect non-premium users away so they never see
+  // photo/avatar copy. This is the single source of truth for the guard.
+  const redirectedRef = useRef(false);
+  useEffect(() => {
+    if (redirectedRef.current) return;
+    const premiumUnlocked = isPremium || paywallInteraction === "subscribed";
+    if (!premiumUnlocked) {
+      redirectedRef.current = true;
+      router.replace("/(onboarding)/free-intro");
+    }
+  }, [isPremium, paywallInteraction]);
 
   const handlePickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -85,14 +98,14 @@ export default function PhotoScreen() {
     triggerExit("back", () => router.back());
   };
 
-  const titleStr = "Bir fotoğrafınızı\nekleyin";
+  const titleStr = "Avatar fotoğrafını\nseç";
   const subStr =
-    "Yapay zekâ görselinizde yüz hatlarınızı korumak için bu fotoğrafı kullanır. İlk kişisel görselinizi oluşturalım!";
+    "Premium üyeliğinle kişisel AI görsellerinde yüz hatlarını korumak için bu fotoğrafı kullanıyoruz. Üretim tamamlandıktan sonra otomatik siliniyor.";
   const st = 30;
   const titleSteps = countStaggerSteps(titleStr);
 
   return (
-    <Animated.View style={[styles.container, exitStyle]}>
+    <Animated.View style={[styles.container, exitStyle]} testID="photo-upload-screen">
       <View>
         <OnboardingStaggeredParagraph
           text={titleStr}

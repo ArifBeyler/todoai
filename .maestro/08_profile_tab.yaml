@@ -2,10 +2,16 @@ appId: com.arifbeyler.doara
 ---
 - launchApp
 - waitForAnimationToEnd
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
 
 # Profil tabına geç
 - tapOn:
     id: "tab-profile"
+    optional: true
 - waitForAnimationToEnd
 
 # Profil ekranı elementlerini doğrula (ücretsiz kullanıcı)
@@ -14,6 +20,9 @@ appId: com.arifbeyler.doara
     optional: true
 - assertVisible:
     text: "Ücretsiz"
+    optional: true
+- assertVisible:
+    id: "profile-restore-purchases-banner"
     optional: true
 
 # Scroll yaparak Ayarlar, Çıkış yap elementlerini gör

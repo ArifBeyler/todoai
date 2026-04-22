@@ -167,6 +167,7 @@ export default function CalendarScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Bugüne git"
                 activeOpacity={0.7}
+                testID="btn-go-today"
               >
                 <Text style={styles.todayButtonText}>Bugün</Text>
               </TouchableOpacity>
@@ -181,6 +182,7 @@ export default function CalendarScreen() {
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel="Önceki hafta"
+            testID="btn-prev-week"
           >
             <CaretLeft size={16} color="#666" weight="bold" />
           </TouchableOpacity>
@@ -193,6 +195,7 @@ export default function CalendarScreen() {
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel="Sonraki hafta"
+            testID="btn-next-week"
           >
             <CaretRight size={16} color="#666" weight="bold" />
           </TouchableOpacity>
@@ -243,6 +246,7 @@ export default function CalendarScreen() {
                 priority={task.priority}
                 isCompleted={task.isCompleted}
                 recurrence={task.recurrence}
+                visualStatus={task.visualStatus}
                 onToggle={() => handleToggleTodo(task.id)}
                 onPress={() => router.push(`/todo/${task.id}`)}
               />

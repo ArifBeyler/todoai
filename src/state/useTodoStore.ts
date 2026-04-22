@@ -35,6 +35,31 @@ export type VisualModel = {
   createdAt: string;
 };
 
+export type GenerationBatchStatus = "idle" | "running" | "done" | "error";
+
+export type GenerationBatch = {
+  total: number;
+  completed: number;
+  startedAt: string | null;
+  finishedAt: string | null;
+  status: GenerationBatchStatus;
+  /** Snapshot of which todos this batch is targeting. Used so UI rows can
+   *  show "Sırada / Üretiliyor / Hazır" for the exact cohort. */
+  targetTodoIds: string[];
+  /** ID of the todo whose visual is currently being generated (if any). */
+  currentTodoId: string | null;
+};
+
+const emptyBatch = (): GenerationBatch => ({
+  total: 0,
+  completed: 0,
+  startedAt: null,
+  finishedAt: null,
+  status: "idle",
+  targetTodoIds: [],
+  currentTodoId: null,
+});
+
 type AddTodoPayload = {
   title: string;
   category: string;
@@ -52,6 +77,7 @@ type TodoState = {
   generationError: string | null;
   dailyGenerationCount: number;
   dailyGenerationDate: string | null;
+  generationBatch: GenerationBatch;
 
   addTodo: (payload: AddTodoPayload) => void;
   removeTodo: (id: string) => void;
@@ -64,6 +90,11 @@ type TodoState = {
     url?: string,
   ) => void;
   incrementDailyGeneration: () => void;
+  startGenerationBatch: (targetTodoIds: string[]) => void;
+  setGenerationCurrentTodo: (todoId: string | null) => void;
+  incrementGenerationProgress: () => void;
+  finishGenerationBatch: (status?: Extract<GenerationBatchStatus, "done" | "error">) => void;
+  resetGenerationBatch: () => void;
 };
 
 const randomId = () => `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
@@ -83,6 +114,7 @@ export const useTodoStore = create<TodoState>()(
       generationError: null,
       dailyGenerationCount: 0,
       dailyGenerationDate: null,
+      generationBatch: emptyBatch(),
 
       addTodo: (payload) => {
         const localId = randomId();
@@ -207,17 +239,69 @@ export const useTodoStore = create<TodoState>()(
           }
           return { dailyGenerationCount: state.dailyGenerationCount + 1 };
         }),
+
+      startGenerationBatch: (targetTodoIds) => {
+        const total = targetTodoIds.length;
+        set({
+          generationBatch: {
+            total,
+            completed: 0,
+            startedAt: new Date().toISOString(),
+            finishedAt: null,
+            status: total > 0 ? "running" : "idle",
+            targetTodoIds: [...targetTodoIds],
+            currentTodoId: null,
+          },
+        });
+      },
+
+      setGenerationCurrentTodo: (todoId) =>
+        set((state) => ({
+          generationBatch: {
+            ...state.generationBatch,
+            currentTodoId: todoId,
+          },
+        })),
+
+      incrementGenerationProgress: () =>
+        set((state) => {
+          const nextCompleted = Math.min(
+            state.generationBatch.completed + 1,
+            Math.max(state.generationBatch.total, 1),
+          );
+          return {
+            generationBatch: {
+              ...state.generationBatch,
+              completed: nextCompleted,
+            },
+          };
+        }),
+
+      finishGenerationBatch: (status = "done") =>
+        set((state) => ({
+          generationBatch: {
+            ...state.generationBatch,
+            completed:
+              status === "done" ? state.generationBatch.total : state.generationBatch.completed,
+            finishedAt: new Date().toISOString(),
+            status,
+            currentTodoId: null,
+          },
+        })),
+
+      resetGenerationBatch: () => set({ generationBatch: emptyBatch() }),
     }),
     {
       name: "doara-todos",
-      version: 2,
+      version: 3,
       storage: createJSONStorage(() => AsyncStorage),
       migrate: (persisted: any, version: number) => {
+        let migrated = persisted;
         if (version < 2) {
           const now = new Date().toISOString();
-          return {
-            ...persisted,
-            todos: (persisted.todos ?? []).map((t: any) => ({
+          migrated = {
+            ...migrated,
+            todos: (migrated.todos ?? []).map((t: any) => ({
               ...t,
               updatedAt: t.updatedAt ?? t.createdAt ?? now,
               completedAt: t.completedAt ?? (t.isCompleted ? now : null),
@@ -225,7 +309,17 @@ export const useTodoStore = create<TodoState>()(
             })),
           };
         }
-        return persisted as TodoState;
+        // v3: GenerationBatch gained `targetTodoIds` and `currentTodoId`.
+        // Older persisted state is missing them which crashes callers that
+        // read `.length` on `targetTodoIds`. Reset to an empty batch — the
+        // previous batch has either already completed or is stale anyway.
+        if (version < 3) {
+          migrated = {
+            ...migrated,
+            generationBatch: emptyBatch(),
+          };
+        }
+        return migrated as TodoState;
       },
     },
   ),

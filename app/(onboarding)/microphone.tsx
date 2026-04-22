@@ -26,7 +26,6 @@ import {
   countStaggerSteps,
 } from "@/src/components/OnboardingStaggeredText";
 import { useOnboardingExit } from "@/src/hooks/useOnboardingExit";
-import { useFTUEStore } from "@/src/state/useFTUEStore";
 
 let requestRecordingPermissionsAsync: (() => Promise<{ granted: boolean }>) | null = null;
 try {
@@ -40,7 +39,6 @@ const VOICE_EXAMPLES = [
 ];
 
 export default function MicrophoneOnboardingScreen() {
-  const setNotificationPermission = useFTUEStore((s) => s.setNotificationPermission);
   const [isRequesting, setIsRequesting] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const { triggerExit, exitStyle } = useOnboardingExit();
@@ -84,9 +82,7 @@ export default function MicrophoneOnboardingScreen() {
     setIsRequesting(true);
     try {
       const { granted } = await requestRecordingPermissionsAsync();
-      if (granted) {
-        useFTUEStore.getState().setNotificationPermission("granted");
-      } else {
+      if (!granted) {
         setPermissionDenied(true);
       }
     } catch {

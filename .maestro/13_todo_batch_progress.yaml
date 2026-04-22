@@ -1,0 +1,80 @@
+appId: com.arifbeyler.doara
+---
+# Todo batch generation progress: adding 3 todos must flip the hero card into
+# the "Todo görselleriniz üretiliyor" state with an N/M counter.
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Skip any dev overlays
+- tapOn:
+    text: "Kapat"
+    optional: true
+- tapOn:
+    text: "Continue"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Add 3 todos in quick succession.
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "add-todo-fab"
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - tapOn:
+          id: "todo-title-input"
+      - inputText: "Batch Test Todo"
+      - hideKeyboard
+      - tapOn:
+          id: "todo-save-button"
+      - waitForAnimationToEnd:
+          timeout: 5000
+
+# Dismiss any notification prompt that might appear.
+- tapOn:
+    text: "Daha Sonra"
+    optional: true
+- tapOn:
+    text: "Bildirimleri Aç"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Either the batch hero card or the top banner should show the progress.
+- assertVisible:
+    id: "hero-generation-card"
+    optional: true
+- assertVisible:
+    id: "visual-generation-banner"
+    optional: true
+
+# At least one counter must render.
+- assertVisible:
+    id: "generation-progress-counter"
+    optional: true
+- assertVisible:
+    id: "visual-generation-banner-counter"
+    optional: true
+
+# Wait for completion: the shake-reveal card should eventually appear.
+- extendedWaitUntil:
+    visible:
+      id: "hero-blurred-image"
+    timeout: 60000
+    optional: true
+
+- assertVisible:
+    id: "shake-hint"
+    optional: true

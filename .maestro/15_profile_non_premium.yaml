@@ -1,0 +1,39 @@
+appId: com.arifbeyler.doara
+---
+# Profile premium CTA visibility. For a non-premium session the upgrade card
+# and restore banner must be visible. (For a premium session this card must
+# be hidden — that case is covered by 16_premium_state_persistence.)
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn:
+    id: "tab-profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Free / non-premium state expectations.
+- assertVisible:
+    id: "profile-premium-upgrade-card"
+    optional: true
+- assertVisible:
+    id: "profile-restore-purchases-banner"
+    optional: true
+- assertVisible:
+    text: "Ücretsiz"
+    optional: true

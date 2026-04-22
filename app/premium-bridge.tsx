@@ -19,6 +19,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFTUEStore } from "@state/useFTUEStore";
 import { useSessionStore } from "@state/useSessionStore";
+import { useRevenueCat } from "@/src/hooks/useRevenueCat";
 import { font, semantic, shadow, spacing } from "@/src/ui/tokens";
 
 const FEATURE_BULLETS = [
@@ -39,6 +40,13 @@ export default function PremiumBridgeScreen() {
   const { markSubscribed } = useFTUEStore();
   const onboardingCompleted = useSessionStore((s) => s.onboardingCompleted);
   const setPremium = useSessionStore((s) => s.setPremium);
+  const { refreshEntitlement } = useRevenueCat();
+
+  // Force a RevenueCat sync on mount so subsequent screens never see a stale
+  // free entitlement after a brand new purchase or restore.
+  useEffect(() => {
+    void refreshEntitlement();
+  }, [refreshEntitlement]);
 
   // Crown pulse animation
   const crownScale = useSharedValue(1);

@@ -1,0 +1,61 @@
+appId: com.arifbeyler.doara
+---
+# Non-premium onboarding: soft paywall dismissed should route to free-intro,
+# NOT to the photo/avatar upload screen.
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Dev client project picker (safe to ignore if absent)
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# Walk the onboarding quickly until we reach the paywall.
+# Everything here is optional because the number of onboarding screens
+# can vary between builds; we just keep tapping the primary CTA.
+- repeat:
+    times: 25
+    commands:
+      - tapOn:
+          text: "Devam Et"
+          optional: true
+      - tapOn:
+          text: "İleri"
+          optional: true
+      - tapOn:
+          text: "Başla"
+          optional: true
+      - tapOn:
+          text: "Hadi Başlayalım!"
+          optional: true
+      - tapOn:
+          text: "Şimdilik Atla"
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 3000
+
+# Close the (soft) paywall without purchasing.
+- tapOn:
+    id: "paywall-dismiss"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# We must NOT be on the premium-only photo upload screen.
+- assertNotVisible:
+    id: "photo-upload-screen"
+
+# We SHOULD be on the non-premium free-intro screen.
+- assertVisible:
+    id: "onboarding-free-intro-screen"
+    optional: true
+- assertVisible:
+    text: "Hazırlanıyor…"
+    optional: true

@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  Alert,
   Image,
   Modal,
   Pressable,
@@ -16,8 +17,8 @@ import {
   UserFocus,
   X,
 } from "phosphor-react-native";
-import { useSessionStore } from "@state/useSessionStore";
 import { useFTUEStore } from "@state/useFTUEStore";
+import { uploadPhotoToBackend } from "@/src/services/photoUpload";
 import { radius, semantic, shadow, spacing } from "@/src/ui/tokens";
 
 type PhotoValueSheetProps = {
@@ -48,7 +49,6 @@ export const PhotoValueSheet = ({
 }: PhotoValueSheetProps) => {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { setProfilePhoto } = useSessionStore();
   const { setPhotoUploadStatus, markPhotoValueSheetShown } = useFTUEStore();
 
   const handlePickImage = useCallback(async () => {
@@ -73,20 +73,35 @@ export const PhotoValueSheet = ({
     if (!photo) return;
 
     setIsUploading(true);
-    setPhotoUploadStatus("uploading");
-
+    // uploadPhotoToBackend sets "uploading" then final status + avatar job on server
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setProfilePhoto(photo);
-      setPhotoUploadStatus("uploaded");
+      const result = await uploadPhotoToBackend(photo);
+
+      if (!result.success) {
+        Alert.alert(
+          "Yükleme başarısız",
+          result.error
+            ? `Fotoğraf sunucuya gönderilemedi.\n\n(${result.error})`
+            : "Fotoğraf sunucuya gönderilemedi. Lütfen tekrar dene.",
+          [{ text: "Tamam" }],
+        );
+        return;
+      }
+
+      // uploadPhotoToBackend already set photoUploadStatus + profilePhoto + avatar processing
       onPhotoUploaded?.();
       onClose();
     } catch {
       setPhotoUploadStatus("failed");
+      Alert.alert(
+        "Yükleme başarısız",
+        "Beklenmeyen bir hata oluştu. Lütfen tekrar dene.",
+        [{ text: "Tamam" }],
+      );
     } finally {
       setIsUploading(false);
     }
-  }, [photo, setProfilePhoto, setPhotoUploadStatus, onPhotoUploaded, onClose]);
+  }, [photo, setPhotoUploadStatus, onPhotoUploaded, onClose]);
 
   const handleSkip = useCallback(() => {
     setPhotoUploadStatus("skipped");

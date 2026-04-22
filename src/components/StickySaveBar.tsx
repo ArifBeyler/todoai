@@ -7,9 +7,10 @@ import { BounceTouchable, LAYER } from "./composerShared";
 type StickySaveBarProps = {
   enabled: boolean;
   onSave: () => void;
+  testID?: string;
 };
 
-export const StickySaveBar = ({ enabled, onSave }: StickySaveBarProps) => {
+export const StickySaveBar = ({ enabled, onSave, testID }: StickySaveBarProps) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -31,6 +32,7 @@ export const StickySaveBar = ({ enabled, onSave }: StickySaveBarProps) => {
           disabled={!enabled}
           accessibilityRole="button"
           accessibilityLabel="Kaydet"
+          testID={testID}
         >
           <Text style={styles.buttonText}>Kaydet</Text>
         </BounceTouchable>

@@ -1,36 +1,43 @@
 appId: com.arifbeyler.doara
 ---
 - launchApp
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
 
 # Alışkanlıklar segmentine geç
 - tapOn:
     text: "Alışkanlıklar"
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
 
 # Hedefler segmentine geç
 - tapOn:
     text: "Hedefler"
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 6000
 
-# Stats kısayollarını doğrula
+# Stats kısayollarını doğrula (testID)
 - assertVisible:
-    text: "Tamamlanan ekranını aç"
+    id: "stat-completed"
 - assertVisible:
-    text: "Aktif ekranını aç"
+    id: "stat-active"
 - assertVisible:
-    text: "Tamamlama oranı ekranını aç"
+    id: "stat-completion-rate"
 
 # Tamamlanan ekranına git
 - tapOn:
-    text: "Tamamlanan ekranını aç"
-- waitForAnimationToEnd
+    id: "stat-completed"
+- waitForAnimationToEnd:
+    timeout: 5000
 - back
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000
 
 # Aktif ekranına git
 - tapOn:
-    text: "Aktif ekranını aç"
-- waitForAnimationToEnd
+    id: "stat-active"
+- waitForAnimationToEnd:
+    timeout: 5000
 - back
-- waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 5000

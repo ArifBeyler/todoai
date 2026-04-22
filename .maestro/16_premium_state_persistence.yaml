@@ -1,0 +1,56 @@
+appId: com.arifbeyler.doara
+---
+# Premium state persistence: after a kill / relaunch, a user that was
+# previously marked premium must still be treated as premium on the profile
+# screen — no upgrade CTA should reappear.
+# This flow is best-effort and only asserts when premium UI is actually
+# detected on the first run, otherwise it skips silently.
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+- tapOn:
+    id: "tab-home"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+- tapOn:
+    id: "tab-profile"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 4000
+
+# Only run the persistence check if we are currently premium (Pro badge).
+- runFlow:
+    when:
+      visible:
+        text: "Pro"
+    commands:
+      - assertNotVisible:
+          id: "profile-premium-upgrade-card"
+
+      # Kill and relaunch to verify the premium entitlement survives cold start.
+      - stopApp
+      - launchApp
+      - waitForAnimationToEnd:
+          timeout: 8000
+      - tapOn:
+          id: "tab-profile"
+          optional: true
+      - waitForAnimationToEnd:
+          timeout: 4000
+
+      - assertNotVisible:
+          id: "profile-premium-upgrade-card"
+      - assertVisible:
+          text: "Pro"
+          optional: true

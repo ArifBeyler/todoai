@@ -422,6 +422,7 @@ export default function NewTodoScreen() {
                 placeholderTextColor="rgba(17, 17, 17, 0.36)"
                 style={styles.nameInput}
                 returnKeyType="done"
+                testID="todo-title-input"
               />
             </View>
 
@@ -518,7 +519,7 @@ export default function NewTodoScreen() {
         </ScrollView>
 
         {/* ── Sticky Save Bar ─────────────────────────────────────────── */}
-        <StickySaveBar enabled={canSubmit} onSave={handleSave} />
+        <StickySaveBar enabled={canSubmit} onSave={handleSave} testID="todo-save-button" />
 
         {/* ── Date / Time Picker ──────────────────────────────────────── */}
         {Platform.OS === "android" && isPickerVisible ? (

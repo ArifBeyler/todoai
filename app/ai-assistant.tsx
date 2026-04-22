@@ -469,6 +469,7 @@ export default function AiAssistantScreen() {
               style={styles.input}
               returnKeyType="send"
               onSubmitEditing={() => handleSend()}
+              testID="ai-text-input"
             />
           </View>
 
@@ -479,6 +480,7 @@ export default function AiAssistantScreen() {
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="Gönder"
+            testID="btn-send-message"
           >
             <PaperPlaneTilt
               size={16}

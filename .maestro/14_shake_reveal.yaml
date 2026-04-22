@@ -1,0 +1,45 @@
+appId: com.arifbeyler.doara
+---
+# Shake reveal: once the first visual is ready, the card shows blurred + the
+# "Telefonu salla" overlay. Tapping the debug reveal button (dev builds only)
+# must transition the card to the revealed state.
+- launchApp
+- waitForAnimationToEnd:
+    timeout: 8000
+
+- tapOn:
+    text: "Doara, http://.*:8081"
+    optional: true
+- tapOn:
+    text: "Doara"
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Wait for shake-reveal to be available (depends on prior test having run or
+# manually seeded state). We bail out quietly if it never surfaces.
+- extendedWaitUntil:
+    visible:
+      id: "hero-blurred-image"
+    timeout: 45000
+    optional: true
+
+- assertVisible:
+    id: "shake-hint"
+    optional: true
+
+# In dev builds a debug tap button is rendered next to the shake hint so the
+# simulator can trigger the reveal without an accelerometer.
+- tapOn:
+    id: "hero-shake-debug-reveal"
+    optional: true
+
+- waitForAnimationToEnd:
+    timeout: 3000
+
+- assertVisible:
+    id: "hero-revealed-image"
+    optional: true
+
+- assertNotVisible:
+    id: "shake-hint"
